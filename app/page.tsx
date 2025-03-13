@@ -94,7 +94,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <img
+                <Image
                   alt="Economic Expert"
                   className="rounded-lg object-cover"
                   height="400"
@@ -343,7 +343,15 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <img
+                <Image
+                  className="dark:invert"
+                  src="/tbg-logo.svg"
+                  alt="The Bradley Group logo"
+                  width={80}
+                  height={20}
+                  priority
+                />
+                {/* <img
                   alt="Economic Expert Portrait"
                   className="rounded-lg object-cover"
                   height="400"
@@ -353,7 +361,7 @@ export default function Home() {
                     objectFit: "cover",
                   }}
                   width="600"
-                />
+                /> */}
               </div>
             </div>
           </div>
@@ -397,9 +405,10 @@ export default function Home() {
                       ))}
                     </div>
                     <p className="text-muted-foreground">
-                      "The economic analysis provided was thorough and
+                      &ldquo;The economic analysis provided was thorough and
                       well-documented. The expert testimony was clear and
-                      compelling, which significantly strengthened our case."
+                      compelling, which significantly strengthened our
+                      case.&rdquo;
                     </p>
                     <div>
                       <p className="font-semibold">John Smith</p>
@@ -429,9 +438,9 @@ export default function Home() {
                       ))}
                     </div>
                     <p className="text-muted-foreground">
-                      "The detailed lost profits analysis was instrumental in
-                      our commercial litigation case. The methodology was sound
-                      and withstood rigorous cross-examination."
+                      &ldquo;The detailed lost profits analysis was instrumental
+                      in our commercial litigation case. The methodology was
+                      sound and withstood rigorous cross-examination.&rdquo;
                     </p>
                     <div>
                       <p className="font-semibold">Sarah Johnson</p>
@@ -461,9 +470,10 @@ export default function Home() {
                       ))}
                     </div>
                     <p className="text-muted-foreground">
-                      "The statistical analysis of employment patterns was
-                      crucial in our class action case. The expert's ability to
-                      explain complex concepts to the jury was exceptional."
+                      &ldquo;The statistical analysis of employment patterns was
+                      crucial in our class action case. The expert&apos;s
+                      ability to explain complex concepts to the jury was
+                      exceptional.&rdquo;
                     </p>
                     <div>
                       <p className="font-semibold">Michael Davis</p>
