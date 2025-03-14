@@ -343,15 +343,15 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <Image
+                {/* <Image
                   className="dark:invert"
                   src="/tbg-logo.svg"
                   alt="The Bradley Group logo"
                   width={80}
                   height={20}
                   priority
-                />
-                {/* <img
+                /> */}
+                <Image
                   alt="Economic Expert Portrait"
                   className="rounded-lg object-cover"
                   height="400"
@@ -361,7 +361,7 @@ export default function Home() {
                     objectFit: "cover",
                   }}
                   width="600"
-                /> */}
+                />
               </div>
             </div>
           </div>
