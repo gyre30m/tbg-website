@@ -325,9 +325,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-center gap-2">
                     <ArrowRight className="h-4 w-4 text-primary" />
-                    <span>
-                      Published author in Journal of Forensic Economics
-                    </span>
+                    <span>Published in Journal of Forensic Economics</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <ArrowRight className="h-4 w-4 text-primary" />
