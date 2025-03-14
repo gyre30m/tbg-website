@@ -94,11 +94,22 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <Image
+                {/* <Image
                   alt="Economic Expert"
                   className="rounded-lg object-cover"
                   height="400"
                   src="/placeholder.svg?height=400&width=600"
+                  style={{
+                    aspectRatio: "600/400",
+                    objectFit: "cover",
+                  }}
+                  width="600"
+                /> */}
+                <Image
+                  alt="Economic Expert Portrait"
+                  className="rounded-lg object-cover"
+                  height="400"
+                  src="/work-headshot.png"
                   style={{
                     aspectRatio: "600/400",
                     objectFit: "cover",
