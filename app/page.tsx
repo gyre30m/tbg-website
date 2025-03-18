@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -19,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import HSContactForm from "@/components/ui/contact-form";
 
 export default function Home() {
   return (
@@ -520,181 +523,119 @@ export default function Home() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 lg:grid-cols-2">
-              <div className="flex flex-col gap-4">
-                <h3 className="text-xl font-bold">Contact Us</h3>
-                <div className="grid gap-2">
-                  <p className="flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-5 w-5 text-primary"
-                    >
-                      <path d="M8 2v4" />
-                      <path d="M16 2v4" />
-                      <rect width="18" height="18" x="3" y="4" rx="2" />
-                      <path d="M3 10h18" />
-                      <path d="M10 16h4" />
-                      <path d="M12 14v4" />
-                    </svg>
-                    <span>
-                      <Link
-                        className="underline text-blue-600 hover:text-blue-800"
-                        href="https://meetings-na2.hubspot.com/brad-gibbs"
-                      >
-                        Schedule a video call
-                      </Link>
-                    </span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-5 w-5 text-primary"
-                    >
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                    <span>(608) 904-8690</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-5 w-5 text-primary"
-                    >
-                      <rect width="20" height="16" x="2" y="4" rx="2" />
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
-                    <span>
-                      <Link
-                        className="underline text-blue-600 hover:text-blue-800"
-                        href="mailto:info@the-bradley-group.com"
-                      >
-                        info@the-bradley-group.com
-                      </Link>
-                    </span>
-                  </p>
-                </div>
+              <div className="rounded-lg border bg-background p-6 shadow-sm">
+                <h3 className="text-xl font-bold mb-4">Schedule a Call</h3>
+                <iframe
+                  src="https://meetings-na2.hubspot.com/brad-gibbs?embed=true"
+                  width="450"
+                  height="620"
+                  allowFullScreen
+                  title="Embedded Content"
+                ></iframe>
               </div>
               <div className="rounded-lg border bg-background p-6 shadow-sm">
                 <h3 className="text-xl font-bold mb-4">Send a Message</h3>
-                <form className="grid gap-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="first-name"
-                      >
-                        First Name
-                      </label>
-                      <input
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        id="first-name"
-                        placeholder="John"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="last-name"
-                      >
-                        Last Name
-                      </label>
-                      <input
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        id="last-name"
-                        placeholder="Smith"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <label
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      htmlFor="email"
-                    >
-                      Email
-                    </label>
-                    <input
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="email"
-                      placeholder="john.smith@example.com"
-                      type="email"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <label
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      htmlFor="phone"
-                    >
-                      Phone
-                    </label>
-                    <input
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="phone"
-                      placeholder="(555) 123-4567"
-                      type="tel"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <label
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      htmlFor="case-type"
-                    >
-                      Case Type
-                    </label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="case-type"
-                    >
-                      <option value="">Select Case Type</option>
-                      <option value="personal-injury">Personal Injury</option>
-                      <option value="wrongful-death">Wrongful Death</option>
-                      <option value="commercial-litigation">
-                        Commercial Litigation
-                      </option>
-                      <option value="employment">Employment Litigation</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div className="grid gap-2">
-                    <label
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      htmlFor="message"
-                    >
-                      Message
-                    </label>
-                    <textarea
-                      className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      id="message"
-                      placeholder="Please provide a brief description of your case..."
-                    />
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Submit
-                  </Button>
-                </form>
+                <HSContactForm />
               </div>
             </div>
+          </div>
+          <div className="rounded-lg border bg-background p-6 shadow-sm">
+            <h3 className="text-xl font-bold mb-4">Send a Message</h3>
+            <form className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    htmlFor="first-name"
+                  >
+                    First Name
+                  </label>
+                  <input
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    id="first-name"
+                    placeholder="John"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    htmlFor="last-name"
+                  >
+                    Last Name
+                  </label>
+                  <input
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    id="last-name"
+                    placeholder="Smith"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <label
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  htmlFor="email"
+                >
+                  Email
+                </label>
+                <input
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  id="email"
+                  placeholder="john.smith@example.com"
+                  type="email"
+                />
+              </div>
+              <div className="grid gap-2">
+                <label
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  htmlFor="phone"
+                >
+                  Phone
+                </label>
+                <input
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  id="phone"
+                  placeholder="(555) 123-4567"
+                  type="tel"
+                />
+              </div>
+              <div className="grid gap-2">
+                <label
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  htmlFor="case-type"
+                >
+                  Case Type
+                </label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  id="case-type"
+                >
+                  <option value="">Select Case Type</option>
+                  <option value="personal-injury">Personal Injury</option>
+                  <option value="wrongful-death">Wrongful Death</option>
+                  <option value="commercial-litigation">
+                    Commercial Litigation
+                  </option>
+                  <option value="employment">Employment Litigation</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="grid gap-2">
+                <label
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  htmlFor="message"
+                >
+                  Message
+                </label>
+                <textarea
+                  className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  id="message"
+                  placeholder="Please provide a brief description of your case..."
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Submit
+              </Button>
+            </form>
           </div>
         </section>
       </main>
