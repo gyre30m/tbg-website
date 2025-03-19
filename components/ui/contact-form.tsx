@@ -7,6 +7,7 @@ interface HubspotFormProps {
   formId: string;
 }
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 interface WindowWithHbspt extends Window {
   hbspt: any;
 }
@@ -23,7 +24,9 @@ const HubspotForm: React.FC<HubspotFormProps> = ({
 
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     script.addEventListener("load", () => {
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
       if ((window as unknown as WindowWithHbspt).hbspt) {
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
         (window as unknown as WindowWithHbspt).hbspt.forms.create({
           region: region,
           portalId: portalId,
