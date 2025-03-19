@@ -2,25 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ArrowRight,
-  BarChart3,
-  BookOpen,
-  Building,
-  FileText,
-  GraduationCap,
-  Scale,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import HSContactForm from "@/components/ui/contact-form";
 
 export default function Home() {
