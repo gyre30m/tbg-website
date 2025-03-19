@@ -535,7 +535,11 @@ export default function Home() {
               </div>
               <div className="rounded-lg border bg-background p-6 shadow-sm">
                 <h3 className="text-xl font-bold mb-4">Send a Message</h3>
-                <HSContactForm />
+                <HSContactForm
+                  region="na2"
+                  portalId="242272349"
+                  formId="162605ae-c2b0-4771-ab7c-13bbd5917469"
+                />
               </div>
             </div>
           </div>

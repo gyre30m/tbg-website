@@ -21,6 +21,7 @@ const HubspotForm: React.FC<HubspotFormProps> = ({
     script.src = "https://js.hsforms.net/forms/shell.js";
     document.body.appendChild(script);
 
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     script.addEventListener("load", () => {
       if ((window as unknown as WindowWithHbspt).hbspt) {
         (window as unknown as WindowWithHbspt).hbspt.forms.create({
