@@ -43,12 +43,12 @@ export default function Home() {
           >
             Services
           </Link>
-          <Link
+          {/* <Link
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#sample"
           >
             Sample
-          </Link>
+          </Link> */}
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#about"
@@ -216,7 +216,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32" id="sample">
+        {/* <section className="w-full py-12 md:py-24 lg:py-32" id="sample">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -233,7 +233,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         <section className="w-full py-12 md:py-24 lg:py-32" id="about">
           <div className="container px-4 md:px-6">
