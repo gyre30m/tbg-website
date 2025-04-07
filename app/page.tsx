@@ -20,6 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+
 import HSContactForm from "@/components/ui/contact-form";
 
 export default function Home() {
@@ -49,6 +51,12 @@ export default function Home() {
           >
             Sample
           </Link> */}
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#fees"
+          >
+            Fees
+          </Link>
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#about"
@@ -213,6 +221,97 @@ export default function Home() {
                   </CardDescription>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32" id="fees">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
+                  Fees
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Fee Schedule
+                </h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  A $500 retainer is required to secure each of the following
+                  services.
+                </p>
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="py-6">
+                        <p className="text-xl font-bold text-left">
+                          Personal Injury
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Economic impact report evaluating the present value of
+                          diminished earning capacity and diminished household
+                          work services.
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xl font-bold">
+                        $1,500
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="py-6">
+                        <p className="text-xl font-bold text-left">
+                          Wrongful Death
+                        </p>
+                        <p className="text-sm text-muted-foreground text-left">
+                          Economic impact report evaluating the present value of
+                          lost financial support and family services.
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xl font-bold">
+                        $1,500
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="py-6">
+                        <p className="text-xl font-bold text-left">
+                          Employment Termination
+                        </p>
+                        <p className="text-sm text-muted-foreground text-left">
+                          Economic impact report evaluating the loss of earning
+                          and benefits (valuation of stock options extra)
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xl font-bold">
+                        $1,500
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="py-6">
+                        <p className="text-xl font-bold text-left">
+                          Life Care Plan
+                        </p>
+                        <p className="text-sm text-muted-foreground text-left">
+                          Economic report of the present value calculation of
+                          future medical costs contained in a Life Care Plan.
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xl font-bold">
+                        $1,500
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="py-6">
+                        <p className="text-xl font-bold text-left">Testimony</p>
+                        <p className="text-sm text-muted-foreground text-left">
+                          Testimony at trial or deposition in support of one of
+                          the above-listed economic impact reports.
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xl font-bold">
+                        $250/hr.
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
         </section>
