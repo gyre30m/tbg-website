@@ -90,8 +90,8 @@ export default function Home() {
                     Forensic Economists
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Providing expert economic analysis, testimony, and
-                    litigation support for wrongful death and personal injury
+                    Providing expert economic analysis and litigation support
+                    for wrongful termination, wrongful death and personal injury
                     litigation, insurance claims, and business disputes.
                   </p>
                 </div>
