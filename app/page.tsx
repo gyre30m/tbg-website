@@ -91,8 +91,8 @@ export default function Home() {
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
                     Providing expert economic analysis and litigation support
-                    for wrongful termination, wrongful death and personal injury
-                    litigation, insurance claims, and business disputes.
+                    for wrongful termination, wrongful death, and personal
+                    injury litigation, insurance claims, and business disputes.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
