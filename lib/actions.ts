@@ -50,6 +50,7 @@ export async function submitPersonalInjuryForm(formData: FormData) {
           updated_at: new Date().toISOString(),
         }
       ])
+      .select()
 
     if (error) {
       console.error('Supabase error:', error)

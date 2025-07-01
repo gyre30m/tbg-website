@@ -33,12 +33,6 @@ export function FirmFormsTable() {
   const [forms, setForms] = useState<FormSubmission[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (user && userProfile?.firm_id) {
-      fetchFirmForms()
-    }
-  }, [user, userProfile, fetchFirmForms])
-
   const fetchFirmForms = useCallback(async () => {
     if (!userProfile?.firm_id) return
 
@@ -84,6 +78,12 @@ export function FirmFormsTable() {
       setLoading(false)
     }
   }, [userProfile?.firm_id])
+
+  useEffect(() => {
+    if (user && userProfile?.firm_id) {
+      fetchFirmForms()
+    }
+  }, [user, userProfile, fetchFirmForms])
 
   const getFirstName = (form: FormSubmission): string => {
     const firstName = form.user_profiles?.first_name || 

@@ -62,7 +62,7 @@ export function SiteAdminPanel() {
     setCreating(true)
 
     try {
-      const firm = await createFirm(formData.name, formData.domain, formData.adminEmail)
+      const firm = await createFirm(formData.name, formData.domain)
       
       if (firm) {
         // Reset form and refresh firms list
