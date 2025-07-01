@@ -21,6 +21,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { FaqSection } from "@/components/ui/faq-section";
+import { faqData } from "@/lib/utils";
 
 import HSContactForm from "@/components/ui/contact-form";
 
@@ -51,6 +53,12 @@ export default function Home() {
           >
             Sample
           </Link> */}
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#faq"
+          >
+            FAQ
+          </Link>
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#fees"
@@ -223,6 +231,13 @@ export default function Home() {
               </Card>
             </div>
           </div>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32" id="faq">
+          <FaqSection
+            title="Frequently Asked Questions"
+            description="Find answers to common questions about our services."
+            faqs={faqData}
+          />
         </section>
         <section className="w-full py-12 md:py-24 lg:py-32" id="fees">
           <div className="container px-4 md:px-6">

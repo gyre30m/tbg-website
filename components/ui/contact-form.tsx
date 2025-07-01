@@ -22,11 +22,8 @@ const HubspotForm: React.FC<HubspotFormProps> = ({
     script.src = "https://js.hsforms.net/forms/shell.js";
     document.body.appendChild(script);
 
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
     script.addEventListener("load", () => {
-      /* eslint-disable  @typescript-eslint/no-explicit-any */
       if ((window as unknown as WindowWithHbspt).hbspt) {
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
         (window as unknown as WindowWithHbspt).hbspt.forms.create({
           region: region,
           portalId: portalId,
