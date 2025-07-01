@@ -37,7 +37,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error) {
-        console.error('Error fetching user profile:', error)
+        // If no profile exists, that's okay - user just doesn't have a profile yet
+        if (error.code === 'PGRST116') {
+          console.log('No user profile found for user:', userId)
+        } else {
+          console.error('Error fetching user profile:', error)
+        }
+        setUserProfile(null)
+        setUserFirm(null)
         return
       }
 
@@ -51,12 +58,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', profile.firm_id)
           .single()
 
-        if (!firmError) {
+        if (!firmError && firm) {
           setUserFirm(firm)
+        } else {
+          setUserFirm(null)
         }
+      } else {
+        setUserFirm(null)
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
+      setUserProfile(null)
+      setUserFirm(null)
     }
   }
 
@@ -77,23 +90,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setLoading(false)
+    }).catch((error) => {
+      console.error('Error getting session:', error)
+      setLoading(false)
     })
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user?.id) {
-        await fetchUserProfile(session.user.id)
-      } else {
-        setUserProfile(null)
-        setUserFirm(null)
+      try {
+        setSession(session)
+        setUser(session?.user ?? null)
+        
+        if (session?.user?.id) {
+          await fetchUserProfile(session.user.id)
+        } else {
+          setUserProfile(null)
+          setUserFirm(null)
+        }
+      } catch (error) {
+        console.error('Error in auth state change:', error)
+      } finally {
+        setLoading(false)
       }
-      
-      setLoading(false)
     })
 
     return () => subscription.unsubscribe()

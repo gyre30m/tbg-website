@@ -82,6 +82,9 @@ export function FirmFormsTable() {
   useEffect(() => {
     if (user && userProfile?.firm_id) {
       fetchFirmForms()
+    } else if (user && !userProfile?.firm_id) {
+      // User is logged in but has no firm - stop loading
+      setLoading(false)
     }
   }, [user, userProfile, fetchFirmForms])
 

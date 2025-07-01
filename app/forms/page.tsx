@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
 
 export default function FormsPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, userProfile } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
@@ -108,13 +108,22 @@ export default function FormsPage() {
           );
         })}
         
-        {user && (
+        {user && userProfile && (
           <>
             <div className="my-8">
               <Separator />
             </div>
             <FirmFormsTable />
           </>
+        )}
+        
+        {user && !userProfile && (
+          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-yellow-800">
+              Your account is set up but your profile is still being created. 
+              Please contact your administrator if this persists.
+            </p>
+          </div>
         )}
       </div>
 
