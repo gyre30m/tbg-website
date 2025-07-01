@@ -13,6 +13,7 @@ interface AuthContextType {
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>
   isSiteAdmin: boolean
   isFirmAdmin: boolean
   refreshProfile: () => Promise<void>
@@ -112,6 +113,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserFirm(null)
   }
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    })
+    return { error }
+  }
+
   const isSiteAdmin = userProfile?.role === 'site_admin'
   const isFirmAdmin = userProfile?.role === 'firm_admin'
 
@@ -123,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     signIn,
     signOut,
+    resetPassword,
     isSiteAdmin,
     isFirmAdmin,
     refreshProfile,

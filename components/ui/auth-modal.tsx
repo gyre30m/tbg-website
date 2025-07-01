@@ -21,13 +21,14 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true)
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   
-  const { signIn } = useAuth()
+  const { signIn, resetPassword } = useAuth()
 
   if (!isOpen) return null
 
@@ -38,7 +39,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setMessage('')
 
     try {
-      if (isLogin) {
+      if (isForgotPassword) {
+        const { error } = await resetPassword(email)
+        if (error) {
+          setError(error?.message || 'Failed to send reset email')
+        } else {
+          setMessage('Password reset email sent! Check your inbox for instructions.')
+        }
+      } else if (isLogin) {
         const { error } = await signIn(email, password)
         if (error) {
           setError(error?.message || 'Authentication failed')
@@ -61,12 +69,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isLogin ? 'Sign In' : 'Create Account'}
+            {isForgotPassword ? 'Reset Password' : (isLogin ? 'Sign In' : 'Create Account')}
           </DialogTitle>
           <DialogDescription>
-            {isLogin 
-              ? 'Sign in to access the forms'
-              : 'Create an account to get started'
+            {isForgotPassword
+              ? 'Enter your email address to receive a password reset link'
+              : (isLogin 
+                ? 'Sign in to access the forms'
+                : 'Create an account to get started'
+              )
             }
           </DialogDescription>
         </DialogHeader>
@@ -84,18 +95,20 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              placeholder="Enter your password"
-            />
-          </div>
+          {!isForgotPassword && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="Enter your password"
+              />
+            </div>
+          )}
 
           {error && (
             <Alert variant="destructive">
@@ -110,23 +123,45 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           )}
 
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
+            {loading ? 'Loading...' : (isForgotPassword ? 'Send Reset Email' : (isLogin ? 'Sign In' : 'Create Account'))}
           </Button>
         </form>
 
-        <div className="text-center">
+        <div className="text-center space-y-2">
+          {!isForgotPassword && isLogin && (
+            <Button
+              variant="link"
+              onClick={() => {
+                setIsForgotPassword(true)
+                setError('')
+                setMessage('')
+              }}
+              className="text-sm"
+            >
+              Forgot your password?
+            </Button>
+          )}
+          
           <Button
             variant="link"
             onClick={() => {
-              setIsLogin(!isLogin)
+              if (isForgotPassword) {
+                setIsForgotPassword(false)
+                setIsLogin(true)
+              } else {
+                setIsLogin(!isLogin)
+              }
               setError('')
               setMessage('')
             }}
             className="text-sm"
           >
-            {isLogin 
-              ? "Don't have an account? Sign up"
-              : 'Already have an account? Sign in'
+            {isForgotPassword
+              ? 'Back to Sign In'
+              : (isLogin 
+                ? "Don't have an account? Sign up"
+                : 'Already have an account? Sign in'
+              )
             }
           </Button>
         </div>
