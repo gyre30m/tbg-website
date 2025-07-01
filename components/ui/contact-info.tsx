@@ -22,7 +22,7 @@ export function ContactInfo() {
       <CardHeader>
         <CardTitle className="text-xl">Contact</CardTitle>
         <CardDescription>
-          Please provide the plaintiff's contact information.
+          Please provide the plaintiff&apos;s contact information.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

@@ -1,7 +1,7 @@
 'use server'
 
 import { supabase } from './supabase'
-import type { User, Firm, UserProfile } from './types'
+import type { Firm, UserProfile } from './types'
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   const { data, error } = await supabase
@@ -49,7 +49,7 @@ export async function isFirmAdmin(userId: string): Promise<boolean> {
   return profile?.role === 'firm_admin'
 }
 
-export async function createFirm(name: string, domain: string, adminEmail: string): Promise<Firm | null> {
+export async function createFirm(name: string, domain: string): Promise<Firm | null> {
   // First create the firm
   const { data: firm, error: firmError } = await supabase
     .from('firms')
@@ -102,7 +102,7 @@ export async function inviteUserToFirm(
     }
 
     return { success: true }
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Failed to invite user' }
   }
 }

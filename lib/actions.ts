@@ -1,10 +1,9 @@
 'use server'
 
-import { personalInjurySchema, type PersonalInjuryFormData } from './schemas'
 import { supabase } from './supabase'
 
 function extractFormData(formData: FormData) {
-  const data: any = {}
+  const data: Record<string, unknown> = {}
   
   // Iterate through all form entries
   for (const [key, value] of formData.entries()) {
@@ -58,7 +57,7 @@ export async function submitPersonalInjuryForm(formData: FormData) {
     }
 
     console.log('Form submitted successfully!')
-    return { success: true, id: data[0]?.id }
+    return { success: true, id: data?.[0]?.id }
   } catch (error) {
     console.error('Error submitting form:', error)
     throw error
@@ -102,7 +101,7 @@ export async function saveDraftPersonalInjuryForm(formData: FormData) {
       throw new Error('Failed to save draft. Please try again.')
     }
 
-    return { success: true, draftId: data[0]?.id }
+    return { success: true, draftId: data?.[0]?.id }
   } catch (error) {
     console.error('Error saving draft:', error)
     throw new Error('Failed to save draft. Please try again.')

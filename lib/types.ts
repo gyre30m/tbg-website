@@ -29,7 +29,7 @@ export interface UserProfile {
 
 export interface FormSubmission {
   id: string;
-  form_data: any;
+  form_data: Record<string, unknown>;
   submitted_by: string;
   firm_id?: string;
   created_at: string;

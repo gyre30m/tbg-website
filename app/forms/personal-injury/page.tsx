@@ -25,7 +25,7 @@ export default function PersonalInjuryPage() {
       await saveDraftPersonalInjuryForm(formData);
       setSaveMessage("Draft saved successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
-    } catch (error) {
+    } catch {
       setSaveMessage("Failed to save draft. Please try again.");
       setTimeout(() => setSaveMessage(""), 3000);
     } finally {

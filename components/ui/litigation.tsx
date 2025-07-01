@@ -48,7 +48,7 @@ export function Litigation() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="opposingEconomist">Name and firm of opposing counsel's economist</Label>
+          <Label htmlFor="opposingEconomist">Name and firm of opposing counsel&apos;s economist</Label>
           <Input
             type="text"
             id="opposingEconomist"

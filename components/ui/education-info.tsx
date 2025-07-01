@@ -45,9 +45,9 @@ export function EducationInfo() {
                   Associate Degree
                 </SelectItem>
                 <SelectItem value="bachelor-degree">
-                  Bachelor's Degree
+                  Bachelor&apos;s Degree
                 </SelectItem>
-                <SelectItem value="master-degree">Master's Degree</SelectItem>
+                <SelectItem value="master-degree">Master&apos;s Degree</SelectItem>
                 <SelectItem value="doctoral-degree">
                   Doctoral Degree (PhD, MD, JD, etc.)
                 </SelectItem>
@@ -90,7 +90,7 @@ export function EducationInfo() {
 
           <div className="space-y-2">
             <Label htmlFor="parentsEducation">
-              If the plaintiff was a minor or had yet to finish formal education at the time of the injury, list the education levels and occupations of the plaintiff's parents.
+              If the plaintiff was a minor or had yet to finish formal education at the time of the injury, list the education levels and occupations of the plaintiff&apos;s parents.
             </Label>
             <Textarea
               id="parentsEducation"

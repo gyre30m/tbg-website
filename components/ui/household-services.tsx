@@ -10,7 +10,7 @@ export function HouseholdServices() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="text-sm">
-          For each category of tasks below, please indicate the injured party's
+          For each category of tasks below, please indicate the injured party&apos;s
           ability to complete the listed tasks using a scale of 0-5, as
           described below:
           <ol className="mx-4">

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { X } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -28,7 +27,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   
-  const { signIn, signUp } = useAuth()
+  const { signIn } = useAuth()
 
   if (!isOpen) return null
 
@@ -42,19 +41,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       if (isLogin) {
         const { error } = await signIn(email, password)
         if (error) {
-          setError(error.message)
+          setError(error?.message || 'Authentication failed')
         } else {
           onClose()
         }
       } else {
-        const { error } = await signUp(email, password)
-        if (error) {
-          setError(error.message)
-        } else {
-          setMessage('Check your email for a confirmation link!')
-        }
+        // Signup is not allowed in the new system
+        setError('Account creation is by invitation only. Please contact your firm administrator.')
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)

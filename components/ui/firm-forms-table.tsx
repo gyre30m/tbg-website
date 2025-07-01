@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import {
@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge'
 
 interface FormSubmission {
   id: string
-  form_data: any
+  form_data: Record<string, unknown>
   submitted_by: string
   firm_id: string
   status: 'draft' | 'submitted'
@@ -37,9 +37,9 @@ export function FirmFormsTable() {
     if (user && userProfile?.firm_id) {
       fetchFirmForms()
     }
-  }, [user, userProfile])
+  }, [user, userProfile, fetchFirmForms])
 
-  const fetchFirmForms = async () => {
+  const fetchFirmForms = useCallback(async () => {
     if (!userProfile?.firm_id) return
 
     try {
@@ -83,22 +83,24 @@ export function FirmFormsTable() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [userProfile?.firm_id])
 
   const getFirstName = (form: FormSubmission): string => {
-    return form.user_profiles?.first_name || 
-           form.form_data?.firstName || 
+    const firstName = form.user_profiles?.first_name || 
+           (form.form_data?.firstName as string) || 
            'Unknown'
+    return firstName
   }
 
   const getLastName = (form: FormSubmission): string => {
-    return form.user_profiles?.last_name || 
-           form.form_data?.lastName || 
+    const lastName = form.user_profiles?.last_name || 
+           (form.form_data?.lastName as string) || 
            'Unknown'
+    return lastName
   }
 
   const getUserEmail = (form: FormSubmission): string => {
-    return form.form_data?.email || 'Unknown'
+    return (form.form_data?.email as string) || 'Unknown'
   }
 
   const formatDate = (dateString: string): string => {

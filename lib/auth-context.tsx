@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
+import { User, Session, AuthError } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 import { UserProfile, Firm } from './types'
 
@@ -11,7 +11,7 @@ interface AuthContextType {
   userProfile: UserProfile | null
   userFirm: Firm | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: any }>
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
   isSiteAdmin: boolean
   isFirmAdmin: boolean

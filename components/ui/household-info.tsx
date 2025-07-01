@@ -70,7 +70,7 @@ export function HouseholdInfo() {
       <CardHeader>
         <CardTitle className="text-xl">Household</CardTitle>
         <CardDescription>
-          For each person living in the plaintiff's household, please list the
+          For each person living in the plaintiff&apos;s household, please list the
           name, date of birth, and relationship to the plaintiff.
         </CardDescription>
       </CardHeader>

@@ -86,7 +86,7 @@ export function MedicalInfo() {
         <div className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="lifeExpectancyReduction">
-              If medical evidence indicates plaintiff's life expectancy has been reduced to this injury, provide details.
+              If medical evidence indicates plaintiff&apos;s life expectancy has been reduced to this injury, provide details.
             </Label>
             <Textarea
               id="lifeExpectancyReduction"
@@ -98,7 +98,7 @@ export function MedicalInfo() {
 
           <div className="space-y-2">
             <Label htmlFor="futureMedicalExpenses">
-              Detail future medical expenses including current cost and number of years they will be incurred. If you're completing a Life Care Planner's report, please reference that here, instead.
+              Detail future medical expenses including current cost and number of years they will be incurred. If you&apos;re completing a Life Care Planner&apos;s report, please reference that here, instead.
             </Label>
             <Textarea
               id="futureMedicalExpenses"
