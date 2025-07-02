@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { supabase } from '@/lib/supabase'
 import { Firm } from '@/lib/types'
-import { createFirm, inviteUserToFirm } from '@/lib/auth-utils'
+// Remove the server action imports
 import { Building, Users, Mail, Plus, Settings } from 'lucide-react'
 
 interface CreateFirmFormData {
@@ -62,6 +62,74 @@ export function SiteAdminPanel() {
     firmId: '',
     role: 'firm_admin' as 'firm_admin' | 'user'
   })
+
+  // Client-side function to create a firm
+  const createFirmClient = async (name: string, domain: string): Promise<Firm | null> => {
+    try {
+      console.log('createFirmClient called with:', { name, domain })
+      
+      const { data: firm, error: firmError } = await supabase
+        .from('firms')
+        .insert([{
+          name,
+          domain: domain.toLowerCase(),
+        }])
+        .select()
+        .single()
+
+      console.log('Supabase insert result:', { firm, firmError })
+
+      if (firmError) {
+        console.error('Error creating firm:', firmError)
+        throw new Error(`Database error: ${firmError.message}`)
+      }
+
+      console.log('Firm created successfully:', firm)
+      return firm
+    } catch (error) {
+      console.error('Exception in createFirmClient:', error)
+      throw error
+    }
+  }
+
+  // Client-side function to invite user to firm
+  const inviteUserToFirmClient = async (
+    email: string, 
+    firmId: string, 
+    role: 'firm_admin' | 'user' = 'user'
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Check if domain matches firm domain
+      const emailDomain = email.split('@')[1]
+      const { data: firm } = await supabase
+        .from('firms')
+        .select('domain')
+        .eq('id', firmId)
+        .single()
+
+      if (!firm || firm.domain !== emailDomain) {
+        return { success: false, error: 'Email domain does not match firm domain' }
+      }
+
+      // Create user invitation
+      const { error } = await supabase
+        .from('user_invitations')
+        .insert([{
+          email: email.toLowerCase(),
+          firm_id: firmId,
+          role,
+          invited_at: new Date().toISOString(),
+        }])
+
+      if (error) {
+        return { success: false, error: error.message }
+      }
+
+      return { success: true }
+    } catch {
+      return { success: false, error: 'Failed to invite user' }
+    }
+  }
 
   useEffect(() => {
     fetchAll()
@@ -154,14 +222,14 @@ export function SiteAdminPanel() {
       console.log('Creating firm with data:', { name: formData.name, domain: formData.domain })
       
       // Create the firm
-      const firm = await createFirm(formData.name, formData.domain)
+      const firm = await createFirmClient(formData.name, formData.domain)
       
       console.log('createFirm result:', firm)
       
       if (firm) {
         console.log('Firm created successfully, sending invitation...')
         // Send invitation to firm admin
-        const inviteResult = await inviteUserToFirm(
+        const inviteResult = await inviteUserToFirmClient(
           formData.adminEmail,
           firm.id,
           'firm_admin'
@@ -196,7 +264,7 @@ export function SiteAdminPanel() {
     setMessage('')
 
     try {
-      const result = await inviteUserToFirm(
+      const result = await inviteUserToFirmClient(
         inviteData.email,
         inviteData.firmId,
         inviteData.role
