@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { supabase } from '@/lib/supabase'
 import { Firm } from '@/lib/types'
 // Remove the server action imports
-import { Building, Users, Mail, Plus, Settings } from 'lucide-react'
+import { Building, Users, Mail, Plus, Settings, UserX, UserPlus } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 
 interface CreateFirmFormData {
   name: string
@@ -62,6 +63,13 @@ export function SiteAdminPanel() {
     firmId: '',
     role: 'firm_admin' as 'firm_admin' | 'user'
   })
+
+  // Firm management state
+  const [selectedFirm, setSelectedFirm] = useState<Firm | null>(null)
+  const [firmUsers, setFirmUsers] = useState<UserProfile[]>([])
+  const [manageFirmOpen, setManageFirmOpen] = useState(false)
+  const [editingFirm, setEditingFirm] = useState({ name: '', domain: '' })
+  const [loadingFirmUsers, setLoadingFirmUsers] = useState(false)
 
   // Client-side function to create a firm
   const createFirmClient = async (name: string, domain: string): Promise<Firm | null> => {
@@ -299,6 +307,86 @@ export function SiteAdminPanel() {
     setMessage('')
   }
 
+  // Firm management functions
+  const handleManageFirm = async (firm: Firm) => {
+    setSelectedFirm(firm)
+    setEditingFirm({ name: firm.name, domain: firm.domain })
+    setLoadingFirmUsers(true)
+    setManageFirmOpen(true)
+    
+    // Fetch users for this firm
+    try {
+      const { data: profiles, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('firm_id', firm.id)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching firm users:', error)
+        setFirmUsers([])
+      } else {
+        setFirmUsers(profiles || [])
+      }
+    } catch (error) {
+      console.error('Error in handleManageFirm:', error)
+      setFirmUsers([])
+    } finally {
+      setLoadingFirmUsers(false)
+    }
+  }
+
+  const handleUpdateFirm = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedFirm) return
+
+    try {
+      const { error } = await supabase
+        .from('firms')
+        .update({
+          name: editingFirm.name,
+          domain: editingFirm.domain.toLowerCase()
+        })
+        .eq('id', selectedFirm.id)
+
+      if (error) {
+        console.error('Error updating firm:', error)
+        setError('Failed to update firm')
+      } else {
+        setMessage('Firm updated successfully')
+        await fetchFirms() // Refresh the firms list
+        setManageFirmOpen(false)
+      }
+    } catch (error) {
+      console.error('Error in handleUpdateFirm:', error)
+      setError('Failed to update firm')
+    }
+  }
+
+  const handleRemoveUserFromFirm = async (userProfile: UserProfile) => {
+    if (!selectedFirm) return
+    
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ firm_id: null, role: 'user' })
+        .eq('id', userProfile.id)
+
+      if (error) {
+        console.error('Error removing user from firm:', error)
+        setError('Failed to remove user from firm')
+      } else {
+        setMessage('User removed from firm successfully')
+        // Refresh firm users list
+        await handleManageFirm(selectedFirm)
+        await fetchUsers() // Also refresh the main users list
+      }
+    } catch (error) {
+      console.error('Error in handleRemoveUserFromFirm:', error)
+      setError('Failed to remove user from firm')
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -424,7 +512,12 @@ export function SiteAdminPanel() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleManageFirm(firm)}
+                          >
+                            <Settings className="w-4 h-4 mr-2" />
                             Manage
                           </Button>
                         </div>
@@ -630,6 +723,117 @@ export function SiteAdminPanel() {
             </Button>
           </div>
         )}
+
+        {/* Firm Management Dialog */}
+        <Dialog open={manageFirmOpen} onOpenChange={setManageFirmOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Firm: {selectedFirm?.name}</DialogTitle>
+            </DialogHeader>
+            
+            {selectedFirm && (
+              <div className="space-y-6">
+                {/* Firm Profile Editing */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Firm Profile</h3>
+                  <form onSubmit={handleUpdateFirm} className="space-y-4">
+                    <div>
+                      <Label htmlFor="editFirmName">Firm Name</Label>
+                      <Input
+                        id="editFirmName"
+                        value={editingFirm.name}
+                        onChange={(e) => setEditingFirm({ ...editingFirm, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="editFirmDomain">Domain</Label>
+                      <Input
+                        id="editFirmDomain"
+                        value={editingFirm.domain}
+                        onChange={(e) => setEditingFirm({ ...editingFirm, domain: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" size="sm">
+                      Update Firm Profile
+                    </Button>
+                  </form>
+                </div>
+
+                {/* Firm Users List */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Firm Users</h3>
+                  {loadingFirmUsers ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <p className="mt-2 text-sm text-gray-600">Loading users...</p>
+                    </div>
+                  ) : firmUsers.length > 0 ? (
+                    <div className="space-y-3">
+                      {firmUsers.map((user) => (
+                        <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="font-medium">
+                              {user.first_name && user.last_name 
+                                ? `${user.first_name} ${user.last_name}` 
+                                : user.email || 'No email'}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Role: {user.role === 'firm_admin' ? 'Firm Admin' : 'User'}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Joined: {new Date(user.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRemoveUserFromFirm(user)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <UserX className="w-4 h-4 mr-1" />
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 py-4">No users found for this firm.</p>
+                  )}
+                </div>
+
+                {/* Add User Section */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Add User to Firm</h3>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="text-sm text-blue-800 mb-2">
+                      To add users to this firm, use the &ldquo;Invite User&rdquo; section in the main admin panel. 
+                      Make sure the user&apos;s email domain matches the firm domain: <strong>{selectedFirm.domain}</strong>
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setManageFirmOpen(false)
+                        setInviteData({ ...inviteData, firmId: selectedFirm.id })
+                      }}
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Go to Invite User
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setManageFirmOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
