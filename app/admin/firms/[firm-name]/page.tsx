@@ -44,7 +44,16 @@ export default function FirmManagementPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
-  const [editingFirm, setEditingFirm] = useState({ name: '', domain: '' })
+  const [editingFirm, setEditingFirm] = useState({ 
+    name: '', 
+    domain: '', 
+    address_1: '', 
+    address_2: '', 
+    city: '', 
+    state: '', 
+    zip_code: '', 
+    main_phone: '' 
+  })
   
   // Invite user state
   const [showInviteForm, setShowInviteForm] = useState(false)
@@ -87,7 +96,16 @@ export default function FirmManagementPage() {
       }
 
       setFirm(matchingFirm)
-      setEditingFirm({ name: matchingFirm.name, domain: matchingFirm.domain })
+      setEditingFirm({ 
+        name: matchingFirm.name, 
+        domain: matchingFirm.domain,
+        address_1: matchingFirm.address_1 || '',
+        address_2: matchingFirm.address_2 || '',
+        city: matchingFirm.city || '',
+        state: matchingFirm.state || '',
+        zip_code: matchingFirm.zip_code || '',
+        main_phone: matchingFirm.main_phone || ''
+      })
 
       // Fetch users for this firm
       await Promise.all([
@@ -176,7 +194,13 @@ export default function FirmManagementPage() {
         .from('firms')
         .update({
           name: editingFirm.name,
-          domain: editingFirm.domain.toLowerCase()
+          domain: editingFirm.domain.toLowerCase(),
+          address_1: editingFirm.address_1 || null,
+          address_2: editingFirm.address_2 || null,
+          city: editingFirm.city || null,
+          state: editingFirm.state || null,
+          zip_code: editingFirm.zip_code || null,
+          main_phone: editingFirm.main_phone || null
         })
         .eq('id', firm.id)
 
@@ -186,7 +210,17 @@ export default function FirmManagementPage() {
       } else {
         setMessage('Firm updated successfully')
         // Update local state
-        setFirm({ ...firm, name: editingFirm.name, domain: editingFirm.domain })
+        setFirm({ 
+          ...firm, 
+          name: editingFirm.name, 
+          domain: editingFirm.domain,
+          address_1: editingFirm.address_1 || undefined,
+          address_2: editingFirm.address_2 || undefined,
+          city: editingFirm.city || undefined,
+          state: editingFirm.state || undefined,
+          zip_code: editingFirm.zip_code || undefined,
+          main_phone: editingFirm.main_phone || undefined
+        })
       }
     } catch (error) {
       console.error('Error in handleUpdateFirm:', error)
@@ -409,6 +443,93 @@ export default function FirmManagementPage() {
                   />
                 </div>
               </div>
+              
+              {/* Address Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-gray-900">Address Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="editAddress1">Address Line 1</Label>
+                    <Input
+                      id="editAddress1"
+                      value={editingFirm.address_1}
+                      onChange={(e) => setEditingFirm({ ...editingFirm, address_1: e.target.value })}
+                      placeholder="123 Main Street"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="editAddress2">Address Line 2</Label>
+                    <Input
+                      id="editAddress2"
+                      value={editingFirm.address_2}
+                      onChange={(e) => setEditingFirm({ ...editingFirm, address_2: e.target.value })}
+                      placeholder="Suite 100"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="editCity">City</Label>
+                    <Input
+                      id="editCity"
+                      value={editingFirm.city}
+                      onChange={(e) => setEditingFirm({ ...editingFirm, city: e.target.value })}
+                      placeholder="New York"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="editState">State</Label>
+                    <Input
+                      id="editState"
+                      value={editingFirm.state}
+                      onChange={(e) => setEditingFirm({ ...editingFirm, state: e.target.value })}
+                      placeholder="NY"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="editZipCode">Zip Code</Label>
+                    <Input
+                      id="editZipCode"
+                      value={editingFirm.zip_code}
+                      onChange={(e) => setEditingFirm({ ...editingFirm, zip_code: e.target.value })}
+                      placeholder="10001"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="editMainPhone">Main Phone</Label>
+                  <Input
+                    id="editMainPhone"
+                    type="tel"
+                    value={editingFirm.main_phone}
+                    onChange={(e) => setEditingFirm({ ...editingFirm, main_phone: e.target.value })}
+                    placeholder="(555) 123-4567"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editFirmImage">Firm Logo/Image</Label>
+                  <Input
+                    id="editFirmImage"
+                    type="file"
+                    accept="image/*"
+                    className="cursor-pointer"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Supported formats: JPG, PNG, GIF, WebP
+                  </p>
+                  {firm?.image_url && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600 mb-1">Current image:</p>
+                      <img 
+                        src={firm.image_url} 
+                        alt="Current firm logo" 
+                        className="w-24 h-24 object-cover border rounded"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+              
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <span>Created: {new Date(firm.created_at).toLocaleDateString()}</span>
                 <span>ID: {firm.id}</span>

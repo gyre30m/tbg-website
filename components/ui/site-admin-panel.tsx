@@ -15,6 +15,12 @@ interface CreateFirmFormData {
   name: string
   domain: string
   adminEmail: string
+  address_1: string
+  address_2: string
+  city: string
+  state: string
+  zip_code: string
+  main_phone: string
 }
 
 export function SiteAdminPanel() {
@@ -28,19 +34,31 @@ export function SiteAdminPanel() {
   const [formData, setFormData] = useState<CreateFirmFormData>({
     name: '',
     domain: '',
-    adminEmail: ''
+    adminEmail: '',
+    address_1: '',
+    address_2: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    main_phone: ''
   })
 
   // Client-side function to create a firm
-  const createFirmClient = async (name: string, domain: string): Promise<Firm | null> => {
+  const createFirmClient = async (firmData: Omit<CreateFirmFormData, 'adminEmail'>): Promise<Firm | null> => {
     try {
-      console.log('createFirmClient called with:', { name, domain })
+      console.log('createFirmClient called with:', firmData)
       
       const { data: firm, error: firmError } = await supabase
         .from('firms')
         .insert([{
-          name,
-          domain: domain.toLowerCase(),
+          name: firmData.name,
+          domain: firmData.domain.toLowerCase(),
+          address_1: firmData.address_1 || null,
+          address_2: firmData.address_2 || null,
+          city: firmData.city || null,
+          state: firmData.state || null,
+          zip_code: firmData.zip_code || null,
+          main_phone: firmData.main_phone || null,
         }])
         .select()
         .single()
@@ -142,10 +160,11 @@ export function SiteAdminPanel() {
     }
 
     try {
-      console.log('Creating firm with data:', { name: formData.name, domain: formData.domain })
+      console.log('Creating firm with data:', formData)
       
       // Create the firm
-      const firm = await createFirmClient(formData.name, formData.domain)
+      const { adminEmail, ...firmData } = formData
+      const firm = await createFirmClient(firmData)
       
       console.log('createFirm result:', firm)
       
@@ -153,7 +172,7 @@ export function SiteAdminPanel() {
         console.log('Firm created successfully, sending invitation...')
         // Send invitation to firm admin
         const inviteResult = await inviteUserToFirmClient(
-          formData.adminEmail,
+          adminEmail,
           firm.id,
           'firm_admin'
         )
@@ -161,9 +180,9 @@ export function SiteAdminPanel() {
         console.log('Invitation result:', inviteResult)
         
         if (inviteResult.success) {
-          const signupUrl = `${window.location.origin}/auth/signup?firmId=${firm.id}&role=firm_admin&email=${encodeURIComponent(formData.adminEmail)}`
-          setMessage(`Firm created successfully! Send this signup link to ${formData.adminEmail}: ${signupUrl}`)
-          setFormData({ name: '', domain: '', adminEmail: '' })
+          const signupUrl = `${window.location.origin}/auth/signup?firmId=${firm.id}&role=firm_admin&email=${encodeURIComponent(adminEmail)}`
+          setMessage(`Firm created successfully! Send this signup link to ${adminEmail}: ${signupUrl}`)
+          setFormData({ name: '', domain: '', adminEmail: '', address_1: '', address_2: '', city: '', state: '', zip_code: '', main_phone: '' })
           setShowCreateForm(false)
           await fetchFirms()
         } else {
@@ -258,6 +277,83 @@ export function SiteAdminPanel() {
                     Email domain must match the firm domain above
                   </p>
                 </div>
+                
+                {/* Address Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-gray-900">Address Information (Optional)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="address1">Address Line 1</Label>
+                      <Input
+                        id="address1"
+                        value={formData.address_1}
+                        onChange={(e) => setFormData({ ...formData, address_1: e.target.value })}
+                        placeholder="123 Main Street"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="address2">Address Line 2</Label>
+                      <Input
+                        id="address2"
+                        value={formData.address_2}
+                        onChange={(e) => setFormData({ ...formData, address_2: e.target.value })}
+                        placeholder="Suite 100"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        placeholder="New York"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State</Label>
+                      <Input
+                        id="state"
+                        value={formData.state}
+                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                        placeholder="NY"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="zipCode">Zip Code</Label>
+                      <Input
+                        id="zipCode"
+                        value={formData.zip_code}
+                        onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
+                        placeholder="10001"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="mainPhone">Main Phone</Label>
+                    <Input
+                      id="mainPhone"
+                      type="tel"
+                      value={formData.main_phone}
+                      onChange={(e) => setFormData({ ...formData, main_phone: e.target.value })}
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="firmImage">Firm Logo/Image (Optional)</Label>
+                    <Input
+                      id="firmImage"
+                      type="file"
+                      accept="image/*"
+                      className="cursor-pointer"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      Supported formats: JPG, PNG, GIF, WebP
+                    </p>
+                  </div>
+                </div>
+                
                 <div className="flex gap-2">
                   <Button type="submit" disabled={creating}>
                     {creating ? 'Creating...' : 'Create Firm'}

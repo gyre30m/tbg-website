@@ -12,6 +12,13 @@ export interface Firm {
   name: string;
   domain: string;
   firm_admin_id?: string;
+  address_1?: string;
+  address_2?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  main_phone?: string;
+  image_url?: string;
   created_at: string;
   updated_at: string;
 }
