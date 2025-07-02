@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,20 +19,34 @@ export default function ResetPasswordPage() {
   const [isValidSession, setIsValidSession] = useState(false)
   
   const router = useRouter()
+  const { loading: authLoading } = useAuth()
 
   useEffect(() => {
     // Check if we have a valid session from the reset link
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        setIsValidSession(true)
-      } else {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        if (sessionError) {
+          console.error('Session error:', sessionError)
+          setError('Invalid or expired reset link. Please request a new password reset.')
+          return
+        }
+        
+        if (session) {
+          setIsValidSession(true)
+        } else {
+          setError('Invalid or expired reset link. Please request a new password reset.')
+        }
+      } catch (error) {
+        console.error('Error checking session:', error)
         setError('Invalid or expired reset link. Please request a new password reset.')
       }
     }
 
-    checkSession()
-  }, [])
+    if (!authLoading) {
+      checkSession()
+    }
+  }, [authLoading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,26 +72,30 @@ export default function ResetPasswordPage() {
       })
 
       if (error) {
+        console.error('Password update error:', error)
         setError(error.message)
       } else {
         setMessage('Password updated successfully! Redirecting to login...')
+        // Sign out to clear any temporary session
+        await supabase.auth.signOut()
         setTimeout(() => {
           router.push('/')
         }, 2000)
       }
-    } catch {
+    } catch (error) {
+      console.error('Unexpected error during password update:', error)
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
     }
   }
 
-  if (!isValidSession && !error) {
+  if (authLoading || (!isValidSession && !error)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4">Verifying reset link...</p>
+          <p className="mt-4">{authLoading ? 'Initializing...' : 'Verifying reset link...'}</p>
         </div>
       </div>
     )

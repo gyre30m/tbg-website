@@ -30,6 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      // Check if we're in a password reset scenario by looking at the URL
+      if (typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password') {
+        console.log('Skipping profile fetch during password reset')
+        setUserProfile(null)
+        setUserFirm(null)
+        return
+      }
+      
       const { data: profile, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -40,6 +48,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // If no profile exists, that's okay - user just doesn't have a profile yet
         if (error.code === 'PGRST116') {
           console.log('No user profile found for user:', userId)
+        } else if (error.code === 'PGRST000' || error.message?.includes('JWT')) {
+          // JWT/Auth errors during password reset - this is expected
+          console.log('Auth error during password reset, skipping profile fetch:', error.message)
+        } else if (error.message?.includes('500')) {
+          // Server errors - likely RLS permission issues during password reset
+          console.log('Server error fetching profile (likely temporary during password reset):', error.message)
         } else {
           console.error('Error fetching user profile:', error)
         }
@@ -61,6 +75,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!firmError && firm) {
           setUserFirm(firm)
         } else {
+          if (firmError) {
+            console.log('Error fetching firm (may be temporary):', firmError.message)
+          }
           setUserFirm(null)
         }
       } else {
