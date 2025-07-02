@@ -50,22 +50,32 @@ export async function isFirmAdmin(userId: string): Promise<boolean> {
 }
 
 export async function createFirm(name: string, domain: string): Promise<Firm | null> {
-  // First create the firm
-  const { data: firm, error: firmError } = await supabase
-    .from('firms')
-    .insert([{
-      name,
-      domain: domain.toLowerCase(),
-    }])
-    .select()
-    .single()
+  try {
+    console.log('createFirm called with:', { name, domain })
+    
+    // First create the firm
+    const { data: firm, error: firmError } = await supabase
+      .from('firms')
+      .insert([{
+        name,
+        domain: domain.toLowerCase(),
+      }])
+      .select()
+      .single()
 
-  if (firmError) {
-    console.error('Error creating firm:', firmError)
-    return null
+    console.log('Supabase insert result:', { firm, firmError })
+
+    if (firmError) {
+      console.error('Error creating firm:', firmError)
+      throw new Error(`Database error: ${firmError.message}`)
+    }
+
+    console.log('Firm created successfully:', firm)
+    return firm
+  } catch (error) {
+    console.error('Exception in createFirm:', error)
+    throw error
   }
-
-  return firm
 }
 
 export async function inviteUserToFirm(

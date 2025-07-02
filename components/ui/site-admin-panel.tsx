@@ -151,16 +151,23 @@ export function SiteAdminPanel() {
     }
 
     try {
+      console.log('Creating firm with data:', { name: formData.name, domain: formData.domain })
+      
       // Create the firm
       const firm = await createFirm(formData.name, formData.domain)
       
+      console.log('createFirm result:', firm)
+      
       if (firm) {
+        console.log('Firm created successfully, sending invitation...')
         // Send invitation to firm admin
         const inviteResult = await inviteUserToFirm(
           formData.adminEmail,
           firm.id,
           'firm_admin'
         )
+        
+        console.log('Invitation result:', inviteResult)
         
         if (inviteResult.success) {
           setMessage(`Firm created successfully! Invitation sent to ${formData.adminEmail}`)
@@ -169,11 +176,14 @@ export function SiteAdminPanel() {
           await fetchAll()
         } else {
           setError(`Firm created but invitation failed: ${inviteResult.error}`)
+          await fetchAll() // Still refresh to show the created firm
         }
+      } else {
+        setError('Failed to create firm. Check console for details.')
       }
     } catch (error) {
       console.error('Error creating firm:', error)
-      setError('Failed to create firm. Please try again.')
+      setError(`Failed to create firm: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setCreating(false)
     }
