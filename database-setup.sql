@@ -84,17 +84,22 @@ DROP POLICY IF EXISTS "Site admins can manage all firms" ON public.firms;
 DROP POLICY IF EXISTS "Firm admins can view their own firm" ON public.firms;
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.user_profiles;
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.user_profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.user_profiles;
+DROP POLICY IF EXISTS "Admin email can manage all profiles" ON public.user_profiles;
 DROP POLICY IF EXISTS "Site admins can manage all profiles" ON public.user_profiles;
 DROP POLICY IF EXISTS "Firm admins can view users in their firm" ON public.user_profiles;
 DROP POLICY IF EXISTS "Firm admins can create profiles for their firm" ON public.user_profiles;
 DROP POLICY IF EXISTS "Users can manage their own forms" ON public.personal_injury_forms;
 DROP POLICY IF EXISTS "Firm members can view forms from their firm" ON public.personal_injury_forms;
 DROP POLICY IF EXISTS "Site admins can view all forms" ON public.personal_injury_forms;
+DROP POLICY IF EXISTS "Admin email can view all forms" ON public.personal_injury_forms;
 DROP POLICY IF EXISTS "Users can manage their own drafts" ON public.personal_injury_drafts;
 DROP POLICY IF EXISTS "Firm members can view drafts from their firm" ON public.personal_injury_drafts;
 DROP POLICY IF EXISTS "Site admins can view all drafts" ON public.personal_injury_drafts;
+DROP POLICY IF EXISTS "Admin email can view all drafts" ON public.personal_injury_drafts;
 DROP POLICY IF EXISTS "Site admins can manage all invitations" ON public.user_invitations;
 DROP POLICY IF EXISTS "Firm admins can manage invitations for their firm" ON public.user_invitations;
+DROP POLICY IF EXISTS "Admin email can manage all invitations" ON public.user_invitations;
 
 -- Firms table policies
 CREATE POLICY "Site admins can manage all firms" ON public.firms
@@ -113,7 +118,7 @@ CREATE POLICY "Firm admins can view their own firm" ON public.firms
         )
     );
 
--- User profiles policies
+-- User profiles policies (fixed to avoid infinite recursion)
 CREATE POLICY "Users can view their own profile" ON public.user_profiles
     FOR SELECT USING (user_id = auth.uid());
 
@@ -121,86 +126,39 @@ CREATE POLICY "Users can update their own profile" ON public.user_profiles
     FOR UPDATE USING (user_id = auth.uid())
     WITH CHECK (user_id = auth.uid());
 
-CREATE POLICY "Site admins can manage all profiles" ON public.user_profiles
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM public.user_profiles 
-            WHERE user_id = auth.uid() AND role = 'site_admin'
-        )
-    );
+CREATE POLICY "Users can insert their own profile" ON public.user_profiles
+    FOR INSERT WITH CHECK (user_id = auth.uid());
 
-CREATE POLICY "Firm admins can view users in their firm" ON public.user_profiles
-    FOR SELECT USING (
-        firm_id IN (
-            SELECT firm_id FROM public.user_profiles 
-            WHERE user_id = auth.uid() AND role = 'firm_admin'
-        )
-    );
+-- Special policy for site admin email (avoids recursion by using JWT)
+CREATE POLICY "Admin email can manage all profiles" ON public.user_profiles
+    FOR ALL USING (auth.jwt() ->> 'email' = 'bradley@the-bradley-group.com');
 
-CREATE POLICY "Firm admins can create profiles for their firm" ON public.user_profiles
-    FOR INSERT WITH CHECK (
-        firm_id IN (
-            SELECT firm_id FROM public.user_profiles 
-            WHERE user_id = auth.uid() AND role = 'firm_admin'
-        )
-    );
+-- Note: Firm admin policies will be added later once we have a way to check roles
+-- without creating infinite recursion. For now, site admin can manage everything.
 
--- User invitations policies
-CREATE POLICY "Site admins can manage all invitations" ON public.user_invitations
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM public.user_profiles 
-            WHERE user_id = auth.uid() AND role = 'site_admin'
-        )
-    );
+-- User invitations policies (simplified to avoid recursion)
+CREATE POLICY "Admin email can manage all invitations" ON public.user_invitations
+    FOR ALL USING (auth.jwt() ->> 'email' = 'bradley@the-bradley-group.com');
 
-CREATE POLICY "Firm admins can manage invitations for their firm" ON public.user_invitations
-    FOR ALL USING (
-        firm_id IN (
-            SELECT firm_id FROM public.user_profiles 
-            WHERE user_id = auth.uid() AND role = 'firm_admin'
-        )
-    );
+-- Note: Firm admin invitation policies will be added later
 
--- Personal injury forms policies
+-- Personal injury forms policies (simplified to avoid recursion)
 CREATE POLICY "Users can manage their own forms" ON public.personal_injury_forms
     FOR ALL USING (submitted_by = auth.uid());
 
-CREATE POLICY "Firm members can view forms from their firm" ON public.personal_injury_forms
-    FOR SELECT USING (
-        firm_id IN (
-            SELECT firm_id FROM public.user_profiles 
-            WHERE user_id = auth.uid()
-        )
-    );
+CREATE POLICY "Admin email can view all forms" ON public.personal_injury_forms
+    FOR SELECT USING (auth.jwt() ->> 'email' = 'bradley@the-bradley-group.com');
 
-CREATE POLICY "Site admins can view all forms" ON public.personal_injury_forms
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.user_profiles 
-            WHERE user_id = auth.uid() AND role = 'site_admin'
-        )
-    );
+-- Note: Firm member form policies will be added later
 
--- Personal injury drafts policies
+-- Personal injury drafts policies (simplified to avoid recursion)
 CREATE POLICY "Users can manage their own drafts" ON public.personal_injury_drafts
     FOR ALL USING (submitted_by = auth.uid());
 
-CREATE POLICY "Firm members can view drafts from their firm" ON public.personal_injury_drafts
-    FOR SELECT USING (
-        firm_id IN (
-            SELECT firm_id FROM public.user_profiles 
-            WHERE user_id = auth.uid()
-        )
-    );
+CREATE POLICY "Admin email can view all drafts" ON public.personal_injury_drafts
+    FOR SELECT USING (auth.jwt() ->> 'email' = 'bradley@the-bradley-group.com');
 
-CREATE POLICY "Site admins can view all drafts" ON public.personal_injury_drafts
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM public.user_profiles 
-            WHERE user_id = auth.uid() AND role = 'site_admin'
-        )
-    );
+-- Note: Firm member draft policies will be added later
 
 -- Function to automatically create user profile for site admin
 CREATE OR REPLACE FUNCTION public.handle_new_user()
