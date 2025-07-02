@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { Firm } from '@/lib/types'
-import { ArrowLeft, Settings, Mail, User, Clock } from 'lucide-react'
+import { ArrowLeft, Settings, Mail, User, Clock, UserPlus } from 'lucide-react'
 
 interface UserProfile {
   id: string
@@ -45,6 +45,14 @@ export default function FirmManagementPage() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [editingFirm, setEditingFirm] = useState({ name: '', domain: '' })
+  
+  // Invite user state
+  const [showInviteForm, setShowInviteForm] = useState(false)
+  const [inviting, setInviting] = useState(false)
+  const [inviteData, setInviteData] = useState({
+    email: '',
+    role: 'user' as 'firm_admin' | 'user'
+  })
 
   useEffect(() => {
     if (firmSlug) {
@@ -208,6 +216,91 @@ export default function FirmManagementPage() {
     }
   }
 
+  const handleInviteUser = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!firm) return
+
+    setInviting(true)
+    setError('')
+    setMessage('')
+
+    try {
+      // Validate email domain matches firm domain
+      const emailDomain = inviteData.email.split('@')[1]
+      if (emailDomain !== firm.domain) {
+        setError(`Email domain must match firm domain: ${firm.domain}`)
+        setInviting(false)
+        return
+      }
+
+      // Check if user is already invited or exists
+      const { data: existingInvite } = await supabase
+        .from('user_invitations')
+        .select('*')
+        .eq('email', inviteData.email.toLowerCase())
+        .eq('firm_id', firm.id)
+        .eq('status', 'pending')
+        .limit(1)
+
+      if (existingInvite && existingInvite.length > 0) {
+        setError('An invitation has already been sent to this email address')
+        setInviting(false)
+        return
+      }
+
+      // Check if a user with this email already exists in the firm
+      const { data: authUsers } = await supabase.auth.admin.listUsers()
+      const existingUser = authUsers?.users?.find(u => u.email === inviteData.email.toLowerCase())
+      
+      if (existingUser) {
+        const { data: existingProfile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', existingUser.id)
+          .eq('firm_id', firm.id)
+          .limit(1)
+
+        if (existingProfile && existingProfile.length > 0) {
+          setError('This user is already a member of this firm')
+          setInviting(false)
+          return
+        }
+      }
+
+      // Create the invitation
+      const { error: inviteError } = await supabase
+        .from('user_invitations')
+        .insert([{
+          email: inviteData.email.toLowerCase(),
+          firm_id: firm.id,
+          role: inviteData.role,
+          status: 'pending',
+          invited_at: new Date().toISOString()
+        }])
+
+      if (inviteError) {
+        console.error('Error creating invitation:', inviteError)
+        setError('Failed to send invitation')
+      } else {
+        const signupUrl = `${window.location.origin}/auth/signup?firmId=${firm.id}&role=${inviteData.role}&email=${encodeURIComponent(inviteData.email)}`
+        setMessage(`Invitation sent successfully! Send this signup link to ${inviteData.email}: ${signupUrl}`)
+        
+        // Reset form and refresh data
+        setInviteData({ email: '', role: 'user' })
+        setShowInviteForm(false)
+        await Promise.all([
+          fetchFirmUsers(firm.id),
+          fetchFirmInvitations(firm.id)
+        ])
+      }
+    } catch (error) {
+      console.error('Error in handleInviteUser:', error)
+      setError('Failed to send invitation')
+    } finally {
+      setInviting(false)
+    }
+  }
+
   const clearMessages = () => {
     setError('')
     setMessage('')
@@ -330,12 +423,79 @@ export default function FirmManagementPage() {
         {/* Users Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              Firm Users ({allUsers.length})
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Firm Users ({allUsers.length})
+              </CardTitle>
+              <Button 
+                onClick={() => setShowInviteForm(true)}
+                size="sm"
+                disabled={showInviteForm}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Invite User
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
+            {/* Invite User Form */}
+            {showInviteForm && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Invite New User</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleInviteUser} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="inviteEmail">Email Address *</Label>
+                        <Input
+                          id="inviteEmail"
+                          type="email"
+                          value={inviteData.email}
+                          onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
+                          placeholder={`user@${firm?.domain}`}
+                          required
+                        />
+                        <p className="text-sm text-gray-500 mt-1">
+                          Email domain must match: {firm?.domain}
+                        </p>
+                      </div>
+                      <div>
+                        <Label htmlFor="inviteRole">Role *</Label>
+                        <select
+                          id="inviteRole"
+                          value={inviteData.role}
+                          onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as 'firm_admin' | 'user' })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="user">User</option>
+                          <option value="firm_admin">Firm Admin</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit" disabled={inviting} size="sm">
+                        {inviting ? 'Sending...' : 'Send Invitation'}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => {
+                          setShowInviteForm(false)
+                          setInviteData({ email: '', role: 'user' })
+                        }}
+                        size="sm"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
             {allUsers.length === 0 ? (
               <div className="text-center py-8">
                 <Mail className="w-12 h-12 text-gray-300 mx-auto mb-4" />
