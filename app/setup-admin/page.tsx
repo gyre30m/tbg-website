@@ -23,7 +23,7 @@ export default function SetupAdminPage() {
 
     try {
       // Try to create the profile using the service role
-      const { data, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('user_profiles')
         .insert([{
           user_id: user.id,
@@ -74,7 +74,7 @@ export default function SetupAdminPage() {
         setMessage('Trigger executed successfully!')
         await refreshProfile()
       }
-    } catch (err) {
+    } catch {
       setError('Trigger function not available, trying direct insert...')
       // Fallback to direct insert
       await createAdminProfile()
@@ -203,7 +203,7 @@ export default function SetupAdminPage() {
             <CardHeader>
               <CardTitle className="text-lg">Manual SQL Option</CardTitle>
               <CardDescription>
-                If the buttons above don't work, run this SQL in your Supabase dashboard:
+                If the buttons above don&apos;t work, run this SQL in your Supabase dashboard:
               </CardDescription>
             </CardHeader>
             <CardContent>
