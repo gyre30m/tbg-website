@@ -103,7 +103,7 @@ export function SiteAdminPanel() {
       const emailDomain = email.split('@')[1]
       const { data: firm } = await supabase
         .from('firms')
-        .select('domain')
+        .select('domain, name')
         .eq('id', firmId)
         .single()
 
@@ -111,8 +111,8 @@ export function SiteAdminPanel() {
         return { success: false, error: 'Email domain does not match firm domain' }
       }
 
-      // Create user invitation
-      const { error } = await supabase
+      // First, create the invitation record
+      const { error: inviteError } = await supabase
         .from('user_invitations')
         .insert([{
           email: email.toLowerCase(),
@@ -121,12 +121,19 @@ export function SiteAdminPanel() {
           invited_at: new Date().toISOString(),
         }])
 
-      if (error) {
-        return { success: false, error: error.message }
+      if (inviteError) {
+        return { success: false, error: inviteError.message }
       }
 
+      // For now, we'll just create the invitation record
+      // In a production system, you would integrate with an email service
+      // to send a custom invitation email with a link to the signup page
+      console.log(`Invitation created for ${email} to join firm ${firm.name} as ${role}`)
+      console.log(`Signup URL: ${window.location.origin}/auth/signup?firmId=${firmId}&role=${role}&email=${encodeURIComponent(email)}`)
+
       return { success: true }
-    } catch {
+    } catch (error) {
+      console.error('Exception in inviteUserToFirmClient:', error)
       return { success: false, error: 'Failed to invite user' }
     }
   }
@@ -238,7 +245,8 @@ export function SiteAdminPanel() {
         console.log('Invitation result:', inviteResult)
         
         if (inviteResult.success) {
-          setMessage(`Firm created successfully! Invitation sent to ${formData.adminEmail}`)
+          const signupUrl = `${window.location.origin}/auth/signup?firmId=${firm.id}&role=firm_admin&email=${encodeURIComponent(formData.adminEmail)}`
+          setMessage(`Firm created successfully! Send this signup link to ${formData.adminEmail}: ${signupUrl}`)
           setFormData({ name: '', domain: '', adminEmail: '' })
           setShowCreateForm(false)
           await fetchAll()
@@ -271,7 +279,8 @@ export function SiteAdminPanel() {
       )
       
       if (result.success) {
-        setMessage(`Invitation sent to ${inviteData.email}`)
+        const signupUrl = `${window.location.origin}/auth/signup?firmId=${inviteData.firmId}&role=${inviteData.role}&email=${encodeURIComponent(inviteData.email)}`
+        setMessage(`Invitation created for ${inviteData.email}! Send them this signup link: ${signupUrl}`)
         setInviteData({ email: '', firmId: '', role: 'firm_admin' })
         await fetchInvitations()
       } else {
