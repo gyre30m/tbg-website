@@ -27,9 +27,7 @@ interface UserProfile {
   last_name: string | null
   firm_id: string | null
   created_at: string
-  users?: {
-    email: string
-  }
+  email?: string
 }
 
 interface Invitation {
@@ -99,14 +97,9 @@ export function SiteAdminPanel() {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: profiles, error } = await supabase
         .from('user_profiles')
-        .select(`
-          *,
-          users:user_id (
-            email
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -114,7 +107,7 @@ export function SiteAdminPanel() {
         return
       }
 
-      setUsers(data || [])
+      setUsers(profiles || [])
     } catch (error) {
       console.error('Error in fetchUsers:', error)
     }
@@ -385,7 +378,7 @@ export function SiteAdminPanel() {
                             {user.first_name} {user.last_name}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {user.users?.email || 'No email'}
+                            User ID: {user.user_id.slice(0, 8)}...
                           </p>
                           <div className="flex items-center space-x-2 mt-1">
                             <Badge variant={user.role === 'site_admin' ? 'default' : 'secondary'}>
