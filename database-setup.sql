@@ -83,6 +83,7 @@ ALTER TABLE public.personal_injury_drafts ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Site admins can manage all firms" ON public.firms;
 DROP POLICY IF EXISTS "Firm admins can view their own firm" ON public.firms;
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.user_profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.user_profiles;
 DROP POLICY IF EXISTS "Site admins can manage all profiles" ON public.user_profiles;
 DROP POLICY IF EXISTS "Firm admins can view users in their firm" ON public.user_profiles;
 DROP POLICY IF EXISTS "Firm admins can create profiles for their firm" ON public.user_profiles;
@@ -115,6 +116,10 @@ CREATE POLICY "Firm admins can view their own firm" ON public.firms
 -- User profiles policies
 CREATE POLICY "Users can view their own profile" ON public.user_profiles
     FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "Users can update their own profile" ON public.user_profiles
+    FOR UPDATE USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid());
 
 CREATE POLICY "Site admins can manage all profiles" ON public.user_profiles
     FOR ALL USING (
