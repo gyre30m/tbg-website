@@ -1,18 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { Firm } from '@/lib/types'
 import { ArrowLeft, Settings, Mail, User, Clock, UserPlus, Upload } from 'lucide-react'
 import { useImageUpload } from '@/hooks/useImageUpload'
+import { toast } from 'sonner'
 
 interface UserProfile {
   id: string
@@ -46,8 +46,7 @@ export default function FirmManagementPage() {
   const [users, setUsers] = useState<UserProfile[]>([])
   const [invitations, setInvitations] = useState<Invitation[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [editingFirm, setEditingFirm] = useState({ 
     name: '', 
     domain: '', 
@@ -191,17 +190,16 @@ export default function FirmManagementPage() {
 
   const handleImageUpload = async (file: File) => {
     try {
-      setError('')
       const result = await uploadImage(file)
       
       if (result.success && result.imageUrl) {
         setNewImageUrl(result.imageUrl)
-        setMessage('Image uploaded successfully!')
+        toast.success('Image uploaded successfully!')
       } else {
-        setError(result.error || 'Failed to upload image')
+        toast.error(result.error || 'Failed to upload image')
       }
     } catch (error) {
-      setError('Failed to upload image')
+      toast.error('Failed to upload image')
       console.error('Image upload error:', error)
     }
   }
@@ -234,11 +232,10 @@ export default function FirmManagementPage() {
 
       if (error) {
         console.error('Error updating firm:', error)
-        setError('Failed to update firm')
+        toast.error('Failed to update firm')
       } else {
-        setMessage('Firm updated successfully')
-        // Update local state
-        setFirm({ 
+        // Update local state with new values
+        const updatedFirm = { 
           ...firm, 
           name: editingFirm.name, 
           domain: editingFirm.domain,
@@ -249,12 +246,21 @@ export default function FirmManagementPage() {
           zip_code: editingFirm.zip_code || undefined,
           main_phone: editingFirm.main_phone || undefined,
           image_url: newImageUrl || firm.image_url
-        })
-        setNewImageUrl('') // Reset the new image URL after successful update
+        }
+        setFirm(updatedFirm)
+        
+        // Clear temporary data
+        setNewImageUrl('')
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
+        
+        // Show success toast with updated firm name
+        toast.success(`${updatedFirm.name} profile updated successfully`)
       }
     } catch (error) {
       console.error('Error in handleUpdateFirm:', error)
-      setError('Failed to update firm')
+      toast.error('Failed to update firm')
     }
   }
 
@@ -269,14 +275,14 @@ export default function FirmManagementPage() {
 
       if (error) {
         console.error('Error removing user:', error)
-        setError('Failed to remove user from firm')
+        toast.error('Failed to remove user from firm')
       } else {
-        setMessage('User removed from firm successfully')
+        toast.success('User removed from firm successfully')
         await fetchFirmUsers(firm.id)
       }
     } catch (error) {
       console.error('Error in handleRemoveUser:', error)
-      setError('Failed to remove user from firm')
+      toast.error('Failed to remove user from firm')
     }
   }
 
@@ -285,14 +291,12 @@ export default function FirmManagementPage() {
     if (!firm) return
 
     setInviting(true)
-    setError('')
-    setMessage('')
 
     try {
       // Validate email domain matches firm domain
       const emailDomain = inviteData.email.split('@')[1]
       if (emailDomain !== firm.domain) {
-        setError(`Email domain must match firm domain: ${firm.domain}`)
+        toast.error(`Email domain must match firm domain: ${firm.domain}`)
         setInviting(false)
         return
       }
@@ -307,7 +311,7 @@ export default function FirmManagementPage() {
         .limit(1)
 
       if (existingInvite && existingInvite.length > 0) {
-        setError('An invitation has already been sent to this email address')
+        toast.error('An invitation has already been sent to this email address')
         setInviting(false)
         return
       }
@@ -325,7 +329,7 @@ export default function FirmManagementPage() {
           .limit(1)
 
         if (existingProfile && existingProfile.length > 0) {
-          setError('This user is already a member of this firm')
+          toast.error('This user is already a member of this firm')
           setInviting(false)
           return
         }
@@ -344,10 +348,10 @@ export default function FirmManagementPage() {
 
       if (inviteError) {
         console.error('Error creating invitation:', inviteError)
-        setError('Failed to send invitation')
+        toast.error('Failed to send invitation')
       } else {
         const signupUrl = `${window.location.origin}/auth/signup?firmId=${firm.id}&role=${inviteData.role}&email=${encodeURIComponent(inviteData.email)}`
-        setMessage(`Invitation sent successfully! Send this signup link to ${inviteData.email}: ${signupUrl}`)
+        toast.success(`Invitation sent to ${inviteData.email}`)
         
         // Reset form and refresh data
         setInviteData({ email: '', role: 'user' })
@@ -359,15 +363,10 @@ export default function FirmManagementPage() {
       }
     } catch (error) {
       console.error('Error in handleInviteUser:', error)
-      setError('Failed to send invitation')
+      toast.error('Failed to send invitation')
     } finally {
       setInviting(false)
     }
-  }
-
-  const clearMessages = () => {
-    setError('')
-    setMessage('')
   }
 
   if (loading) {
@@ -553,6 +552,7 @@ export default function FirmManagementPage() {
                 <div>
                   <Label htmlFor="editFirmImage">Firm Logo/Image</Label>
                   <Input
+                    ref={fileInputRef}
                     id="editFirmImage"
                     type="file"
                     accept="image/*"
@@ -583,20 +583,6 @@ export default function FirmManagementPage() {
                     Supported formats: JPG, PNG, GIF, WebP, SVG (Max 5MB)
                   </p>
                   
-                  {/* Current Image */}
-                  {firm?.image_url && !newImageUrl && (
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-600 mb-1">Current image:</p>
-                      <Image 
-                        src={firm.image_url} 
-                        alt="Current firm logo" 
-                        width={96}
-                        height={96}
-                        className="object-cover border rounded"
-                      />
-                    </div>
-                  )}
-                  
                   {/* New Uploaded Image */}
                   {newImageUrl && (
                     <div className="mt-2">
@@ -620,11 +606,6 @@ export default function FirmManagementPage() {
                     </div>
                   )}
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <span>Created: {new Date(firm.created_at).toLocaleDateString()}</span>
-                <span>ID: {firm.id}</span>
               </div>
               <Button type="submit" size="sm">
                 Update Firm Profile
@@ -773,29 +754,6 @@ export default function FirmManagementPage() {
           </CardContent>
         </Card>
 
-        {/* Messages */}
-        {(error || message) && (
-          <div className="mt-6">
-            {error && (
-              <Alert className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            {message && (
-              <Alert className="mb-4 border-green-200 bg-green-50">
-                <AlertDescription className="text-green-800">{message}</AlertDescription>
-              </Alert>
-            )}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={clearMessages}
-              className="mt-2"
-            >
-              Clear Messages
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   )
