@@ -432,15 +432,29 @@ export default function FirmManagementPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button onClick={() => router.back()} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Admin
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manage Firm</h1>
-            <p className="text-gray-600 mt-1">{firm.name}</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button onClick={() => router.back()} variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Admin
+            </Button>
+            <div>
+              <p className="text-sm text-gray-500">Manage Firm</p>
+              <h1 className="text-4xl font-bold text-gray-900">{firm.name}</h1>
+            </div>
           </div>
+          {/* Firm Image */}
+          {firm.image_url && (
+            <div className="flex-shrink-0">
+              <Image
+                src={firm.image_url}
+                alt={`${firm.name} logo`}
+                width={80}
+                height={80}
+                className="object-cover rounded-lg border"
+              />
+            </div>
+          )}
         </div>
 
         {/* Firm Profile Section */}
