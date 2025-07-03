@@ -8,13 +8,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'ima
 
 export async function POST(request: NextRequest) {
   try {
-    // Debug environment variables
-    console.log('Environment check:', {
-      AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Missing',
-      AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Missing',
-      AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME ? 'Set' : 'Missing',
-      AWS_REGION: process.env.AWS_REGION || 'us-east-1'
-    })
+    console.log('Upload API called')
 
     // Check if required environment variables are set
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET_NAME) {
