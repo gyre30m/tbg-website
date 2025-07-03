@@ -2,28 +2,38 @@ import { NextRequest, NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from 'uuid'
 
-// Configure S3 client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-})
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!
+// S3 client will be configured inside the function
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
 
 export async function POST(request: NextRequest) {
   try {
+    // Debug environment variables
+    console.log('Environment check:', {
+      AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? 'Set' : 'Missing',
+      AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? 'Set' : 'Missing',
+      AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME ? 'Set' : 'Missing',
+      AWS_REGION: process.env.AWS_REGION || 'us-east-1'
+    })
+
     // Check if required environment variables are set
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET_NAME) {
       return NextResponse.json(
-        { error: 'AWS configuration missing' },
+        { error: 'AWS configuration missing. Check environment variables.' },
         { status: 500 }
       )
     }
+
+    // Configure S3 client
+    const s3Client = new S3Client({
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    })
+
+    const bucketName = process.env.AWS_S3_BUCKET_NAME
 
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -61,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to S3
     const uploadCommand = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: bucketName,
       Key: fileName,
       Body: buffer,
       ContentType: file.type,
@@ -72,7 +82,7 @@ export async function POST(request: NextRequest) {
     await s3Client.send(uploadCommand)
 
     // Generate the public URL
-    const imageUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${fileName}`
+    const imageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${fileName}`
 
     return NextResponse.json({
       success: true,
