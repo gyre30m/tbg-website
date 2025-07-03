@@ -140,29 +140,13 @@ export default function FirmManagementPage() {
         return
       }
 
-      // Then get auth users data
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers()
-      
-      if (authError) {
-        console.error('Error fetching auth users:', authError)
-        // Set users without auth data
-        setUsers((profiles || []).map(profile => ({
-          ...profile,
-          status: 'verified' as const
-        })))
-        return
-      }
-
-      // Combine the data
-      const processedUsers = (profiles || []).map((profile: UserProfile) => {
-        const authUser = authUsers?.users?.find(u => u.id === profile.user_id)
-        return {
-          ...profile,
-          email: authUser?.email,
-          last_sign_in_at: authUser?.last_sign_in_at,
-          status: authUser?.email ? 'verified' as const : 'invited' as const
-        }
-      })
+      // Set users without auth admin data (no access to admin functions with anon key)
+      const processedUsers = (profiles || []).map((profile: UserProfile) => ({
+        ...profile,
+        email: undefined, // Can't access without admin permissions
+        last_sign_in_at: undefined, // Can't access without admin permissions
+        status: 'verified' as const // Assume verified if they have a profile
+      }))
 
       setUsers(processedUsers)
     } catch (error) {
@@ -318,24 +302,8 @@ export default function FirmManagementPage() {
         return
       }
 
-      // Check if a user with this email already exists in the firm
-      const { data: authUsers } = await supabase.auth.admin.listUsers()
-      const existingUser = authUsers?.users?.find(u => u.email === inviteData.email.toLowerCase())
-      
-      if (existingUser) {
-        const { data: existingProfile } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', existingUser.id)
-          .eq('firm_id', firm.id)
-          .limit(1)
-
-        if (existingProfile && existingProfile.length > 0) {
-          toast.error('This user is already a member of this firm')
-          setInviting(false)
-          return
-        }
-      }
+      // Note: Can't check if user already exists without admin permissions
+      // The unique constraint on (email, firm_id) in user_invitations will prevent duplicate invites
 
       // Create the invitation
       const { error: inviteError } = await supabase
@@ -404,9 +372,9 @@ export default function FirmManagementPage() {
       id: user.id,
       name: user.first_name && user.last_name 
         ? `${user.first_name} ${user.last_name}` 
-        : user.email || 'Unknown',
+        : 'User',
       lastName: user.last_name || '',
-      email: user.email,
+      email: user.email || 'Email not available',
       status: user.status || 'verified',
       lastLogin: user.last_sign_in_at,
       role: user.role,
