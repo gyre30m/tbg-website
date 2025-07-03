@@ -49,7 +49,7 @@ Create an S3 bucket with the following settings:
 aws s3 mb s3://your-firm-images-bucket
 
 # 2. Configure bucket for public read access
-aws s3api put-bucket-policy --bucket your-firm-images-bucket --policy '{
+aws s3api put-bucket-policy --bucket tbg-large-resources-13 --policy '{
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -57,13 +57,13 @@ aws s3api put-bucket-policy --bucket your-firm-images-bucket --policy '{
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::your-firm-images-bucket/*"
+      "Resource": "arn:aws:s3:::tbg-large-resources-13/*"
     }
   ]
 }'
 
 # 3. Configure CORS
-aws s3api put-bucket-cors --bucket your-firm-images-bucket --cors-configuration '{
+aws s3api put-bucket-cors --bucket tbg-large-resources-13 --cors-configuration '{
   "CORSRules": [
     {
       "AllowedHeaders": ["*"],
@@ -102,7 +102,7 @@ Create an IAM user with these permissions:
         "s3:PutObjectAcl",
         "s3:GetObject"
       ],
-      "Resource": "arn:aws:s3:::your-firm-images-bucket/*"
+      "Resource": "arn:aws:s3:::tbg-large-resources-13/*"
     }
   ]
 }
