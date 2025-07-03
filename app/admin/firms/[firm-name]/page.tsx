@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,7 +11,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { Firm } from '@/lib/types'
-import { ArrowLeft, Settings, Mail, User, Clock, UserPlus } from 'lucide-react'
+import { ArrowLeft, Settings, Mail, User, Clock, UserPlus, Upload } from 'lucide-react'
+import { useImageUpload } from '@/hooks/useImageUpload'
 
 interface UserProfile {
   id: string
@@ -37,8 +39,10 @@ export default function FirmManagementPage() {
   const params = useParams()
   const router = useRouter()
   const firmSlug = params['firm-name'] as string
+  const { uploadImage, uploading: imageUploading, uploadProgress } = useImageUpload()
 
   const [firm, setFirm] = useState<Firm | null>(null)
+  const [newImageUrl, setNewImageUrl] = useState<string>('')
   const [users, setUsers] = useState<UserProfile[]>([])
   const [invitations, setInvitations] = useState<Invitation[]>([])
   const [loading, setLoading] = useState(true)
@@ -185,23 +189,47 @@ export default function FirmManagementPage() {
     }
   }
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      setError('')
+      const result = await uploadImage(file)
+      
+      if (result.success && result.imageUrl) {
+        setNewImageUrl(result.imageUrl)
+        setMessage('Image uploaded successfully!')
+      } else {
+        setError(result.error || 'Failed to upload image')
+      }
+    } catch (error) {
+      setError('Failed to upload image')
+      console.error('Image upload error:', error)
+    }
+  }
+
   const handleUpdateFirm = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!firm) return
 
     try {
+      const updateData: Partial<Firm> = {
+        name: editingFirm.name,
+        domain: editingFirm.domain.toLowerCase(),
+        address_1: editingFirm.address_1 || undefined,
+        address_2: editingFirm.address_2 || undefined,
+        city: editingFirm.city || undefined,
+        state: editingFirm.state || undefined,
+        zip_code: editingFirm.zip_code || undefined,
+        main_phone: editingFirm.main_phone || undefined
+      }
+
+      // Only update image_url if a new image was uploaded
+      if (newImageUrl) {
+        updateData.image_url = newImageUrl
+      }
+
       const { error } = await supabase
         .from('firms')
-        .update({
-          name: editingFirm.name,
-          domain: editingFirm.domain.toLowerCase(),
-          address_1: editingFirm.address_1 || null,
-          address_2: editingFirm.address_2 || null,
-          city: editingFirm.city || null,
-          state: editingFirm.state || null,
-          zip_code: editingFirm.zip_code || null,
-          main_phone: editingFirm.main_phone || null
-        })
+        .update(updateData)
         .eq('id', firm.id)
 
       if (error) {
@@ -219,8 +247,10 @@ export default function FirmManagementPage() {
           city: editingFirm.city || undefined,
           state: editingFirm.state || undefined,
           zip_code: editingFirm.zip_code || undefined,
-          main_phone: editingFirm.main_phone || undefined
+          main_phone: editingFirm.main_phone || undefined,
+          image_url: newImageUrl || firm.image_url
         })
+        setNewImageUrl('') // Reset the new image URL after successful update
       }
     } catch (error) {
       console.error('Error in handleUpdateFirm:', error)
@@ -513,18 +543,66 @@ export default function FirmManagementPage() {
                     type="file"
                     accept="image/*"
                     className="cursor-pointer"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        await handleImageUpload(file)
+                      }
+                    }}
+                    disabled={imageUploading}
                   />
+                  {imageUploading && (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-2">
+                        <Upload className="w-4 h-4 animate-spin" />
+                        <span className="text-sm text-blue-600">Uploading... {uploadProgress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                   <p className="text-sm text-gray-500 mt-1">
-                    Supported formats: JPG, PNG, GIF, WebP
+                    Supported formats: JPG, PNG, GIF, WebP (Max 5MB)
                   </p>
-                  {firm?.image_url && (
+                  
+                  {/* Current Image */}
+                  {firm?.image_url && !newImageUrl && (
                     <div className="mt-2">
                       <p className="text-sm text-gray-600 mb-1">Current image:</p>
-                      <img 
+                      <Image 
                         src={firm.image_url} 
                         alt="Current firm logo" 
-                        className="w-24 h-24 object-cover border rounded"
+                        width={96}
+                        height={96}
+                        className="object-cover border rounded"
                       />
+                    </div>
+                  )}
+                  
+                  {/* New Uploaded Image */}
+                  {newImageUrl && (
+                    <div className="mt-2">
+                      <p className="text-sm text-green-600 mb-1">New image uploaded (will replace current image when saved):</p>
+                      <Image 
+                        src={newImageUrl} 
+                        alt="New firm logo" 
+                        width={96}
+                        height={96}
+                        className="object-cover border rounded"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => setNewImageUrl('')}
+                      >
+                        Remove New Image
+                      </Button>
                     </div>
                   )}
                 </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { supabase } from '@/lib/supabase'
 import { Firm } from '@/lib/types'
-import { Settings } from 'lucide-react'
+import { Settings, Upload } from 'lucide-react'
+import { useImageUpload } from '@/hooks/useImageUpload'
 
 interface CreateFirmFormData {
   name: string
@@ -25,12 +27,14 @@ interface CreateFirmFormData {
 
 export function SiteAdminPanel() {
   const router = useRouter()
+  const { uploadImage, uploading: imageUploading, uploadProgress } = useImageUpload()
   const [firms, setFirms] = useState<Firm[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('')
   const [formData, setFormData] = useState<CreateFirmFormData>({
     name: '',
     domain: '',
@@ -44,9 +48,9 @@ export function SiteAdminPanel() {
   })
 
   // Client-side function to create a firm
-  const createFirmClient = async (firmData: Omit<CreateFirmFormData, 'adminEmail'>): Promise<Firm | null> => {
+  const createFirmClient = async (firmData: Omit<CreateFirmFormData, 'adminEmail'>, imageUrl?: string): Promise<Firm | null> => {
     try {
-      console.log('createFirmClient called with:', firmData)
+      console.log('createFirmClient called with:', firmData, 'imageUrl:', imageUrl)
       
       const { data: firm, error: firmError } = await supabase
         .from('firms')
@@ -59,6 +63,7 @@ export function SiteAdminPanel() {
           state: firmData.state || null,
           zip_code: firmData.zip_code || null,
           main_phone: firmData.main_phone || null,
+          image_url: imageUrl || null,
         }])
         .select()
         .single()
@@ -145,6 +150,23 @@ export function SiteAdminPanel() {
     }
   }
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      setError('')
+      const result = await uploadImage(file)
+      
+      if (result.success && result.imageUrl) {
+        setUploadedImageUrl(result.imageUrl)
+        setMessage('Image uploaded successfully!')
+      } else {
+        setError(result.error || 'Failed to upload image')
+      }
+    } catch (error) {
+      setError('Failed to upload image')
+      console.error('Image upload error:', error)
+    }
+  }
+
   const handleCreateFirm = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreating(true)
@@ -164,7 +186,7 @@ export function SiteAdminPanel() {
       
       // Create the firm
       const { adminEmail, ...firmData } = formData
-      const firm = await createFirmClient(firmData)
+      const firm = await createFirmClient(firmData, uploadedImageUrl || undefined)
       
       console.log('createFirm result:', firm)
       
@@ -183,6 +205,7 @@ export function SiteAdminPanel() {
           const signupUrl = `${window.location.origin}/auth/signup?firmId=${firm.id}&role=firm_admin&email=${encodeURIComponent(adminEmail)}`
           setMessage(`Firm created successfully! Send this signup link to ${adminEmail}: ${signupUrl}`)
           setFormData({ name: '', domain: '', adminEmail: '', address_1: '', address_2: '', city: '', state: '', zip_code: '', main_phone: '' })
+          setUploadedImageUrl('')
           setShowCreateForm(false)
           await fetchFirms()
         } else {
@@ -347,9 +370,51 @@ export function SiteAdminPanel() {
                       type="file"
                       accept="image/*"
                       className="cursor-pointer"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          await handleImageUpload(file)
+                        }
+                      }}
+                      disabled={imageUploading}
                     />
+                    {imageUploading && (
+                      <div className="mt-2">
+                        <div className="flex items-center gap-2">
+                          <Upload className="w-4 h-4 animate-spin" />
+                          <span className="text-sm text-blue-600">Uploading... {uploadProgress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                            style={{ width: `${uploadProgress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                    {uploadedImageUrl && (
+                      <div className="mt-2">
+                        <p className="text-sm text-green-600 mb-1">Image uploaded successfully!</p>
+                        <Image 
+                          src={uploadedImageUrl} 
+                          alt="Uploaded firm logo" 
+                          width={96}
+                          height={96}
+                          className="object-cover border rounded"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => setUploadedImageUrl('')}
+                        >
+                          Remove Image
+                        </Button>
+                      </div>
+                    )}
                     <p className="text-sm text-gray-500 mt-1">
-                      Supported formats: JPG, PNG, GIF, WebP
+                      Supported formats: JPG, PNG, GIF, WebP (Max 5MB)
                     </p>
                   </div>
                 </div>
