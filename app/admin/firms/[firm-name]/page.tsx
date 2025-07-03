@@ -30,9 +30,11 @@ interface UserProfile {
 interface Invitation {
   id: string
   email: string
-  status: string
+  firm_id: string
   role: string
+  invited_by?: string
   invited_at: string
+  accepted_at?: string
 }
 
 export default function FirmManagementPage() {
@@ -174,7 +176,7 @@ export default function FirmManagementPage() {
         .from('user_invitations')
         .select('*')
         .eq('firm_id', firmId)
-        .eq('status', 'pending')
+        .is('accepted_at', null)
         .order('invited_at', { ascending: false })
 
       if (error) {
@@ -307,7 +309,7 @@ export default function FirmManagementPage() {
         .select('*')
         .eq('email', inviteData.email.toLowerCase())
         .eq('firm_id', firm.id)
-        .eq('status', 'pending')
+        .is('accepted_at', null)
         .limit(1)
 
       if (existingInvite && existingInvite.length > 0) {
@@ -342,7 +344,6 @@ export default function FirmManagementPage() {
           email: inviteData.email.toLowerCase(),
           firm_id: firm.id,
           role: inviteData.role,
-          status: 'pending',
           invited_at: new Date().toISOString()
         }])
 
