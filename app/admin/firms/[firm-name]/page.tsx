@@ -580,7 +580,7 @@ export default function FirmManagementPage() {
                     </div>
                   )}
                   <p className="text-sm text-gray-500 mt-1">
-                    Supported formats: JPG, PNG, GIF, WebP (Max 5MB)
+                    Supported formats: JPG, PNG, GIF, WebP, SVG (Max 5MB)
                   </p>
                   
                   {/* Current Image */}

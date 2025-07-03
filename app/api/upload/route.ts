@@ -13,7 +13,7 @@ const s3Client = new S3Client({
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
 
 export async function POST(request: NextRequest) {
   try {
