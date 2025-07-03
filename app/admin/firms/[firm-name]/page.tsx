@@ -83,7 +83,7 @@ export default function FirmManagementPage() {
       
       if (firmsError) {
         console.error('Error fetching firms:', firmsError)
-        setError('Failed to load firm data')
+        toast.error('Failed to load firm data')
         return
       }
 
@@ -94,7 +94,7 @@ export default function FirmManagementPage() {
       })
 
       if (!matchingFirm) {
-        setError('Firm not found')
+        toast.error('Firm not found')
         return
       }
 
@@ -118,7 +118,7 @@ export default function FirmManagementPage() {
 
     } catch (error) {
       console.error('Error in fetchFirmData:', error)
-      setError('Failed to load firm data')
+      toast.error('Failed to load firm data')
     } finally {
       setLoading(false)
     }
@@ -350,7 +350,6 @@ export default function FirmManagementPage() {
         console.error('Error creating invitation:', inviteError)
         toast.error('Failed to send invitation')
       } else {
-        const signupUrl = `${window.location.origin}/auth/signup?firmId=${firm.id}&role=${inviteData.role}&email=${encodeURIComponent(inviteData.email)}`
         toast.success(`Invitation sent to ${inviteData.email}`)
         
         // Reset form and refresh data
@@ -390,9 +389,9 @@ export default function FirmManagementPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Alert>
-            <AlertDescription>Firm not found</AlertDescription>
-          </Alert>
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-700">Firm not found</p>
+          </div>
         </div>
       </div>
     )
