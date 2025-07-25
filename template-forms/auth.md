@@ -1,4 +1,4 @@
-No user should see /forms without being signed in.
+No user should see /forms without being signed in
 
 Once signed in, Site Admin should be redirected to the Firms Management page to manage all firms with URL /admin/firms.
 
