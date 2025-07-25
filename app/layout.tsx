@@ -21,8 +21,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "The Bradley Group - Forensic Economists & Economic Damages Experts",
-  description: "Expert economic analysis and litigation support for personal injury, wrongful death, and wrongful termination cases. Serving law firms nationwide with forensic economic consulting.",
-  keywords: "forensic economist, economic damages expert, personal injury economist, wrongful death economist, litigation support, expert witness, economic analysis, lost earnings calculation",
+  description:
+    "Expert economic analysis and litigation support for personal injury, wrongful death, employment, and commercial actions. Serving law firms nationwide with forensic economic consulting.",
+  keywords:
+    "forensic economist, economic damages expert, personal injury economist, wrongful death economist, business valuation, litigation support, expert witness, economic analysis, lost earnings calculation, employment discrimination economist, wrongful termination economist",
   authors: [{ name: "Bradley Gibbs" }],
   creator: "The Bradley Group LLC",
   publisher: "The Bradley Group LLC",
@@ -32,14 +34,15 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   openGraph: {
     title: "The Bradley Group - Forensic Economists & Economic Damages Experts",
-    description: "Expert economic analysis and litigation support for personal injury, wrongful death, and wrongful termination cases.",
+    description:
+      "Expert economic analysis and litigation support for personal injury, wrongful death, and wrongful termination cases.",
     url: "https://the-bradley-group.com",
     siteName: "The Bradley Group",
     images: [
@@ -56,13 +59,14 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "The Bradley Group - Forensic Economists",
-    description: "Expert economic analysis and litigation support for legal cases",
+    description:
+      "Expert economic analysis and litigation support for legal cases",
     images: ["https://the-bradley-group.com/cover-photo.jpg"],
   },
   alternates: {
     canonical: "https://the-bradley-group.com",
   },
-  metadataBase: new URL('https://the-bradley-group.com'),
+  metadataBase: new URL("https://the-bradley-group.com"),
 };
 
 export default function RootLayout({
@@ -81,7 +85,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <Analytics />
-            <Toaster 
+            <Toaster
               position="top-center"
               offset="25vh"
               expand={true}

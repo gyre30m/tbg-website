@@ -8,6 +8,7 @@ interface CookieConsentContextType {
   consent: CookieConsent
   setConsent: (consent: CookieConsent) => void
   hasAnalytics: boolean
+  isLoading: boolean
 }
 
 const CookieConsentContext = createContext<CookieConsentContextType | undefined>(undefined)
@@ -15,6 +16,7 @@ const CookieConsentContext = createContext<CookieConsentContextType | undefined>
 export function CookieConsentProvider({ children }: { children: ReactNode }) {
   const [consent, setConsentState] = useState<CookieConsent>(null)
   const [hasAnalytics, setHasAnalytics] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // Check if user has previously set consent
@@ -23,6 +25,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
       setConsentState(savedConsent)
       setHasAnalytics(savedConsent === 'accepted')
     }
+    setIsLoading(false)
   }, [])
 
   const setConsent = (newConsent: CookieConsent) => {
@@ -45,7 +48,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <CookieConsentContext.Provider value={{ consent, setConsent, hasAnalytics }}>
+    <CookieConsentContext.Provider value={{ consent, setConsent, hasAnalytics, isLoading }}>
       {children}
     </CookieConsentContext.Provider>
   )

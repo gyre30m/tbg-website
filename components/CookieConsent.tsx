@@ -7,16 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useCookieConsent } from '@/lib/cookie-consent'
 
 export default function CookieConsent() {
-  const { consent, setConsent } = useCookieConsent()
+  const { consent, setConsent, isLoading } = useCookieConsent()
   const [showDialog, setShowDialog] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
 
   useEffect(() => {
-    // Show dialog if no consent has been given
-    if (consent === null) {
+    // Show dialog if no consent has been given and we're done loading
+    if (!isLoading && consent === null) {
       setShowDialog(true)
     }
-  }, [consent])
+  }, [consent, isLoading])
 
   const handleAccept = () => {
     setConsent('accepted')
