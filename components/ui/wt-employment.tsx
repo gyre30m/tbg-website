@@ -6,7 +6,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Trash2, Plus, Upload } from 'lucide-react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Trash2, Plus } from 'lucide-react'
+import { FileUploadArea } from '@/components/ui/file-upload-area'
 
 interface EmploymentYear {
   id: string
@@ -30,7 +32,7 @@ interface WtEmploymentProps {
   postTerminationYears: EmploymentYear[]
   setPostTerminationYears: (years: EmploymentYear[]) => void
   uploadedFiles: UploadedFile[]
-  handleFileUpload: (files: FileList, category: string) => void
+  handleFileUpload: (files: FileList, category: string) => Promise<void>
   removeFile: (fileId: string) => void
   uploading: boolean
 }
@@ -89,15 +91,6 @@ export function WtEmployment({
     ))
   }
 
-  const getFilesByCategory = (category: string) => {
-    return uploadedFiles.filter(file => file.category === category)
-  }
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
-    if (e.target.files && e.target.files.length > 0) {
-      handleFileUpload(e.target.files, category)
-    }
-  }
 
   return (
     <Card>
@@ -169,104 +162,75 @@ export function WtEmployment({
           </div>
 
           {/* Pre-Termination Employment Years Table */}
-          <div className="space-y-4">
-            <Label>Annual wages and salary received*</Label>
-            <div className="space-y-3">
-              {preTerminationYears.map((year) => (
-                <div key={year.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                  <div>
-                    <Label htmlFor={`preYear-${year.id}`}>Year</Label>
-                    <Input
-                      id={`preYear-${year.id}`}
-                      value={year.year}
-                      onChange={(e) => updatePreTerminationYear(year.id, 'year', e.target.value)}
-                      placeholder="2023"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`preIncome-${year.id}`}>Income</Label>
-                    <Input
-                      id={`preIncome-${year.id}`}
-                      value={year.income}
-                      onChange={(e) => updatePreTerminationYear(year.id, 'income', e.target.value)}
-                      placeholder="$50,000"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`prePercent-${year.id}`}>% of Year Employed</Label>
-                    <Input
-                      id={`prePercent-${year.id}`}
-                      value={year.percentEmployed}
-                      onChange={(e) => updatePreTerminationYear(year.id, 'percentEmployed', e.target.value)}
-                      placeholder="100%"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={addPreTerminationYear}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                    {preTerminationYears.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removePreTerminationYear(year.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div>
+            <Label className="text-base font-medium">Annual wages and salary received*</Label>
+            <Table className="mt-2">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Year</TableHead>
+                  <TableHead>Income</TableHead>
+                  <TableHead>% of Year Employed</TableHead>
+                  <TableHead className="w-12"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {preTerminationYears.map((year) => (
+                  <TableRow key={year.id}>
+                    <TableCell>
+                      <Input
+                        value={year.year}
+                        onChange={(e) => updatePreTerminationYear(year.id, 'year', e.target.value)}
+                        placeholder="Year"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={year.income}
+                        onChange={(e) => updatePreTerminationYear(year.id, 'income', e.target.value)}
+                        placeholder="Income"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={year.percentEmployed}
+                        onChange={(e) => updatePreTerminationYear(year.id, 'percentEmployed', e.target.value)}
+                        placeholder="% Employed"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {preTerminationYears.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removePreTerminationYear(year.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <Button type="button" variant="outline" className="mt-2" onClick={addPreTerminationYear}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Year
+            </Button>
           </div>
 
           {/* Pre-Termination File Upload */}
-          <div className="space-y-4">
-            <Label>Upload documentation supporting wages and salary received*</Label>
-            <div className="flex items-center gap-4">
-              <input
-                type="file"
-                multiple
-                onChange={(e) => handleFileInputChange(e, 'pre-termination-wages')}
-                className="hidden"
-                id="preTerminationWagesUpload"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById('preTerminationWagesUpload')?.click()}
-                disabled={uploading}
-                className="flex items-center gap-2"
-              >
-                <Upload className="h-4 w-4" />
-                {uploading ? 'Uploading...' : 'Choose Files'}
-              </Button>
-            </div>
-            {getFilesByCategory('pre-termination-wages').length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Uploaded files:</p>
-                {getFilesByCategory('pre-termination-wages').map((file) => (
-                  <div key={file.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                    <span className="text-sm">{file.fileName}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(file.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div>
+            <Label className="text-base font-medium mb-2 block">Upload documentation supporting wages and salary received*</Label>
+            <FileUploadArea
+              category="pre-termination-wages"
+              label="Pre-Termination Wage Documentation"
+              acceptedTypes=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              uploadedFiles={uploadedFiles}
+              onFilesUpload={handleFileUpload}
+              onRemoveFile={removeFile}
+              uploading={uploading}
+            />
           </div>
 
           {/* Pre-Termination Benefits */}
@@ -310,46 +274,17 @@ export function WtEmployment({
             </div>
 
             {/* Pre-Termination Benefits File Upload */}
-            <div className="space-y-4">
-              <Label>Please attach copies of any I.R.A., 401K, Profit Sharing, or other benefit plans.</Label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => handleFileInputChange(e, 'pre-termination-benefits')}
-                  className="hidden"
-                  id="preTerminationBenefitsUpload"
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById('preTerminationBenefitsUpload')?.click()}
-                  disabled={uploading}
-                  className="flex items-center gap-2"
-                >
-                  <Upload className="h-4 w-4" />
-                  {uploading ? 'Uploading...' : 'Choose Files'}
-                </Button>
-              </div>
-              {getFilesByCategory('pre-termination-benefits').length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Uploaded files:</p>
-                  {getFilesByCategory('pre-termination-benefits').map((file) => (
-                    <div key={file.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                      <span className="text-sm">{file.fileName}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(file.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div>
+              <Label className="text-base font-medium mb-2 block">Please attach copies of any I.R.A., 401K, Profit Sharing, or other benefit plans.</Label>
+              <FileUploadArea
+                category="pre-termination-benefits"
+                label="Pre-Termination Benefit Plans"
+                acceptedTypes=".pdf,.doc,.docx"
+                uploadedFiles={uploadedFiles}
+                onFilesUpload={handleFileUpload}
+                onRemoveFile={removeFile}
+                uploading={uploading}
+              />
             </div>
           </div>
 
@@ -435,104 +370,75 @@ export function WtEmployment({
           </div>
 
           {/* Post-Termination Employment Years Table */}
-          <div className="space-y-4">
-            <Label>Annual wages and salary received</Label>
-            <div className="space-y-3">
-              {postTerminationYears.map((year) => (
-                <div key={year.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                  <div>
-                    <Label htmlFor={`postYear-${year.id}`}>Year</Label>
-                    <Input
-                      id={`postYear-${year.id}`}
-                      value={year.year}
-                      onChange={(e) => updatePostTerminationYear(year.id, 'year', e.target.value)}
-                      placeholder="2024"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`postIncome-${year.id}`}>Income</Label>
-                    <Input
-                      id={`postIncome-${year.id}`}
-                      value={year.income}
-                      onChange={(e) => updatePostTerminationYear(year.id, 'income', e.target.value)}
-                      placeholder="$45,000"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`postPercent-${year.id}`}>% of Year Employed</Label>
-                    <Input
-                      id={`postPercent-${year.id}`}
-                      value={year.percentEmployed}
-                      onChange={(e) => updatePostTerminationYear(year.id, 'percentEmployed', e.target.value)}
-                      placeholder="75%"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={addPostTerminationYear}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                    {postTerminationYears.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removePostTerminationYear(year.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div>
+            <Label className="text-base font-medium">Annual wages and salary received</Label>
+            <Table className="mt-2">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Year</TableHead>
+                  <TableHead>Income</TableHead>
+                  <TableHead>% of Year Employed</TableHead>
+                  <TableHead className="w-12"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {postTerminationYears.map((year) => (
+                  <TableRow key={year.id}>
+                    <TableCell>
+                      <Input
+                        value={year.year}
+                        onChange={(e) => updatePostTerminationYear(year.id, 'year', e.target.value)}
+                        placeholder="Year"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={year.income}
+                        onChange={(e) => updatePostTerminationYear(year.id, 'income', e.target.value)}
+                        placeholder="Income"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={year.percentEmployed}
+                        onChange={(e) => updatePostTerminationYear(year.id, 'percentEmployed', e.target.value)}
+                        placeholder="% Employed"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {postTerminationYears.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removePostTerminationYear(year.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <Button type="button" variant="outline" className="mt-2" onClick={addPostTerminationYear}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Year
+            </Button>
           </div>
 
           {/* Post-Termination File Upload */}
-          <div className="space-y-4">
-            <Label>Upload documentation supporting wages and salary received.</Label>
-            <div className="flex items-center gap-4">
-              <input
-                type="file"
-                multiple
-                onChange={(e) => handleFileInputChange(e, 'post-termination-wages')}
-                className="hidden"
-                id="postTerminationWagesUpload"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById('postTerminationWagesUpload')?.click()}
-                disabled={uploading}
-                className="flex items-center gap-2"
-              >
-                <Upload className="h-4 w-4" />
-                {uploading ? 'Uploading...' : 'Choose Files'}
-              </Button>
-            </div>
-            {getFilesByCategory('post-termination-wages').length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Uploaded files:</p>
-                {getFilesByCategory('post-termination-wages').map((file) => (
-                  <div key={file.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                    <span className="text-sm">{file.fileName}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(file.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div>
+            <Label className="text-base font-medium mb-2 block">Upload documentation supporting wages and salary received.</Label>
+            <FileUploadArea
+              category="post-termination-wages"
+              label="Post-Termination Wage Documentation"
+              acceptedTypes=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              uploadedFiles={uploadedFiles}
+              onFilesUpload={handleFileUpload}
+              onRemoveFile={removeFile}
+              uploading={uploading}
+            />
           </div>
 
           {/* Post-Termination Benefits */}
@@ -576,46 +482,17 @@ export function WtEmployment({
             </div>
 
             {/* Post-Termination Benefits File Upload */}
-            <div className="space-y-4">
-              <Label>Please attach copies of any I.R.A., 401K, Profit Sharing, or other benefit plans.</Label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => handleFileInputChange(e, 'post-termination-benefits')}
-                  className="hidden"
-                  id="postTerminationBenefitsUpload"
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById('postTerminationBenefitsUpload')?.click()}
-                  disabled={uploading}
-                  className="flex items-center gap-2"
-                >
-                  <Upload className="h-4 w-4" />
-                  {uploading ? 'Uploading...' : 'Choose Files'}
-                </Button>
-              </div>
-              {getFilesByCategory('post-termination-benefits').length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Uploaded files:</p>
-                  {getFilesByCategory('post-termination-benefits').map((file) => (
-                    <div key={file.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                      <span className="text-sm">{file.fileName}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(file.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div>
+              <Label className="text-base font-medium mb-2 block">Please attach copies of any I.R.A., 401K, Profit Sharing, or other benefit plans.</Label>
+              <FileUploadArea
+                category="post-termination-benefits"
+                label="Post-Termination Benefit Plans"
+                acceptedTypes=".pdf,.doc,.docx"
+                uploadedFiles={uploadedFiles}
+                onFilesUpload={handleFileUpload}
+                onRemoveFile={removeFile}
+                uploading={uploading}
+              />
             </div>
           </div>
 

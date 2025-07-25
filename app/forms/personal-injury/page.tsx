@@ -17,6 +17,7 @@ import { PiMedical } from '@/components/ui/pi-medical'
 import { PiEducation } from '@/components/ui/pi-education'
 import { PiEmployment } from '@/components/ui/pi-employment'
 import { PiHouseholdServices } from '@/components/ui/pi-household-services'
+import { PiOther } from '@/components/ui/pi-other'
 import { PiLitigation } from '@/components/ui/pi-litigation'
 import { personalInjuryDummyData } from '@/lib/personal-injury-dummy-data'
 
@@ -402,6 +403,8 @@ export default function PersonalInjuryForm() {
           />
           
           <PiHouseholdServices />
+          
+          <PiOther />
           
           <PiLitigation />
 

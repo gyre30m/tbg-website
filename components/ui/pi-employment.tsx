@@ -520,11 +520,6 @@ export function PiEmployment({
               <Label htmlFor="postJobExpenses">List any out-of-the-ordinary expenses associated with this job*</Label>
               <Textarea id="postJobExpenses" name="postJobExpenses" required rows={3} />
             </div>
-
-            <div>
-              <Label htmlFor="additionalInfo">Please provide any additional pertinent information which may have some bearing on past or future income or expenses.*</Label>
-              <Textarea id="additionalInfo" name="additionalInfo" required rows={4} />
-            </div>
           </div>
         </div>
       </CardContent>
