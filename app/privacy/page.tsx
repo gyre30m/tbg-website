@@ -28,7 +28,7 @@ export default function PrivacyPolicy() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Introduction</h2>
             <p className="mb-4">
-              The Bradley Group LLC ("we," "our," or "us") is committed to protecting your privacy. 
+              The Bradley Group LLC (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. 
               This Privacy Policy explains how we collect, use, and safeguard your information when 
               you visit our website.
             </p>
@@ -124,7 +124,7 @@ export default function PrivacyPolicy() {
             <h2 className="text-2xl font-semibold mb-4">Changes to This Policy</h2>
             <p className="mb-4">
               We may update this Privacy Policy from time to time. Any changes will be 
-              posted on this page with an updated "Last updated" date.
+              posted on this page with an updated &quot;Last updated&quot; date.
             </p>
           </section>
         </div>

@@ -1,22 +1,6 @@
 import Script from "next/script";
 
-interface SEOProps {
-  title?: string;
-  description?: string;
-  canonical?: string;
-  ogImage?: string;
-}
-
-export default function SEO({
-  title,
-  description,
-  canonical,
-  ogImage,
-}: SEOProps) {
-  const siteTitle =
-    "The Bradley Group - Forensic Economists & Economic Damages Experts";
-  const siteDescription =
-    "Expert economic analysis and litigation support for business valuation, personal injury, wrongful death, and wrongful termination cases. Serving law firms nationwide with forensic economic consulting.";
+export default function SEO() {
 
   const structuredData = {
     "@context": "https://schema.org",

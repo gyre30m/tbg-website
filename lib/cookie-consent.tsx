@@ -62,6 +62,6 @@ export function useCookieConsent() {
 // Extend the Window interface to include gtag
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void
+    gtag: (...args: unknown[]) => void
   }
 }
