@@ -34,7 +34,7 @@ export default function Home() {
           <Image
             className="dark:invert"
             src="/tbg-logo.svg"
-            alt="The Bradley Group logo"
+            alt="The Bradley Group - Forensic Economists and Economic Damages Experts Logo"
             width={80}
             height={20}
             priority
@@ -89,7 +89,7 @@ export default function Home() {
                   <Image
                     className="dark:invert mx-auto mb-6"
                     src="/tbg-logo.svg"
-                    alt="The Bradley Group logo"
+                    alt="The Bradley Group - Premier Forensic Economics Consulting Firm"
                     width={300}
                     height={200}
                     priority
@@ -117,7 +117,7 @@ export default function Home() {
               </div>
               <div className="flex items-center justify-center">
                 <Image
-                  alt="Economic Experts Projects"
+                  alt="Professional forensic economist analyzing economic data for litigation support and expert witness testimony"
                   className="rounded-lg object-cover"
                   height="400"
                   src="/cover-photo.jpg"
@@ -403,7 +403,7 @@ export default function Home() {
                   priority
                 /> */}
                 <Image
-                  alt="Economic Expert Portrait"
+                  alt="Bradley Gibbs, JD MBA - Lead Forensic Economist and Expert Witness specializing in economic damages analysis"
                   className="rounded-lg object-cover"
                   height="400"
                   src="/work-headshot.png"
@@ -465,8 +465,8 @@ export default function Home() {
           <Link className="text-xs hover:underline underline-offset-4" href="#">
             Terms of Service
           </Link>
-          <Link className="text-xs hover:underline underline-offset-4" href="#">
-            Privacy
+          <Link className="text-xs hover:underline underline-offset-4" href="/privacy">
+            Privacy Policy
           </Link>
         </nav>
       </footer>

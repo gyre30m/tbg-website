@@ -1,3 +1,14 @@
 # Allow all crawlers
 User-agent: *
 Allow: /
+
+# Disallow admin and debug pages
+Disallow: /admin/
+Disallow: /debug/
+Disallow: /debug-profile/
+Disallow: /setup-admin/
+Disallow: /test-policies/
+Disallow: /raw-auth-test/
+
+# Sitemap
+Sitemap: https://the-bradley-group.com/sitemap.xml
