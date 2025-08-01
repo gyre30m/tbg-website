@@ -26,6 +26,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
+interface FirmFormsPageProps {
+  params: Promise<{
+    'firm-name': string
+  }>
+}
+
 interface FormSubmission {
   id: string
   first_name: string | null
@@ -40,42 +46,122 @@ interface FormSubmission {
   version?: number
 }
 
+interface Firm {
+  id: string
+  name: string
+  domain: string
+  firm_admin_id: string
+  slug: string
+}
+
 const FORM_TYPE_LABELS = {
   personal_injury: 'Personal Injury',
   wrongful_death: 'Wrongful Death',
   wrongful_termination: 'Wrongful Termination'
 }
 
-export default function AllFormsPage() {
+export default function FirmFormsPage({ params }: FirmFormsPageProps) {
   const { user, loading, userProfile } = useAuth()
   const router = useRouter()
   const [forms, setForms] = useState<FormSubmission[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
+  const [firm, setFirm] = useState<Firm | null>(null)
+  const [firmLoading, setFirmLoading] = useState(true)
+  const [hasAccess, setHasAccess] = useState(false)
+  const [firmName, setFirmName] = useState<string>('')
 
   useEffect(() => {
-    if (user && userProfile) {
-      fetchAllForms()
+    const initializePage = async () => {
+      try {
+        const resolvedParams = await params
+        const decodedFirmName = decodeURIComponent(resolvedParams['firm-name'])
+        setFirmName(decodedFirmName)
+      } catch (error) {
+        console.error('Error resolving params:', error)
+        setFirmLoading(false)
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, userProfile])
 
-  const fetchAllForms = async () => {
-    if (!userProfile) return
+    initializePage()
+  }, [params])
+
+  useEffect(() => {
+    const fetchFirm = async () => {
+      if (!firmName) return
+
+      try {
+        console.log('Searching for firm with name/slug:', firmName)
+        
+        const supabase = createClient()
+        
+        // Try to fetch firm by slug first, then by name if slug doesn't exist
+        let { data: firmData, error: slugError } = await supabase
+          .from('firms')
+          .select('*')
+          .eq('slug', firmName)
+          .single()
+
+        // If slug search fails (column might not exist), try by name
+        if (slugError) {
+          const { data: nameData, error: nameError } = await supabase
+            .from('firms')
+            .select('*')
+            .eq('name', firmName)
+            .single()
+          
+          if (nameError) {
+            console.error('Error fetching firm by name:', nameError)
+            setFirmLoading(false)
+            return
+          }
+          
+          firmData = nameData
+        }
+
+        setFirm(firmData)
+
+        // Check access permissions
+        const isSiteAdmin = userProfile?.role === 'site_admin'
+        const isFirmAdmin = userProfile?.role === 'firm_admin'
+        
+        if (isSiteAdmin) {
+          setHasAccess(true)
+        } else if (userProfile?.firm_id === firmData.id) {
+          setHasAccess(true)
+        } else {
+          setHasAccess(false)
+        }
+      } catch (error) {
+        console.error('Error fetching firm:', error)
+      } finally {
+        setFirmLoading(false)
+      }
+    }
+
+    if (!loading && user && userProfile && firmName) {
+      fetchFirm()
+    }
+  }, [firmName, user, userProfile, loading])
+
+  useEffect(() => {
+    if (user && userProfile && firm && hasAccess) {
+      fetchFirmForms()
+    }
+  }, [user, userProfile, firm, hasAccess])
+
+  const fetchFirmForms = async () => {
+    if (!firm) return
 
     try {
       setIsLoading(true)
       const supabase = createClient()
 
-      // Determine access level
-      const isSiteAdmin = userProfile.role === 'site_admin'
-      const firmId = userProfile.firm_id
-
-      // Fetch from all three form types
+      // Fetch from all three form types for this specific firm
       const fetchPromises = []
 
-      // Personal Injury Forms - simplified query without foreign key reference
-      let piQuery = supabase
+      // Personal Injury Forms
+      const piQuery = supabase
         .from('personal_injury_forms')
         .select(`
           id,
@@ -90,10 +176,7 @@ export default function AllFormsPage() {
           version
         `)
         .eq('status', 'submitted')
-
-      if (!isSiteAdmin && firmId) {
-        piQuery = piQuery.eq('firm_id', firmId)
-      }
+        .eq('firm_id', firm.id)
 
       fetchPromises.push(
         piQuery.order('updated_at', { ascending: false }).then(({ data, error }) => {
@@ -102,8 +185,8 @@ export default function AllFormsPage() {
         })
       )
 
-      // Wrongful Death Forms - simplified query
-      let wdQuery = supabase
+      // Wrongful Death Forms
+      const wdQuery = supabase
         .from('wrongful_death_forms')
         .select(`
           id,
@@ -118,20 +201,17 @@ export default function AllFormsPage() {
           version
         `)
         .eq('status', 'submitted')
-
-      if (!isSiteAdmin && firmId) {
-        wdQuery = wdQuery.eq('firm_id', firmId)
-      }
+        .eq('firm_id', firm.id)
 
       fetchPromises.push(
         Promise.resolve(wdQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
-          if (error && error.code !== 'PGRST116') throw error // Ignore "not found" errors
+          if (error && error.code !== 'PGRST116') throw error
           return (data || []).map(form => ({ ...form, form_type: 'wrongful_death' as const }))
-        }).catch(() => []) // Return empty array if table doesn't exist
+        }).catch(() => [])
       )
 
-      // Wrongful Termination Forms - simplified query
-      let wtQuery = supabase
+      // Wrongful Termination Forms
+      const wtQuery = supabase
         .from('wrongful_termination_forms')
         .select(`
           id,
@@ -146,16 +226,13 @@ export default function AllFormsPage() {
           version
         `)
         .eq('status', 'submitted')
-
-      if (!isSiteAdmin && firmId) {
-        wtQuery = wtQuery.eq('firm_id', firmId)
-      }
+        .eq('firm_id', firm.id)
 
       fetchPromises.push(
         Promise.resolve(wtQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
-          if (error && error.code !== 'PGRST116') throw error // Ignore "not found" errors
+          if (error && error.code !== 'PGRST116') throw error
           return (data || []).map(form => ({ ...form, form_type: 'wrongful_termination' as const }))
-        }).catch(() => []) // Return empty array if table doesn't exist
+        }).catch(() => [])
       )
 
       // Wait for all queries to complete
@@ -170,15 +247,15 @@ export default function AllFormsPage() {
       setTotalCount(allForms.length)
 
     } catch (error) {
-      console.error('Error fetching forms:', error)
-      toast.error('Failed to load forms')
+      console.error('Error fetching firm forms:', error)
+      toast.error('Failed to load firm forms')
     } finally {
       setIsLoading(false)
     }
   }
 
   // Check authentication and permissions
-  if (loading || isLoading) {
+  if (loading || firmLoading || isLoading) {
     return (
       <>
         <Header />
@@ -194,14 +271,26 @@ export default function AllFormsPage() {
     return null
   }
 
-  // Only allow site admins and firm members to access this page
-  if (!userProfile?.firm_id && userProfile?.role !== 'site_admin') {
+  if (!hasAccess) {
     return (
       <>
         <Header />
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="text-center py-12">
-            <p className="text-gray-600">Access denied. This page is only available to firm members and site administrators.</p>
+            <p className="text-gray-600">Access denied. You don't have permission to view this firm's forms.</p>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (!firm) {
+    return (
+      <>
+        <Header />
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          <div className="text-center py-12">
+            <p className="text-gray-600">Firm not found.</p>
           </div>
         </div>
       </>
@@ -225,7 +314,6 @@ export default function AllFormsPage() {
   }
 
   const getSubmittedBy = (form: FormSubmission): string => {
-    // For now, just show the user ID since we simplified the query
     return form.submitted_by.substring(0, 8) + '...' || 'Unknown User'
   }
 
@@ -250,12 +338,9 @@ export default function AllFormsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">All Submitted Forms</h1>
+              <h1 className="text-3xl font-bold tracking-tight">{firm.name} - Forms</h1>
               <p className="text-gray-600 mt-2">
-                {userProfile?.role === 'site_admin' 
-                  ? 'Viewing all submitted forms across all firms'
-                  : 'Viewing submitted forms for your firm'
-                }
+                Viewing submitted forms for {firm.name}
               </p>
             </div>
             <Button 
@@ -273,9 +358,6 @@ export default function AllFormsPage() {
               <Calendar className="w-3 h-3" />
               {totalCount} Total Forms
             </Badge>
-            {userProfile?.role === 'site_admin' && (
-              <Badge variant="secondary">Site Admin View</Badge>
-            )}
           </div>
         </div>
 
@@ -322,7 +404,7 @@ export default function AllFormsPage() {
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg mb-2">No submitted forms found</p>
                 <p className="text-gray-400 text-sm">
-                  Forms will appear here once they are submitted
+                  Forms will appear here once they are submitted by {firm.name} users
                 </p>
               </div>
             ) : (
