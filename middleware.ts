@@ -52,9 +52,9 @@ export async function middleware(request: NextRequest) {
   )
 
   if (!user && isProtectedPath) {
-    // Redirect to forms page if trying to access protected route without auth
+    // Redirect to home page if trying to access protected route without auth
     const url = request.nextUrl.clone()
-    url.pathname = '/forms'
+    url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
