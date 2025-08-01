@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { Header } from '@/components/ui/header'
 import { Button } from '@/components/ui/button'
@@ -96,7 +96,8 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
         const supabase = createClient()
         
         // Try to fetch firm by slug first, then by name if slug doesn't exist
-        let { data: firmData, error: slugError } = await supabase
+        let firmData = null
+        const { data: slugData, error: slugError } = await supabase
           .from('firms')
           .select('*')
           .eq('slug', firmName)
@@ -117,13 +118,14 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           }
           
           firmData = nameData
+        } else {
+          firmData = slugData
         }
 
         setFirm(firmData)
 
         // Check access permissions
         const isSiteAdmin = userProfile?.role === 'site_admin'
-        const isFirmAdmin = userProfile?.role === 'firm_admin'
         
         if (isSiteAdmin) {
           setHasAccess(true)
@@ -144,13 +146,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
     }
   }, [firmName, user, userProfile, loading])
 
-  useEffect(() => {
-    if (user && userProfile && firm && hasAccess) {
-      fetchFirmForms()
-    }
-  }, [user, userProfile, firm, hasAccess])
-
-  const fetchFirmForms = async () => {
+  const fetchFirmForms = useCallback(async () => {
     if (!firm) return
 
     try {
@@ -252,7 +248,13 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [firm])
+
+  useEffect(() => {
+    if (user && userProfile && firm && hasAccess) {
+      fetchFirmForms()
+    }
+  }, [user, userProfile, firm, hasAccess, fetchFirmForms])
 
   // Check authentication and permissions
   if (loading || firmLoading || isLoading) {
@@ -277,7 +279,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
         <Header />
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="text-center py-12">
-            <p className="text-gray-600">Access denied. You don't have permission to view this firm's forms.</p>
+            <p className="text-gray-600">Access denied. You don&apos;t have permission to view this firm&apos;s forms.</p>
           </div>
         </div>
       </>
