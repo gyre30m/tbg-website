@@ -2,7 +2,7 @@
 
 import { FileText, ClipboardList, Users, Download } from "lucide-react";
 import Link from "next/link";
-import { Header } from "@/components/ui/header";
+import { FormsHeader } from "@/components/ui/forms-header";
 
 export default function FormsPage() {
   const forms = [
@@ -34,7 +34,7 @@ export default function FormsPage() {
 
   return (
     <>
-      <Header />
+      <FormsHeader />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">

@@ -9,6 +9,7 @@
             body { margin: 0; font-size: 12px; }
             .page-break { page-break-before: always; }
             .no-print { display: none; }
+            .nav-header { display: none; }
             /* Hide date input placeholder text when printing */
             input[type="date"]::-webkit-datetime-edit-text,
             input[type="date"]::-webkit-datetime-edit-month-field,
@@ -221,9 +222,107 @@
                 margin: 0 auto;
             }
         }
+        
+        /* Navigation header styles */
+        .nav-header {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            margin: -20px -20px 30px -20px;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .nav-logo {
+            height: 40px;
+            width: auto;
+        }
+        
+        .nav-logo:hover {
+            opacity: 0.8;
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .sign-in-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .sign-in-btn:hover {
+            background: #1d4ed8;
+        }
+        
+        .user-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        @media (max-width: 640px) {
+            .user-name {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Navigation Header -->
+    <div class="nav-header">
+        <div class="nav-container">
+            <a href="/" style="text-decoration: none;">
+                <img src="/web-logo.svg" alt="The Bradley Group" class="nav-logo">
+            </a>
+            <div class="nav-right">
+                <div id="auth-section">
+                    <!-- Default to sign in button, will be updated by JavaScript -->
+                    <a href="/signin" class="sign-in-btn">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container">
         <div class="header">
             <div class="form-title">Wrongful Termination Economic Loss Information Form</div>
@@ -763,6 +862,58 @@
                 cell.addEventListener('input', saveFormData);
             });
         });
+    </script>
+    
+    <!-- Authentication checking script -->
+    <script>
+        // Simple authentication check for static HTML
+        async function checkAuthentication() {
+            try {
+                // Try to get session from localStorage (basic approach for static HTML)
+                const authData = localStorage.getItem('sb-auth-data');
+                if (authData) {
+                    const auth = JSON.parse(authData);
+                    if (auth && auth.user) {
+                        displayUserInfo(auth.user);
+                        return;
+                    }
+                }
+                
+                // Check if user has authentication cookie/session
+                if (document.cookie.includes('sb-')) {
+                    // User might be authenticated, try to get user info
+                    fetch('/api/check-user', { credentials: 'include' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.user) {
+                                displayUserInfo(data.user);
+                            }
+                        })
+                        .catch(() => {
+                            // Keep default sign in button
+                        });
+                }
+            } catch (error) {
+                console.log('Auth check failed:', error);
+                // Keep default sign in button
+            }
+        }
+        
+        function displayUserInfo(user) {
+            const authSection = document.getElementById('auth-section');
+            const email = user.email || '';
+            const initials = email.substring(0, 2).toUpperCase();
+            
+            authSection.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <div class="user-circle">${initials}</div>
+                    <div class="user-name">${email}</div>
+                </div>
+            `;
+        }
+        
+        // Run auth check when page loads
+        document.addEventListener('DOMContentLoaded', checkAuthentication);
     </script>
 </body>
 </html>
