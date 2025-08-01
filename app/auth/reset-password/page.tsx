@@ -14,33 +14,77 @@ export default function ResetPasswordPage() {
   const router = useRouter()
   // const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
+  const [initializing, setInitializing] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
   useEffect(() => {
-    // Check if this is coming from an invitation link
-    const urlHash = window.location.hash
-    if (urlHash.includes('type=invite')) {
-      // This is an invitation, redirect to signup
-      const params = new URLSearchParams(urlHash.substring(1))
-      const accessToken = params.get('access_token')
-      const refreshToken = params.get('refresh_token')
+    // Handle auth tokens from password reset email
+    const handleAuthTokens = async () => {
+      const urlHash = window.location.hash
       
-      if (accessToken && refreshToken) {
-        // Set the session and redirect to complete profile
-        supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        }).then(() => {
-          router.push('/auth/complete-profile')
-        })
+      if (urlHash) {
+        const params = new URLSearchParams(urlHash.substring(1))
+        const accessToken = params.get('access_token')
+        const refreshToken = params.get('refresh_token')
+        const type = params.get('type')
+        
+        console.log('Password reset page - URL params:', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken })
+        
+        if (type === 'invite') {
+          // This is an invitation, redirect to signup/complete profile
+          if (accessToken && refreshToken) {
+            try {
+              await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+              })
+              router.push('/auth/complete-profile')
+            } catch (error) {
+              console.error('Failed to set session for invitation:', error)
+              router.push('/auth/signup')
+            }
+          } else {
+            router.push('/auth/signup')
+          }
+          return
+        }
+        
+        if (type === 'recovery' && accessToken && refreshToken) {
+          // This is a password reset - set the session for password update
+          try {
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            })
+            
+            if (error) {
+              console.error('Failed to set session for password reset:', error)
+              setError('Invalid or expired reset link. Please request a new password reset.')
+            } else {
+              console.log('Session set successfully for password reset')
+              // Session is now active, user can update password
+            }
+            setInitializing(false)
+          } catch (error) {
+            console.error('Error setting session:', error)
+            setError('Failed to authenticate reset link. Please try again.')
+            setInitializing(false)
+          }
+        } else if (type === 'recovery') {
+          setError('Invalid reset link. Please request a new password reset.')
+          setInitializing(false)
+        }
       } else {
-        router.push('/auth/signup')
+        // No hash parameters - user navigated directly to reset page
+        setError('No reset token found. Please use the link from your password reset email.')
+        setInitializing(false)
       }
-      return
     }
+    
+    handleAuthTokens()
   }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +133,17 @@ export default function ResetPasswordPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (initializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Verifying your reset link...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
