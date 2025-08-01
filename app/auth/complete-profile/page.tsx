@@ -26,11 +26,42 @@ export default function CompleteProfilePage() {
   })
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/signin')
-      return
+    // Handle invitation token from URL
+    const handleInvitationToken = async () => {
+      const urlHash = window.location.hash
+      
+      if (urlHash) {
+        const params = new URLSearchParams(urlHash.substring(1))
+        const accessToken = params.get('access_token')
+        const refreshToken = params.get('refresh_token')
+        const type = params.get('type')
+        
+        if (type === 'invite' && accessToken && refreshToken) {
+          try {
+            // Set the session from the invitation link
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            })
+            
+            if (error) {
+              console.error('Failed to set session from invitation:', error)
+              setError('Invalid invitation link. Please contact your administrator.')
+              return
+            }
+            
+            console.log('Session set successfully from invitation')
+            // The auth context will update with the new user
+          } catch (error) {
+            console.error('Error processing invitation:', error)
+            setError('Failed to process invitation. Please try again.')
+          }
+        }
+      }
     }
-
+    
+    handleInvitationToken()
+    
     // Pre-fill data if available
     if (user?.user_metadata) {
       setFormData(prev => ({
@@ -53,13 +84,19 @@ export default function CompleteProfilePage() {
       return
     }
 
-    if (formData.password && formData.password !== formData.confirmPassword) {
+    if (!formData.password) {
+      setError('Password is required')
+      setLoading(false)
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       setLoading(false)
       return
     }
 
-    if (formData.password && formData.password.length < 6) {
+    if (formData.password.length < 6) {
       setError('Password must be at least 6 characters')
       setLoading(false)
       return
@@ -205,36 +242,36 @@ export default function CompleteProfilePage() {
 
               <div className="border-t pt-4">
                 <h3 className="text-sm font-medium text-gray-900 mb-2">
-                  Set Your Password (Optional)
+                  Set Your Password
                 </h3>
                 <p className="text-xs text-gray-600 mb-3">
-                  You can set a password now or use the temporary one provided.
+                  Please create a password for your account.
                 </p>
                 
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor="password">New Password</Label>
+                    <Label htmlFor="password">Password</Label>
                     <Input
                       id="password"
                       type="password"
+                      required
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="Enter a new password (optional)"
+                      placeholder="Enter your password"
                     />
                   </div>
 
-                  {formData.password && (
-                    <div>
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        placeholder="Confirm your password"
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      required
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      placeholder="Confirm your password"
+                    />
+                  </div>
                 </div>
               </div>
 
