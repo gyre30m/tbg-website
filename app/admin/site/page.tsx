@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { SiteAdminPanel } from '@/components/ui/site-admin-panel'
+import { Header } from '@/components/ui/header'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -31,5 +32,10 @@ export default function AdminSitePage() {
     )
   }
 
-  return <SiteAdminPanel />
+  return (
+    <>
+      <Header />
+      <SiteAdminPanel />
+    </>
+  )
 }
