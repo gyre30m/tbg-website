@@ -51,7 +51,7 @@ The `image_url` field should store the final URL where the uploaded image can be
 
 ## Form Updates
 
-Both the firm creation form (`/admin`) and firm editing form (`/admin/firms/[firm-name]`) now include:
+Both the firm creation form (`/admin`) and firm editing form (`/firms/[firm-name]/admin`) now include:
 
 - Address information section with all address fields
 - Phone number field with tel input type

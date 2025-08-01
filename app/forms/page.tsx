@@ -40,7 +40,7 @@ export default function FormsPage() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Economic Loss Information Forms
           </h1>
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
             Download and complete the appropriate form for your case type.
           </p>
         </div>
@@ -57,19 +57,19 @@ export default function FormsPage() {
                   href={form.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start space-x-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-blue-300 cursor-pointer group"
+                  className="flex items-start space-x-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm transition-all hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer group"
                 >
                   <div className="flex-shrink-0">
                     <IconComponent className="h-8 w-8 text-blue-600 group-hover:text-blue-700" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-700">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400">
                         {form.title}
                       </h3>
-                      <Download className="h-5 w-5 text-gray-400 group-hover:text-blue-600" />
+                      <Download className="h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
                     </div>
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                       {form.description}
                     </p>
                   </div>
@@ -78,11 +78,11 @@ export default function FormsPage() {
             })}
           </div>
 
-          <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold mb-2">
+          <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <h3 className="font-semibold mb-2 dark:text-gray-100">
               Instructions for Printable Forms:
             </h3>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700">
+            <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
               <li>Click on the form you need above to open it in a new tab</li>
               <li>
                 You can either fill it out digitally and then print, or print it

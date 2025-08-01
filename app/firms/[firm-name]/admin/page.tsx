@@ -6,7 +6,7 @@ import { FirmAdminDashboard } from '@/components/ui/firm-admin-dashboard'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-interface FirmPageProps {
+interface FirmAdminPageProps {
   params: Promise<{
     'firm-name': string
   }>
@@ -17,10 +17,11 @@ interface Firm {
   name: string
   domain: string
   firm_admin_id: string
+  slug: string
 }
 
-export default function FirmAdminPage({ params }: FirmPageProps) {
-  const { user, userProfile, loading, isSiteAdmin } = useAuth()
+export default function FirmAdminPage({ params }: FirmAdminPageProps) {
+  const { user, userProfile, loading, isSiteAdmin, isFirmAdmin } = useAuth()
   const router = useRouter()
   const [firm, setFirm] = useState<Firm | null>(null)
   const [firmLoading, setFirmLoading] = useState(true)
@@ -69,7 +70,7 @@ export default function FirmAdminPage({ params }: FirmPageProps) {
         if (isSiteAdmin) {
           // Site admins can access any firm
           setHasAccess(true)
-        } else if (userProfile?.role === 'firm_admin' && userProfile?.firm_id === firmData.id) {
+        } else if (isFirmAdmin && userProfile?.firm_id === firmData.id) {
           // Firm admins can only access their own firm
           setHasAccess(true)
         } else {
@@ -85,13 +86,30 @@ export default function FirmAdminPage({ params }: FirmPageProps) {
     if (!loading && user && userProfile && firmName) {
       fetchFirm()
     }
-  }, [firmName, user, userProfile, loading, isSiteAdmin])
+  }, [firmName, user, userProfile, loading, isSiteAdmin, isFirmAdmin])
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/')
+      router.push('/signin')
     }
-  }, [user, loading, router])
+    
+    // If user is a firm admin but trying to access a different firm, redirect to their own firm
+    if (!loading && user && userProfile && isFirmAdmin && !isSiteAdmin && userProfile.firm_id && firmName) {
+      // Get user's firm slug and redirect if different
+      const fetchUserFirm = async () => {
+        const { data: userFirmData } = await supabase
+          .from('firms')
+          .select('slug')
+          .eq('id', userProfile.firm_id)
+          .single()
+        
+        if (userFirmData && userFirmData.slug !== firmName) {
+          router.push(`/firms/${userFirmData.slug}/admin`)
+        }
+      }
+      fetchUserFirm()
+    }
+  }, [user, loading, router, userProfile, isFirmAdmin, isSiteAdmin, firmName])
 
   if (loading || firmLoading) {
     return (
@@ -105,6 +123,16 @@ export default function FirmAdminPage({ params }: FirmPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg text-red-600">Please log in to access this page</div>
+      </div>
+    )
+  }
+
+  if (!isFirmAdmin && !isSiteAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg text-red-600">
+          Access Denied - Firm Admin Only
+        </div>
       </div>
     )
   }

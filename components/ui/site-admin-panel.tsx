@@ -224,7 +224,7 @@ export function SiteAdminPanel() {
   const handleManageFirm = (firm: Firm) => {
     // Navigate to firm management page
     const firmSlug = firm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-    router.push(`/admin/firms/${firmSlug}`)
+    router.push(`/firms/${firmSlug}/admin`)
   }
 
   const clearMessages = () => {

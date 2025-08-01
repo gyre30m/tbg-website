@@ -47,12 +47,19 @@ export default function Home() {
           href="#"
         >
           <Image
-            // className="dark:invert"
-            src="/tbg-logo.svg"
+            src="/web-logo.svg"
             alt="The Bradley Group - Forensic Economists and Economic Damages Experts Logo"
             width={300}
             height={75}
-            className="h-12 w-auto"
+            className="h-12 w-auto dark:hidden"
+            priority
+          />
+          <Image
+            src="/web-logo-dark.svg"
+            alt="The Bradley Group - Forensic Economists and Economic Damages Experts Logo"
+            width={300}
+            height={75}
+            className="h-12 w-auto hidden dark:block"
             priority
           />
         </Link>
@@ -126,8 +133,16 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <Image
-                    className="dark:invert mx-auto mb-6"
-                    src="/tbg-logo.svg"
+                    className="mx-auto mb-6 dark:hidden"
+                    src="/web-logo.svg"
+                    alt="The Bradley Group - Premier Forensic Economics Consulting Firm"
+                    width={300}
+                    height={200}
+                    priority
+                  />
+                  <Image
+                    className="mx-auto mb-6 hidden dark:block"
+                    src="/web-logo-dark.svg"
                     alt="The Bradley Group - Premier Forensic Economics Consulting Firm"
                     width={300}
                     height={200}

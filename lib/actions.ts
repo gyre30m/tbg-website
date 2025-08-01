@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from './supabase/server-client'
+import { createAdminClient } from './supabase/admin-client'
 
 // Generic function to extract normalized form data for Personal Injury forms
 function extractPersonalInjuryData(formData: FormData) {
@@ -746,7 +747,15 @@ export async function removeUserFromFirm(userId: string) {
   }
 }
 
-export async function inviteUserToFirmAction(email: string, firmId: string, firmDomain: string) {
+/**
+ * Invites a user to join a firm via email invitation
+ * 
+ * @param email - The email address to invite (must match the firm domain)
+ * @param firmId - The ID of the firm to invite the user to
+ * @param firmDomain - The domain of the firm (for validation)
+ * @returns Promise with success/error status, message, and userExists flag
+ */
+export async function inviteUserToFirmAction(email: string, firmId: string, firmDomain: string): Promise<{ success: boolean; error?: string; message?: string; userExists?: boolean }> {
   try {
     const emailDomain = email.split('@')[1]
     if (emailDomain !== firmDomain) {
@@ -754,17 +763,25 @@ export async function inviteUserToFirmAction(email: string, firmId: string, firm
     }
 
     const supabase = await createClient()
-    const { data: existingUser } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('firm_id', firmId)
-      .eq('user_id', email)
-
-    if (existingUser && existingUser.length > 0) {
-      return { success: false, error: 'User already exists in this firm' }
+    const adminClient = createAdminClient()
+    
+    // Check if user already exists with this email
+    const { data: usersList } = await adminClient.auth.admin.listUsers()
+    const existingAuthUser = usersList?.users?.find(user => user.email === email.toLowerCase())
+    
+    if (existingAuthUser) {
+      // User already exists - block the invitation
+      console.log(`User ${email} already exists in the system`)
+      
+      return { 
+        success: false, 
+        error: `User with email ${email} already exists in the system. Please use the "Reset Password" function to send them a password reset email instead.`,
+        userExists: true
+      }
     }
 
-    const { error } = await supabase
+    // User doesn't exist, create invitation record and send invite email
+    const { error: inviteError } = await supabase
       .from('user_invitations')
       .insert([{
         email: email.toLowerCase(),
@@ -773,11 +790,53 @@ export async function inviteUserToFirmAction(email: string, firmId: string, firm
         invited_at: new Date().toISOString(),
       }])
 
-    if (error) throw error
-    return { success: true }
+    if (inviteError) throw inviteError
+
+    // Send invitation email using Supabase Auth admin client
+    const { error: emailError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/complete-profile`,
+      data: {
+        firm_id: firmId,
+        role: 'user'
+      }
+    })
+
+    if (emailError) {
+      console.error('Failed to send invitation email:', emailError)
+      return { success: true, message: 'Invitation created but email delivery failed. Please contact the user directly.' }
+    }
+
+    return { success: true, message: 'Invitation sent successfully' }
   } catch (error) {
     console.error('Error inviting user:', error)
     return { success: false, error: 'Failed to invite user' }
+  }
+}
+
+/**
+ * Sends a password reset email to an existing user
+ * 
+ * @param email - The email address of the user
+ * @returns Promise with success/error status and message
+ */
+export async function sendPasswordResetAction(email: string) {
+  try {
+    const supabase = await createClient()
+    
+    // Send password reset email
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
+    })
+
+    if (error) {
+      console.error('Failed to send password reset email:', error)
+      return { success: false, error: 'Failed to send password reset email' }
+    }
+
+    return { success: true, message: `Password reset email sent to ${email}` }
+  } catch (error) {
+    console.error('Error sending password reset:', error)
+    return { success: false, error: 'Failed to send password reset email' }
   }
 }
 

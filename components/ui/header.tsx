@@ -37,18 +37,26 @@ export function Header({ formActions }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo/Brand */}
           <div className="flex items-center space-x-4 flex-shrink-0">
             <Link href="/" className="hover:opacity-80 transition-opacity">
               <Image
-                src="/tbg-logo.svg"
+                src="/web-logo.svg"
                 alt="The Bradley Group"
                 width={300}
                 height={75}
-                className="h-12 w-auto"
+                className="h-12 w-auto dark:hidden"
+                priority
+              />
+              <Image
+                src="/web-logo-dark.svg"
+                alt="The Bradley Group"
+                width={300}
+                height={75}
+                className="h-12 w-auto hidden dark:block"
                 priority
               />
             </Link>
@@ -70,11 +78,11 @@ export function Header({ formActions }: HeaderProps) {
                   className="flex items-center space-x-2 h-10"
                 >
                   <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                      <User className="h-4 w-4 text-gray-600" />
+                    <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                     </div>
                     <div className="hidden sm:block text-left">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {getUserDisplayName()}
                       </div>
                     </div>

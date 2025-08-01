@@ -59,11 +59,19 @@ export default function SignInPage() {
       <header className="px-4 lg:px-6 py-4 flex items-center border-b">
         <Link className="flex items-center justify-center hover:opacity-80 transition-opacity" href="/">
           <Image
-            src="/tbg-logo.svg"
+            src="/web-logo.svg"
             alt="The Bradley Group - Forensic Economists and Economic Damages Experts Logo"
             width={300}
             height={75}
-            className="h-12 w-auto"
+            className="h-12 w-auto dark:hidden"
+            priority
+          />
+          <Image
+            src="/web-logo-dark.svg"
+            alt="The Bradley Group - Forensic Economists and Economic Damages Experts Logo"
+            width={300}
+            height={75}
+            className="h-12 w-auto hidden dark:block"
             priority
           />
         </Link>

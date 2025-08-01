@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { getFirmUsers, removeUserFromFirm, inviteUserToFirmAction } from '@/lib/actions'
+import { getFirmUsers, removeUserFromFirm, inviteUserToFirmAction, sendPasswordResetAction } from '@/lib/actions'
 import { supabase } from '@/lib/supabase'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -85,7 +85,22 @@ export function FirmAdminDashboard({ targetFirm }: FirmAdminDashboardProps) {
         setInviteDialogOpen(false)
         await fetchFirmUsers()
       } else {
-        toast.error(result.error || 'Failed to invite user')
+        // Check if user already exists
+        if (result.userExists) {
+          // Show confirmation dialog for password reset
+          if (confirm(`${inviteEmail} already exists in the system. Would you like to send them a password reset email instead?`)) {
+            const resetResult = await sendPasswordResetAction(inviteEmail)
+            if (resetResult.success) {
+              toast.success(resetResult.message || 'Password reset email sent')
+              setInviteEmail('')
+              setInviteDialogOpen(false)
+            } else {
+              toast.error(resetResult.error || 'Failed to send password reset email')
+            }
+          }
+        } else {
+          toast.error(result.error || 'Failed to invite user')
+        }
       }
     } catch (error) {
       console.error('Error inviting user:', error)

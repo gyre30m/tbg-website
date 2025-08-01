@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
     '/forms/wrongful-termination',
     '/profile',
     '/admin',
-    '/firm-admin',
+    '/firms',
     '/setup-admin'
   ]
 

@@ -64,7 +64,7 @@ Before running these tests, ensure you have:
 ### Test FA-1: Firm Admin Dashboard Access
 **Objective**: Firm admin can access their firm's admin area
 **Steps**:
-1. Navigate to `/admin/firms/testfirm1`
+1. Navigate to `/firms/testfirm1/admin`
 2. Login as `admin@testfirm1.com`
 3. Verify access to firm admin interface
 **Expected**: Access granted to own firm's admin area
@@ -72,7 +72,7 @@ Before running these tests, ensure you have:
 ### Test FA-2: Cross-Firm Access Denial
 **Objective**: Firm admin cannot access other firms
 **Steps**:
-1. As `admin@testfirm1.com`, try to navigate to `/admin/firms/testfirm2`
+1. As `admin@testfirm1.com`, try to navigate to `/firms/testfirm2/admin`
 2. Attempt to access Test Firm 2 data
 **Expected**: Access denied or redirected
 

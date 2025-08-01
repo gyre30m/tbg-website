@@ -8,7 +8,7 @@ export default function SEO() {
     description:
       "Forensic economic consulting and expert witness services for litigation support",
     url: "https://the-bradley-group.com",
-    logo: "https://the-bradley-group.com/tbg-logo.svg",
+    logo: "https://the-bradley-group.com/web-logo.svg",
     image: "https://the-bradley-group.com/cover-photo.jpg",
     priceRange: "$1,500-$2,500",
     address: {
