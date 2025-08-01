@@ -787,7 +787,7 @@ export async function inviteUserToFirmAction(email: string, firmId: string, firm
 
     if (emailError) {
       console.error('Failed to send invitation email:', emailError)
-      return { success: false, error: 'Failed to send invitation email' }
+      return { success: false, error: `Failed to send invitation email: ${emailError.message}` }
     }
 
     return { success: true, message: 'Invitation sent successfully' }
