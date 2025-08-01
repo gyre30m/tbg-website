@@ -31,7 +31,10 @@ export default function ResetPasswordPage() {
         const refreshToken = params.get('refresh_token')
         const type = params.get('type')
         
+        console.log('Password reset page - Full URL:', window.location.href)
+        console.log('Password reset page - Hash:', urlHash)
         console.log('Password reset page - URL params:', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken })
+        console.log('Password reset page - All params:', Object.fromEntries(params.entries()))
         
         if (type === 'invite') {
           // This is an invitation, redirect to signup/complete profile
