@@ -757,16 +757,40 @@ export async function removeUserFromFirm(userId: string) {
  */
 export async function inviteUserToFirmAction(email: string, firmId: string, firmDomain: string): Promise<{ success: boolean; error?: string; message?: string; userExists?: boolean }> {
   try {
+    console.log('=== INVITATION START ===')
+    console.log('Inviting:', { email, firmId, firmDomain })
+    
+    // Validate inputs
+    if (!email || !firmId || !firmDomain) {
+      console.error('Missing required parameters:', { email: !!email, firmId: !!firmId, firmDomain: !!firmDomain })
+      return { success: false, error: 'Missing required parameters for invitation' }
+    }
+    
     const emailDomain = email.split('@')[1]
     if (emailDomain !== firmDomain) {
+      console.log('Domain validation failed:', emailDomain, '!==', firmDomain)
       return { success: false, error: `Email must use ${firmDomain} domain` }
     }
 
     const supabase = await createClient()
     const adminClient = createAdminClient()
     
+    // Get current user to check permissions
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      console.error('Authentication failed:', authError)
+      return { success: false, error: 'Authentication required to send invitations' }
+    }
+    
+    console.log('Current user:', user.id)
+    
     // Check if user already exists with this email
-    const { data: usersList } = await adminClient.auth.admin.listUsers()
+    const { data: usersList, error: listError } = await adminClient.auth.admin.listUsers()
+    if (listError) {
+      console.error('Failed to list users:', listError)
+      return { success: false, error: 'Failed to check existing users' }
+    }
+    
     const existingAuthUser = usersList?.users?.find(user => user.email === email.toLowerCase())
     
     if (existingAuthUser) {
@@ -780,20 +804,10 @@ export async function inviteUserToFirmAction(email: string, firmId: string, firm
       }
     }
 
-    // User doesn't exist, create invitation record and send invite email
-    const { error: inviteError } = await supabase
-      .from('user_invitations')
-      .insert([{
-        email: email.toLowerCase(),
-        firm_id: firmId,
-        role: 'user',
-        invited_at: new Date().toISOString(),
-      }])
+    console.log('User does not exist, proceeding with invitation')
 
-    if (inviteError) throw inviteError
-
-    // Send invitation email using Supabase Auth admin client
-    const { error: emailError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+    // Send invitation email first using Supabase Auth admin client
+    const { data: inviteData, error: emailError } = await adminClient.auth.admin.inviteUserByEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/complete-profile`,
       data: {
         firm_id: firmId,
@@ -803,13 +817,33 @@ export async function inviteUserToFirmAction(email: string, firmId: string, firm
 
     if (emailError) {
       console.error('Failed to send invitation email:', emailError)
-      return { success: true, message: 'Invitation created but email delivery failed. Please contact the user directly.' }
+      return { success: false, error: 'Failed to send invitation email: ' + emailError.message }
     }
+    
+    console.log('Invitation email sent successfully, user ID:', inviteData?.user?.id)
 
+    // Create invitation record only after email is sent successfully
+    const { error: inviteError } = await supabase
+      .from('user_invitations')
+      .insert([{
+        email: email.toLowerCase(),
+        firm_id: firmId,
+        role: 'user',
+        invited_at: new Date().toISOString(),
+        invited_by: user.id
+      }])
+
+    if (inviteError) {
+      console.error('Failed to create invitation record (but email was sent):', inviteError)
+      // Don't fail the whole operation since the email was sent
+      return { success: true, message: 'Invitation sent successfully (database record creation failed)' }
+    }
+    
+    console.log('Invitation record created successfully')
     return { success: true, message: 'Invitation sent successfully' }
   } catch (error) {
     console.error('Error inviting user:', error)
-    return { success: false, error: 'Failed to invite user' }
+    return { success: false, error: 'Failed to invite user: ' + (error instanceof Error ? error.message : 'Unknown error') }
   }
 }
 
