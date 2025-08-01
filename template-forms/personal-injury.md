@@ -77,7 +77,7 @@ Highest level of education completed prior to injury*
 [textfield]
 
 List any licenses, training, or special skills held by the injured party at the time of the incident (enter "N/A" if not applicable)*
-[textfiled]
+[textfield]
 
 Detail any plans the injured party had to attain further educational degrees, licenses, or training at the time of the incident (enter "N/A" if not applicable)*
 [textfield]

@@ -20,9 +20,13 @@ export const wrongfulDeathDummyData = {
   healthIssues: "Robert was in good health prior to the accident. He had mild hypertension controlled with medication and occasional back pain from a previous work injury in 2019. He maintained regular exercise and had no significant medical limitations that affected his work or daily activities.",
   workMissed: "Robert missed approximately 3 weeks of work in 2023 due to a minor back strain, which was successfully treated with physical therapy. Otherwise, he had excellent attendance and rarely took sick days throughout his career.",
 
-  // Education & Employment
-  educationLevel: "Bachelor's Degree in Mechanical Engineering",
+  // Education
+  educationLevel: "bachelors",
   skillsLicenses: "Professional Engineer (PE) License, Project Management Professional (PMP) Certification, CAD Software Proficiency (AutoCAD, SolidWorks)",
+  educationPlans: "Robert was planning to pursue a Master's in Engineering Management within the next 2-3 years to advance his career prospects and increase his earning potential.",
+  parentEducation: "N/A - Robert was an adult at time of death",
+
+  // Employment
   employmentStatus: "full-time",
   jobTitle: "Senior Mechanical Engineer",
   employerName: "Springfield Manufacturing Corp",

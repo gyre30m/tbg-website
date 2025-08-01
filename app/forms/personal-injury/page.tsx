@@ -41,6 +41,7 @@ interface UploadedFile {
   fileUrl: string
   fileSize: number
   fileType: string
+  storagePath?: string
   category: string
 }
 
@@ -92,20 +93,21 @@ export default function PersonalInjuryForm() {
     const textFields = [
       'firstName', 'lastName', 'address1', 'address2', 'city', 'state', 'zipCode',
       'email', 'phone', 'dateOfBirth', 'incidentDate', 'injuryDescription',
-      'caregiverClaim', 'lifeExpectancy', 'futureMedical',
-      'preInjurySkills', 'educationPlans', 'parentEducation', 'postInjuryEducation',
+      'caregiverClaim', 'lifeExpectancy', 'futureMedical', 'futureExpenses',
+      'preInjurySkills', 'educationPlans', 'parentEducation', 'parentsEducation', 'postInjuryEducation',
       'preInjuryJobTitle', 'preInjuryEmployer', 'preInjuryStartDate', 'preInjurySalary',
       'preInjuryDuties', 'preInjuryAdvancements', 'preInjuryOvertime', 'preInjuryWorkSteady',
       'preInjuryLifeInsurance', 'preInjuryIndividualHealth', 'preInjuryFamilyHealth',
       'preInjuryRetirementPlan', 'preInjuryInvestmentPlan', 'preInjuryBonus',
       'preInjuryStockOptions', 'preInjuryOtherBenefits', 'preInjuryRetirementAge',
-      'preInjuryCareerTrajectory', 'preInjuryJobExpenses', 'disabilityRating',
+      'retirementAge', 'preInjuryCareerTrajectory', 'careerTrajectory', 'preInjuryJobExpenses',
+      'jobExpenses', 'disabilityRating',
       'postInjuryJobTitle', 'postInjuryEmployer', 'postInjuryStartDate', 'postInjurySalary',
       'postInjuryDuties', 'postInjuryAdvancements', 'postInjuryOvertime', 'postInjuryWorkSteady',
       'postInjuryLifeInsurance', 'postInjuryIndividualHealth', 'postInjuryFamilyHealth',
       'postInjuryRetirementPlan', 'postInjuryInvestmentPlan', 'postInjuryBonus',
       'postInjuryStockOptions', 'postInjuryOtherBenefits', 'postInjuryRetirementAge',
-      'postInjuryJobExpenses', 'additionalInfo', 'settlementDate', 'trialDate',
+      'postRetirementAge', 'postInjuryJobExpenses', 'postJobExpenses', 'additionalInfo', 'settlementDate', 'trialDate',
       'trialLocation', 'opposingCounselFirm', 'opposingEconomist'
     ]
 
@@ -203,6 +205,7 @@ export default function PersonalInjuryForm() {
           fileUrl: result.fileUrl!,
           fileSize: result.fileSize!,
           fileType: result.fileType!,
+          storagePath: result.storagePath,
           category
         }))
       
@@ -351,9 +354,43 @@ export default function PersonalInjuryForm() {
     }
   }
 
+  const formActions = (
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+      <Button 
+        type="button" 
+        variant="destructive"
+        onClick={handleCancelClick} 
+        disabled={isSubmitting || isSavingDraft || isDeleting}
+        className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2"
+        size="sm"
+      >
+        {hasBeenSaved ? 'Delete' : 'Cancel'}
+      </Button>
+      <Button 
+        type="button" 
+        variant="outline" 
+        onClick={handleSaveDraft} 
+        disabled={isSavingDraft || isSubmitting || isDeleting}
+        className="text-sm px-3 py-2"
+        size="sm"
+      >
+        {isSavingDraft ? 'Saving...' : 'Save Draft'}
+      </Button>
+      <Button 
+        type="submit" 
+        disabled={isSubmitting || isSavingDraft || isDeleting}
+        className="text-sm px-3 py-2"
+        size="sm"
+        form="personal-injury-form"
+      >
+        {isSubmitting ? 'Submitting...' : 'Submit Form'}
+      </Button>
+    </div>
+  )
+
   return (
     <>
-      <Header />
+      <Header formActions={formActions} />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Title (H1) */}
         <div className="mb-8">
@@ -372,7 +409,7 @@ export default function PersonalInjuryForm() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form id="personal-injury-form" onSubmit={handleSubmit} className="space-y-8">
           <PiContact />
           
           <PiDemographics />
@@ -407,35 +444,6 @@ export default function PersonalInjuryForm() {
           <PiOther />
           
           <PiLitigation />
-
-          {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
-            <Button 
-              type="button" 
-              variant="destructive"
-              onClick={handleCancelClick} 
-              disabled={isSubmitting || isSavingDraft || isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white flex-1"
-            >
-              {hasBeenSaved ? 'Delete' : 'Cancel'}
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleSaveDraft} 
-              disabled={isSavingDraft || isSubmitting || isDeleting}
-              className="flex-1"
-            >
-              {isSavingDraft ? 'Saving...' : 'Save Draft'}
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting || isSavingDraft || isDeleting}
-              className="flex-1"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Form'}
-            </Button>
-          </div>
         </form>
 
         <CancelFormDialog

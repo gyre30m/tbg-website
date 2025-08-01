@@ -1,103 +1,115 @@
 'use server'
 
-import { supabase } from './supabase'
+import { createClient } from './supabase/server-client'
 
 // Generic function to extract normalized form data for Personal Injury forms
 function extractPersonalInjuryData(formData: FormData) {
+  // Helper function to handle required fields - returns "N/A" if empty, as per form instructions
+  const getRequiredField = (field: string | null | undefined): string => {
+    const value = field?.trim()
+    return value && value.length > 0 ? value : 'N/A'
+  }
+
+  // Helper function for optional fields
+  const getOptionalField = (field: string | null | undefined): string | null => {
+    const value = field?.trim()
+    return value && value.length > 0 ? value : null
+  }
+
   return {
-    // Contact Information
-    first_name: formData.get('firstName') as string || null,
-    last_name: formData.get('lastName') as string || null,
-    address1: formData.get('address1') as string || null,
-    address2: formData.get('address2') as string || null,
-    city: formData.get('city') as string || null,
-    state: formData.get('state') as string || null,
-    zip_code: formData.get('zipCode') as string || null,
-    email: formData.get('email') as string || null,
-    phone: formData.get('phone') as string || null,
-    phone_type: formData.get('phoneType') as string || null,
+    // Contact Information (all required except address2)
+    first_name: getRequiredField(formData.get('firstName') as string),
+    last_name: getRequiredField(formData.get('lastName') as string),
+    address1: getRequiredField(formData.get('address1') as string),
+    address2: getOptionalField(formData.get('address2') as string),
+    city: getRequiredField(formData.get('city') as string),
+    state: getRequiredField(formData.get('state') as string),
+    zip_code: getRequiredField(formData.get('zipCode') as string),
+    email: getRequiredField(formData.get('email') as string),
+    phone: getRequiredField(formData.get('phone') as string),
+    phone_type: getRequiredField(formData.get('phoneType') as string),
     
-    // Demographics
-    gender: formData.get('gender') as string || null,
-    marital_status: formData.get('maritalStatus') as string || null,
-    ethnicity: formData.get('ethnicity') as string || null,
+    // Demographics (all required)
+    gender: getRequiredField(formData.get('gender') as string),
+    marital_status: getRequiredField(formData.get('maritalStatus') as string),
+    ethnicity: getRequiredField(formData.get('ethnicity') as string),
     date_of_birth: formData.get('dateOfBirth') ? new Date(formData.get('dateOfBirth') as string).toISOString() : null,
     
-    // Medical Information
+    // Medical Information (all required)
     incident_date: formData.get('incidentDate') ? new Date(formData.get('incidentDate') as string).toISOString() : null,
-    injury_description: formData.get('injuryDescription') as string || null,
-    caregiver_claim: formData.get('caregiverClaim') as string || null,
-    life_expectancy: formData.get('lifeExpectancy') as string || null,
-    future_medical: formData.get('futureMedical') as string || null,
+    injury_description: getRequiredField(formData.get('injuryDescription') as string),
+    caregiver_claim: getRequiredField(formData.get('caregiverClaim') as string),
+    life_expectancy: getRequiredField(formData.get('lifeExpectancy') as string),
+    future_medical: getRequiredField(formData.get('futureMedical') as string),
     
-    // Education
-    pre_injury_education: formData.get('preInjuryEducation') as string || null,
-    pre_injury_skills: formData.get('preInjurySkills') as string || null,
-    education_plans: formData.get('educationPlans') as string || null,
-    parent_education: formData.get('parentEducation') as string || null,
-    post_injury_education: formData.get('postInjuryEducation') as string || null,
+    // Education (all required)
+    pre_injury_education: getRequiredField(formData.get('preInjuryEducation') as string),
+    pre_injury_skills: getRequiredField(formData.get('preInjurySkills') as string),
+    education_plans: getRequiredField(formData.get('educationPlans') as string),
+    parent_education: getRequiredField(formData.get('parentEducation') as string),
+    post_injury_education: getRequiredField(formData.get('postInjuryEducation') as string),
     
-    // Pre-Injury Employment
-    pre_injury_employment_status: formData.get('preInjuryEmploymentStatus') as string || null,
-    pre_injury_job_title: formData.get('preInjuryJobTitle') as string || null,
-    pre_injury_employer: formData.get('preInjuryEmployer') as string || null,
+    // Pre-Injury Employment (most required, some optional)
+    pre_injury_employment_status: getRequiredField(formData.get('preInjuryEmploymentStatus') as string),
+    pre_injury_job_title: getRequiredField(formData.get('preInjuryJobTitle') as string),
+    pre_injury_employer: getRequiredField(formData.get('preInjuryEmployer') as string),
     pre_injury_start_date: formData.get('preInjuryStartDate') ? new Date(formData.get('preInjuryStartDate') as string).toISOString() : null,
-    pre_injury_salary: formData.get('preInjurySalary') as string || null,
-    pre_injury_duties: formData.get('preInjuryDuties') as string || null,
-    pre_injury_advancements: formData.get('preInjuryAdvancements') as string || null,
-    pre_injury_overtime: formData.get('preInjuryOvertime') as string || null,
-    pre_injury_work_steady: formData.get('preInjuryWorkSteady') as string || null,
-    pre_injury_life_insurance: formData.get('preInjuryLifeInsurance') as string || null,
-    pre_injury_individual_health: formData.get('preInjuryIndividualHealth') as string || null,
-    pre_injury_family_health: formData.get('preInjuryFamilyHealth') as string || null,
-    pre_injury_retirement_plan: formData.get('preInjuryRetirementPlan') as string || null,
-    pre_injury_investment_plan: formData.get('preInjuryInvestmentPlan') as string || null,
-    pre_injury_bonus: formData.get('preInjuryBonus') as string || null,
-    pre_injury_stock_options: formData.get('preInjuryStockOptions') as string || null,
-    pre_injury_other_benefits: formData.get('preInjuryOtherBenefits') as string || null,
-    pre_injury_retirement_age: formData.get('preInjuryRetirementAge') as string || null,
-    pre_injury_career_trajectory: formData.get('preInjuryCareerTrajectory') as string || null,
-    pre_injury_job_expenses: formData.get('preInjuryJobExpenses') as string || null,
+    pre_injury_salary: getRequiredField(formData.get('preInjurySalary') as string),
+    pre_injury_duties: getRequiredField(formData.get('preInjuryDuties') as string),
+    pre_injury_advancements: getRequiredField(formData.get('preInjuryAdvancements') as string),
+    pre_injury_overtime: getRequiredField(formData.get('preInjuryOvertime') as string),
+    pre_injury_work_steady: getRequiredField(formData.get('preInjuryWorkSteady') as string),
+    pre_injury_life_insurance: getOptionalField(formData.get('preInjuryLifeInsurance') as string),
+    pre_injury_individual_health: getOptionalField(formData.get('preInjuryIndividualHealth') as string),
+    pre_injury_family_health: getOptionalField(formData.get('preInjuryFamilyHealth') as string),
+    pre_injury_retirement_plan: getOptionalField(formData.get('preInjuryRetirementPlan') as string),
+    pre_injury_investment_plan: getOptionalField(formData.get('preInjuryInvestmentPlan') as string),
+    pre_injury_bonus: getOptionalField(formData.get('preInjuryBonus') as string),
+    pre_injury_stock_options: getOptionalField(formData.get('preInjuryStockOptions') as string),
+    pre_injury_other_benefits: getOptionalField(formData.get('preInjuryOtherBenefits') as string),
+    pre_injury_retirement_age: getRequiredField(formData.get('preInjuryRetirementAge') as string),
+    pre_injury_career_trajectory: getRequiredField(formData.get('preInjuryCareerTrajectory') as string),
+    pre_injury_job_expenses: getRequiredField(formData.get('preInjuryJobExpenses') as string),
     
-    // Post-Injury Employment
-    disability_rating: formData.get('disabilityRating') as string || null,
-    post_injury_employment_status: formData.get('postInjuryEmploymentStatus') as string || null,
-    post_injury_job_title: formData.get('postInjuryJobTitle') as string || null,
-    post_injury_employer: formData.get('postInjuryEmployer') as string || null,
+    // Post-Injury Employment (most required, some optional)
+    disability_rating: getRequiredField(formData.get('disabilityRating') as string),
+    post_injury_employment_status: getRequiredField(formData.get('postInjuryEmploymentStatus') as string),
+    post_injury_job_title: getRequiredField(formData.get('postInjuryJobTitle') as string),
+    post_injury_employer: getRequiredField(formData.get('postInjuryEmployer') as string),
     post_injury_start_date: formData.get('postInjuryStartDate') ? new Date(formData.get('postInjuryStartDate') as string).toISOString() : null,
-    post_injury_salary: formData.get('postInjurySalary') as string || null,
-    post_injury_duties: formData.get('postInjuryDuties') as string || null,
-    post_injury_advancements: formData.get('postInjuryAdvancements') as string || null,
-    post_injury_overtime: formData.get('postInjuryOvertime') as string || null,
-    post_injury_work_steady: formData.get('postInjuryWorkSteady') as string || null,
-    post_injury_life_insurance: formData.get('postInjuryLifeInsurance') as string || null,
-    post_injury_individual_health: formData.get('postInjuryIndividualHealth') as string || null,
-    post_injury_family_health: formData.get('postInjuryFamilyHealth') as string || null,
-    post_injury_retirement_plan: formData.get('postInjuryRetirementPlan') as string || null,
-    post_injury_investment_plan: formData.get('postInjuryInvestmentPlan') as string || null,
-    post_injury_bonus: formData.get('postInjuryBonus') as string || null,
-    post_injury_stock_options: formData.get('postInjuryStockOptions') as string || null,
-    post_injury_other_benefits: formData.get('postInjuryOtherBenefits') as string || null,
-    post_injury_retirement_age: formData.get('postInjuryRetirementAge') as string || null,
-    post_injury_job_expenses: formData.get('postInjuryJobExpenses') as string || null,
-    additional_info: formData.get('additionalInfo') as string || null,
+    post_injury_salary: getRequiredField(formData.get('postInjurySalary') as string),
+    post_injury_duties: getRequiredField(formData.get('postInjuryDuties') as string),
+    post_injury_advancements: getRequiredField(formData.get('postInjuryAdvancements') as string),
+    post_injury_overtime: getRequiredField(formData.get('postInjuryOvertime') as string),
+    post_injury_work_steady: getRequiredField(formData.get('postInjuryWorkSteady') as string),
+    post_injury_life_insurance: getOptionalField(formData.get('postInjuryLifeInsurance') as string),
+    post_injury_individual_health: getOptionalField(formData.get('postInjuryIndividualHealth') as string),
+    post_injury_family_health: getOptionalField(formData.get('postInjuryFamilyHealth') as string),
+    post_injury_retirement_plan: getOptionalField(formData.get('postInjuryRetirementPlan') as string),
+    post_injury_investment_plan: getOptionalField(formData.get('postInjuryInvestmentPlan') as string),
+    post_injury_bonus: getOptionalField(formData.get('postInjuryBonus') as string),
+    post_injury_stock_options: getOptionalField(formData.get('postInjuryStockOptions') as string),
+    post_injury_other_benefits: getOptionalField(formData.get('postInjuryOtherBenefits') as string),
+    post_injury_retirement_age: getRequiredField(formData.get('postInjuryRetirementAge') as string),
+    post_injury_job_expenses: getRequiredField(formData.get('postInjuryJobExpenses') as string),
+    additional_info: getRequiredField(formData.get('additionalInfo') as string),
     
-    // Household Services
-    dependent_care: formData.get('dependentCare') as string || null,
-    pet_care: formData.get('petCare') as string || null,
-    indoor_housework: formData.get('indoorHousework') as string || null,
-    meal_prep: formData.get('mealPrep') as string || null,
-    home_maintenance: formData.get('homeMaintenance') as string || null,
-    vehicle_maintenance: formData.get('vehicleMaintenance') as string || null,
-    errands: formData.get('errands') as string || null,
+    // Household Services (all required, scale 0-5)
+    dependent_care: getRequiredField(formData.get('dependentCare') as string),
+    pet_care: getRequiredField(formData.get('petCare') as string),
+    indoor_housework: getRequiredField(formData.get('indoorHousework') as string),
+    meal_prep: getRequiredField(formData.get('mealPrep') as string),
+    home_maintenance: getRequiredField(formData.get('homeMaintenance') as string),
+    vehicle_maintenance: getRequiredField(formData.get('vehicleMaintenance') as string),
+    errands: getRequiredField(formData.get('errands') as string),
     
-    // Litigation
-    matter_no: formData.get('matterNo') as string || null,
+    // Litigation (all required except matter_no)
+    matter_no: getOptionalField(formData.get('matterNo') as string),
     settlement_date: formData.get('settlementDate') ? new Date(formData.get('settlementDate') as string).toISOString() : null,
     trial_date: formData.get('trialDate') ? new Date(formData.get('trialDate') as string).toISOString() : null,
-    trial_location: formData.get('trialLocation') as string || null,
-    opposing_counsel_firm: formData.get('opposingCounselFirm') as string || null,
-    opposing_economist: formData.get('opposingEconomist') as string || null,
+    trial_location: getRequiredField(formData.get('trialLocation') as string),
+    opposing_counsel_firm: getRequiredField(formData.get('opposingCounselFirm') as string),
+    opposing_economist: getRequiredField(formData.get('opposingEconomist') as string),
     
     // Complex data as JSONB
     household_members: JSON.parse(formData.get('householdMembers') as string || '[]'),
@@ -277,25 +289,39 @@ function extractWrongfulTerminationData(formData: FormData) {
   }
 }
 
-// Generic helper function for authentication and profile lookup
+// Helper function to get authenticated user from session
 async function getAuthenticatedUser() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session?.user) {
+  const supabase = await createClient()
+  
+  // Use getUser() instead of getSession() for better security
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  
+  if (userError || !user) {
+    console.error('User authentication error:', userError)
     throw new Error('User not authenticated')
   }
 
-  const { data: profile } = await supabase
+  // Get the user profile
+  const { data: profile, error: profileError } = await supabase
     .from('user_profiles')
     .select('firm_id, role')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .single()
 
-  return { session, profile }
+  console.log('Profile query result:', { profile, profileError })
+
+  if (profileError || !profile) {
+    console.error('Profile query error:', profileError)
+    throw new Error('User profile not found')
+  }
+
+  return { user, profile }
 }
 
 // Generic helper function for audit trail creation
 async function createAuditTrail(formId: string, formType: string, actionType: string, userId: string, firmId: string | null, metadata: Record<string, unknown>) {
   try {
+    const supabase = await createClient()
     const { error: auditError } = await supabase.rpc('create_form_audit_entry', {
       p_form_id: formId,
       p_form_type: formType,
@@ -320,7 +346,7 @@ async function createAuditTrail(formId: string, formType: string, actionType: st
 export async function submitPersonalInjuryForm(formData: FormData) {
   try {
     const normalizedData = extractPersonalInjuryData(formData)
-    const { session, profile } = await getAuthenticatedUser()
+    const { user, profile } = await getAuthenticatedUser()
     
     // Validate required fields
     if (!normalizedData.first_name || !normalizedData.last_name || !normalizedData.email) {
@@ -328,11 +354,12 @@ export async function submitPersonalInjuryForm(formData: FormData) {
     }
     
     // Insert into normalized table structure
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('personal_injury_forms')
       .insert([{
         ...normalizedData,
-        submitted_by: session.user.id,
+        submitted_by: user.id,
         firm_id: profile?.firm_id,
         status: 'submitted',
         created_at: new Date().toISOString(),
@@ -347,7 +374,7 @@ export async function submitPersonalInjuryForm(formData: FormData) {
 
     const formId = data?.[0]?.id
     if (formId) {
-      await createAuditTrail(formId, 'personal_injury', 'submitted', session.user.id, profile?.firm_id, {
+      await createAuditTrail(formId, 'personal_injury', 'submitted', user.id, profile?.firm_id, {
         form_fields_count: Object.keys(normalizedData).length
       })
     }
@@ -363,13 +390,14 @@ export async function submitPersonalInjuryForm(formData: FormData) {
 export async function saveDraftPersonalInjuryForm(formData: FormData) {
   try {
     const normalizedData = extractPersonalInjuryData(formData)
-    const { session, profile } = await getAuthenticatedUser()
+    const { user, profile } = await getAuthenticatedUser()
     
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('personal_injury_drafts')
       .insert([{
         ...normalizedData,
-        submitted_by: session.user.id,
+        submitted_by: user.id,
         firm_id: profile?.firm_id,
         status: 'draft',
         created_at: new Date().toISOString(),
@@ -393,18 +421,19 @@ export async function saveDraftPersonalInjuryForm(formData: FormData) {
 export async function submitWrongfulDeathForm(formData: FormData) {
   try {
     const normalizedData = extractWrongfulDeathData(formData)
-    const { session, profile } = await getAuthenticatedUser()
+    const { user, profile } = await getAuthenticatedUser()
     
     // Validate required fields
     if (!normalizedData.first_name || !normalizedData.last_name) {
       throw new Error('Missing required fields')
     }
     
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('wrongful_death_forms')
       .insert([{
         ...normalizedData,
-        submitted_by: session.user.id,
+        submitted_by: user.id,
         firm_id: profile?.firm_id,
         status: 'submitted',
         created_at: new Date().toISOString(),
@@ -419,7 +448,7 @@ export async function submitWrongfulDeathForm(formData: FormData) {
 
     const formId = data?.[0]?.id
     if (formId) {
-      await createAuditTrail(formId, 'wrongful_death', 'submitted', session.user.id, profile?.firm_id, {
+      await createAuditTrail(formId, 'wrongful_death', 'submitted', user.id, profile?.firm_id, {
         form_fields_count: Object.keys(normalizedData).length
       })
     }
@@ -435,13 +464,14 @@ export async function submitWrongfulDeathForm(formData: FormData) {
 export async function saveDraftWrongfulDeathForm(formData: FormData) {
   try {
     const normalizedData = extractWrongfulDeathData(formData)
-    const { session, profile } = await getAuthenticatedUser()
+    const { user, profile } = await getAuthenticatedUser()
     
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('wrongful_death_drafts')
       .insert([{
         ...normalizedData,
-        submitted_by: session.user.id,
+        submitted_by: user.id,
         firm_id: profile?.firm_id,
         status: 'draft',
         created_at: new Date().toISOString(),
@@ -465,18 +495,19 @@ export async function saveDraftWrongfulDeathForm(formData: FormData) {
 export async function submitWrongfulTerminationForm(formData: FormData) {
   try {
     const normalizedData = extractWrongfulTerminationData(formData)
-    const { session, profile } = await getAuthenticatedUser()
+    const { user, profile } = await getAuthenticatedUser()
     
     // Validate required fields
     if (!normalizedData.first_name || !normalizedData.last_name) {
       throw new Error('Missing required fields')
     }
     
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('wrongful_termination_forms')
       .insert([{
         ...normalizedData,
-        submitted_by: session.user.id,
+        submitted_by: user.id,
         firm_id: profile?.firm_id,
         status: 'submitted',
         created_at: new Date().toISOString(),
@@ -491,7 +522,7 @@ export async function submitWrongfulTerminationForm(formData: FormData) {
 
     const formId = data?.[0]?.id
     if (formId) {
-      await createAuditTrail(formId, 'wrongful_termination', 'submitted', session.user.id, profile?.firm_id, {
+      await createAuditTrail(formId, 'wrongful_termination', 'submitted', user.id, profile?.firm_id, {
         form_fields_count: Object.keys(normalizedData).length
       })
     }
@@ -507,13 +538,14 @@ export async function submitWrongfulTerminationForm(formData: FormData) {
 export async function saveDraftWrongfulTerminationForm(formData: FormData) {
   try {
     const normalizedData = extractWrongfulTerminationData(formData)
-    const { session, profile } = await getAuthenticatedUser()
+    const { user, profile } = await getAuthenticatedUser()
     
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('wrongful_termination_drafts')
       .insert([{
         ...normalizedData,
-        submitted_by: session.user.id,
+        submitted_by: user.id,
         firm_id: profile?.firm_id,
         status: 'draft',
         created_at: new Date().toISOString(),
@@ -536,9 +568,10 @@ export async function saveDraftWrongfulTerminationForm(formData: FormData) {
 // GENERIC DELETE FUNCTION (works for all form types)
 export async function deletePersonalInjuryForm(formId: string, lastNameConfirmation: string) {
   try {
-    const { session, profile } = await getAuthenticatedUser()
+    const { user, profile } = await getAuthenticatedUser()
 
     // Get the form to verify ownership and get last name
+    const supabase = await createClient()
     const { data: form, error: fetchError } = await supabase
       .from('personal_injury_forms')
       .select('*, submitted_by')
@@ -551,7 +584,7 @@ export async function deletePersonalInjuryForm(formId: string, lastNameConfirmat
 
     // Check permissions
     const isSiteAdmin = profile?.role === 'site_admin'
-    const isOwner = form.submitted_by === session.user.id
+    const isOwner = form.submitted_by === user.id
 
     if (!isSiteAdmin && !isOwner) {
       return { success: false, error: 'Unauthorized to delete this form' }
@@ -565,7 +598,7 @@ export async function deletePersonalInjuryForm(formId: string, lastNameConfirmat
     }
 
     // Record deletion in audit trail before deleting
-    await createAuditTrail(formId, 'personal_injury', 'deleted', session.user.id, profile?.firm_id, {
+    await createAuditTrail(formId, 'personal_injury', 'deleted', user.id, profile?.firm_id, {
       deleted_by_role: profile?.role,
       last_name_confirmed: lastNameConfirmation
     })
@@ -584,7 +617,7 @@ export async function deletePersonalInjuryForm(formId: string, lastNameConfirmat
     await supabase
       .from('personal_injury_drafts')
       .delete()
-      .eq('submitted_by', session.user.id)
+      .eq('submitted_by', user.id)
 
     return { success: true }
     
@@ -594,9 +627,66 @@ export async function deletePersonalInjuryForm(formId: string, lastNameConfirmat
   }
 }
 
+// UPDATE PERSONAL INJURY FORM FUNCTION
+export async function updatePersonalInjuryForm(formId: string, formData: FormData) {
+  try {
+    const normalizedData = extractPersonalInjuryData(formData)
+    const { user, profile } = await getAuthenticatedUser()
+    
+    const supabase = await createClient()
+    
+    // Check permissions - user must be owner or site admin
+    const { data: existingForm, error: fetchError } = await supabase
+      .from('personal_injury_forms')
+      .select('submitted_by, firm_id')
+      .eq('id', formId)
+      .single()
+
+    if (fetchError || !existingForm) {
+      throw new Error('Form not found')
+    }
+
+    const isSiteAdmin = profile?.role === 'site_admin'
+    const isOwner = existingForm.submitted_by === user.id
+    const isSameFirm = existingForm.firm_id === profile?.firm_id
+
+    if (!isSiteAdmin && !(isOwner && isSameFirm)) {
+      throw new Error('Unauthorized to edit this form')
+    }
+    
+    // Update the form - the trigger will handle version tracking
+    const { error } = await supabase
+      .from('personal_injury_forms')
+      .update({
+        ...normalizedData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', formId)
+      .select()
+
+    if (error) {
+      console.error('Supabase error:', error)
+      throw new Error('Failed to update form. Please try again.')
+    }
+
+    // Create audit trail for the update
+    await createAuditTrail(formId, 'personal_injury', 'updated', user.id, profile?.firm_id, {
+      form_fields_count: Object.keys(normalizedData).length,
+      updated_by_role: profile?.role
+    })
+
+    console.log('Personal injury form updated successfully!')
+    return { success: true, id: formId }
+  } catch (error) {
+    console.error('Error updating personal injury form:', error)
+    throw error
+  }
+}
+
 // UTILITY FUNCTIONS (unchanged from previous version)
 export async function getFirmUsers(firmId: string) {
   try {
+    const supabase = await createClient()
     const { data: firmUsers, error } = await supabase
       .rpc('get_firm_users_with_details', { firm_id_param: firmId })
 
@@ -642,6 +732,7 @@ export async function getFirmUsers(firmId: string) {
 
 export async function removeUserFromFirm(userId: string) {
   try {
+    const supabase = await createClient()
     const { error } = await supabase
       .from('user_profiles')
       .update({ firm_id: null, role: 'user' })
@@ -662,6 +753,7 @@ export async function inviteUserToFirmAction(email: string, firmId: string, firm
       return { success: false, error: `Email must use ${firmDomain} domain` }
     }
 
+    const supabase = await createClient()
     const { data: existingUser } = await supabase
       .from('user_profiles')
       .select('id')
@@ -691,6 +783,7 @@ export async function inviteUserToFirmAction(email: string, firmId: string, firm
 
 export async function getDraftPersonalInjuryForm(userId: string) {
   try {
+    const supabase = await createClient()
     const { data, error } = await supabase
       .from('personal_injury_drafts')
       .select('*')
@@ -716,6 +809,7 @@ export async function updateDraftPersonalInjuryForm(draftId: string, formData: F
   try {
     const normalizedData = extractPersonalInjuryData(formData)
     
+    const supabase = await createClient()
     const { error } = await supabase
       .from('personal_injury_drafts')
       .update({
@@ -733,5 +827,117 @@ export async function updateDraftPersonalInjuryForm(draftId: string, formData: F
   } catch (error) {
     console.error('Error updating draft:', error)
     throw new Error('Failed to update draft. Please try again.')
+  }
+}
+
+// UPDATE WRONGFUL DEATH FORM FUNCTION
+export async function updateWrongfulDeathForm(formId: string, formData: FormData) {
+  try {
+    const normalizedData = extractWrongfulDeathData(formData)
+    const { user, profile } = await getAuthenticatedUser()
+    
+    const supabase = await createClient()
+    
+    // Check permissions - user must be owner or site admin
+    const { data: existingForm, error: fetchError } = await supabase
+      .from('wrongful_death_forms')
+      .select('submitted_by, firm_id')
+      .eq('id', formId)
+      .single()
+
+    if (fetchError || !existingForm) {
+      throw new Error('Form not found')
+    }
+
+    const isSiteAdmin = profile?.role === 'site_admin'
+    const isOwner = existingForm.submitted_by === user.id
+    const isSameFirm = existingForm.firm_id === profile?.firm_id
+
+    if (!isSiteAdmin && !(isOwner && isSameFirm)) {
+      throw new Error('Unauthorized to edit this form')
+    }
+    
+    // Update the form - the trigger will handle version tracking
+    const { error } = await supabase
+      .from('wrongful_death_forms')
+      .update({
+        ...normalizedData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', formId)
+      .select()
+
+    if (error) {
+      console.error('Supabase error:', error)
+      throw new Error('Failed to update form. Please try again.')
+    }
+
+    // Create audit trail for the update
+    await createAuditTrail(formId, 'wrongful_death', 'updated', user.id, profile?.firm_id, {
+      form_fields_count: Object.keys(normalizedData).length,
+      updated_by_role: profile?.role
+    })
+
+    console.log('Wrongful death form updated successfully!')
+    return { success: true, id: formId }
+  } catch (error) {
+    console.error('Error updating wrongful death form:', error)
+    throw error
+  }
+}
+
+// UPDATE WRONGFUL TERMINATION FORM FUNCTION
+export async function updateWrongfulTerminationForm(formId: string, formData: FormData) {
+  try {
+    const normalizedData = extractWrongfulTerminationData(formData)
+    const { user, profile } = await getAuthenticatedUser()
+    
+    const supabase = await createClient()
+    
+    // Check permissions - user must be owner or site admin
+    const { data: existingForm, error: fetchError } = await supabase
+      .from('wrongful_termination_forms')
+      .select('submitted_by, firm_id')
+      .eq('id', formId)
+      .single()
+
+    if (fetchError || !existingForm) {
+      throw new Error('Form not found')
+    }
+
+    const isSiteAdmin = profile?.role === 'site_admin'
+    const isOwner = existingForm.submitted_by === user.id
+    const isSameFirm = existingForm.firm_id === profile?.firm_id
+
+    if (!isSiteAdmin && !(isOwner && isSameFirm)) {
+      throw new Error('Unauthorized to edit this form')
+    }
+    
+    // Update the form - the trigger will handle version tracking
+    const { error } = await supabase
+      .from('wrongful_termination_forms')
+      .update({
+        ...normalizedData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', formId)
+      .select()
+
+    if (error) {
+      console.error('Supabase error:', error)
+      throw new Error('Failed to update form. Please try again.')
+    }
+
+    // Create audit trail for the update
+    await createAuditTrail(formId, 'wrongful_termination', 'updated', user.id, profile?.firm_id, {
+      form_fields_count: Object.keys(normalizedData).length,
+      updated_by_role: profile?.role
+    })
+
+    console.log('Wrongful termination form updated successfully!')
+    return { success: true, id: formId }
+  } catch (error) {
+    console.error('Error updating wrongful termination form:', error)
+    throw error
   }
 }

@@ -18,8 +18,7 @@ export function PiHouseholdServices() {
             <li>1 - Injury has a minor impact on ability to complete task.</li>
             <li>2 - Injury has a moderate impact on ability to complete task.</li>
             <li>3 - Injury has a major impact on ability to complete task.</li>
-            <li>4 - Injury has a severe impact on ability to complete task.</li>
-            <li>5 - Injury completely prevents completion of these tasks.</li>
+            <li>4 - Injury completely prevents completion of these tasks.</li>
           </ul>
         </div>
       </CardHeader>
@@ -31,15 +30,14 @@ export function PiHouseholdServices() {
           </p>
           <Select name="dependentCare" required>
             <SelectTrigger>
-              <SelectValue placeholder="Select impact level (0-5)" />
+              <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">0 - No impact</SelectItem>
               <SelectItem value="1">1 - Minor impact</SelectItem>
               <SelectItem value="2">2 - Moderate impact</SelectItem>
               <SelectItem value="3">3 - Major impact</SelectItem>
-              <SelectItem value="4">4 - Severe impact</SelectItem>
-              <SelectItem value="5">5 - Completely prevents</SelectItem>
+              <SelectItem value="4">4 - Completely prevents</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -51,15 +49,14 @@ export function PiHouseholdServices() {
           </p>
           <Select name="petCare" required>
             <SelectTrigger>
-              <SelectValue placeholder="Select impact level (0-5)" />
+              <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">0 - No impact</SelectItem>
               <SelectItem value="1">1 - Minor impact</SelectItem>
               <SelectItem value="2">2 - Moderate impact</SelectItem>
               <SelectItem value="3">3 - Major impact</SelectItem>
-              <SelectItem value="4">4 - Severe impact</SelectItem>
-              <SelectItem value="5">5 - Completely prevents</SelectItem>
+              <SelectItem value="4">4 - Completely prevents</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -71,15 +68,14 @@ export function PiHouseholdServices() {
           </p>
           <Select name="indoorHousework" required>
             <SelectTrigger>
-              <SelectValue placeholder="Select impact level (0-5)" />
+              <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">0 - No impact</SelectItem>
               <SelectItem value="1">1 - Minor impact</SelectItem>
               <SelectItem value="2">2 - Moderate impact</SelectItem>
               <SelectItem value="3">3 - Major impact</SelectItem>
-              <SelectItem value="4">4 - Severe impact</SelectItem>
-              <SelectItem value="5">5 - Completely prevents</SelectItem>
+              <SelectItem value="4">4 - Completely prevents</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -91,15 +87,14 @@ export function PiHouseholdServices() {
           </p>
           <Select name="mealPrep" required>
             <SelectTrigger>
-              <SelectValue placeholder="Select impact level (0-5)" />
+              <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">0 - No impact</SelectItem>
               <SelectItem value="1">1 - Minor impact</SelectItem>
               <SelectItem value="2">2 - Moderate impact</SelectItem>
               <SelectItem value="3">3 - Major impact</SelectItem>
-              <SelectItem value="4">4 - Severe impact</SelectItem>
-              <SelectItem value="5">5 - Completely prevents</SelectItem>
+              <SelectItem value="4">4 - Completely prevents</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -111,15 +106,14 @@ export function PiHouseholdServices() {
           </p>
           <Select name="homeMaintenance" required>
             <SelectTrigger>
-              <SelectValue placeholder="Select impact level (0-5)" />
+              <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">0 - No impact</SelectItem>
               <SelectItem value="1">1 - Minor impact</SelectItem>
               <SelectItem value="2">2 - Moderate impact</SelectItem>
               <SelectItem value="3">3 - Major impact</SelectItem>
-              <SelectItem value="4">4 - Severe impact</SelectItem>
-              <SelectItem value="5">5 - Completely prevents</SelectItem>
+              <SelectItem value="4">4 - Completely prevents</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -131,15 +125,14 @@ export function PiHouseholdServices() {
           </p>
           <Select name="vehicleMaintenance" required>
             <SelectTrigger>
-              <SelectValue placeholder="Select impact level (0-5)" />
+              <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">0 - No impact</SelectItem>
               <SelectItem value="1">1 - Minor impact</SelectItem>
               <SelectItem value="2">2 - Moderate impact</SelectItem>
               <SelectItem value="3">3 - Major impact</SelectItem>
-              <SelectItem value="4">4 - Severe impact</SelectItem>
-              <SelectItem value="5">5 - Completely prevents</SelectItem>
+              <SelectItem value="4">4 - Completely prevents</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -151,15 +144,14 @@ export function PiHouseholdServices() {
           </p>
           <Select name="errands" required>
             <SelectTrigger>
-              <SelectValue placeholder="Select impact level (0-5)" />
+              <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="0">0 - No impact</SelectItem>
               <SelectItem value="1">1 - Minor impact</SelectItem>
               <SelectItem value="2">2 - Moderate impact</SelectItem>
               <SelectItem value="3">3 - Major impact</SelectItem>
-              <SelectItem value="4">4 - Severe impact</SelectItem>
-              <SelectItem value="5">5 - Completely prevents</SelectItem>
+              <SelectItem value="4">4 - Completely prevents</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
 import {
   Card,
   CardContent,
@@ -27,20 +28,41 @@ import { faqData } from "@/lib/utils";
 import HSContactForm from "@/components/ui/contact-form";
 
 export default function Home() {
+  const { user, userProfile } = useAuth();
+
+  const getUserInitials = () => {
+    if (userProfile?.first_name && userProfile?.last_name) {
+      return `${userProfile.first_name[0]}${userProfile.last_name[0]}`.toUpperCase();
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return "U";
+  };
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="px-4 lg:px-6 h-16 flex items-center border-b">
-        <Link className="flex items-center justify-center" href="#">
+      <header className="px-4 lg:px-6 py-4 flex items-center border-b">
+        <Link
+          className="flex items-center justify-center hover:opacity-80 transition-opacity"
+          href="#"
+        >
           <Image
-            className="dark:invert"
+            // className="dark:invert"
             src="/tbg-logo.svg"
             alt="The Bradley Group - Forensic Economists and Economic Damages Experts Logo"
-            width={80}
-            height={20}
+            width={300}
+            height={75}
+            className="h-12 w-auto"
             priority
           />
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
+        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="/forms"
+          >
+            Forms
+          </Link>
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#services"
@@ -78,6 +100,23 @@ export default function Home() {
           >
             Contact
           </Link>
+
+          {/* Sign In / User Button */}
+          {user ? (
+            <Link
+              href="/forms/all"
+              className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              title={`Signed in as ${userProfile?.first_name ? `${userProfile.first_name} ${userProfile.last_name}` : user.email}`}
+            >
+              {getUserInitials()}
+            </Link>
+          ) : (
+            <Link href="/signin">
+              <Button size="sm" className="text-sm">
+                Sign in
+              </Button>
+            </Link>
+          )}
         </nav>
       </header>
       <main className="flex-1">
@@ -465,7 +504,10 @@ export default function Home() {
           <Link className="text-xs hover:underline underline-offset-4" href="#">
             Terms of Service
           </Link>
-          <Link className="text-xs hover:underline underline-offset-4" href="/privacy">
+          <Link
+            className="text-xs hover:underline underline-offset-4"
+            href="/privacy"
+          >
             Privacy Policy
           </Link>
         </nav>

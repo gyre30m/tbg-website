@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { createClient } from '@/lib/supabase/server-client'
 import { v4 as uuidv4 } from 'uuid'
-
-// Configure S3 client
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-})
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB for documents
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -28,11 +17,29 @@ const ALLOWED_TYPES = [
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if required environment variables are set
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET_NAME) {
+    const supabase = await createClient()
+    
+    // Get the authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
       return NextResponse.json(
-        { error: 'AWS configuration missing' },
-        { status: 500 }
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+    
+    // Get user's firm_id
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('firm_id')
+      .eq('user_id', user.id)
+      .single()
+    
+    if (profileError || !profile?.firm_id) {
+      return NextResponse.json(
+        { error: 'User profile not found or no firm association' },
+        { status: 400 }
       )
     }
 
@@ -63,40 +70,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique filename with category
+    // Generate unique filename with firm_id/category structure
     const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const fileName = `form-documents/${category}/${uuidv4()}_${sanitizedOriginalName}`
+    const fileName = `${profile.firm_id}/${category}/${uuidv4()}_${sanitizedOriginalName}`
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Upload to S3
-    const uploadCommand = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: fileName,
-      Body: buffer,
-      ContentType: file.type,
-      ContentDisposition: 'attachment',
-      Metadata: {
-        'original-name': sanitizedOriginalName,
-        'upload-category': category,
-        'upload-timestamp': new Date().toISOString()
-      }
-    })
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from('form-documents')
+      .upload(fileName, buffer, {
+        contentType: file.type,
+        upsert: false,
+        duplex: 'half'
+      })
 
-    await s3Client.send(uploadCommand)
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      return NextResponse.json(
+        { error: 'Failed to upload file' },
+        { status: 500 }
+      )
+    }
 
-    // Generate the public URL
-    const fileUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${fileName}`
+    // Get public URL for the file
+    const { data: { publicUrl } } = supabase.storage
+      .from('form-documents')
+      .getPublicUrl(fileName)
 
     return NextResponse.json({
       success: true,
-      fileUrl,
+      fileUrl: publicUrl,
       fileName: sanitizedOriginalName,
       fileSize: file.size,
       fileType: file.type,
-      s3Key: fileName
+      storagePath: fileName
     })
 
   } catch (error) {

@@ -13,6 +13,7 @@ import { WdDemographics } from '@/components/ui/wd-demographics'
 import { WdDependents } from '@/components/ui/wd-dependents'
 import { WdMedical } from '@/components/ui/wd-medical'
 import { WdEducation } from '@/components/ui/wd-education'
+import { WdEmployment } from '@/components/ui/wd-employment'
 import { WdHouseholdServices } from '@/components/ui/wd-household-services'
 import { WdOther } from '@/components/ui/wd-other'
 import { WdLitigation } from '@/components/ui/wd-litigation'
@@ -72,11 +73,11 @@ export default function WrongfulDeathForm() {
     const textFields = [
       'firstName', 'lastName', 'address1', 'address2', 'city', 'state', 'zipCode',
       'dateOfBirth', 'dateOfDeath', 'healthIssues', 'workMissed', 
-      'educationLevel', 'skillsLicenses', 'employmentStatus', 'jobTitle', 
-      'employerName', 'startDate', 'salary', 'workDuties', 'advancements', 
-      'overtime', 'workSteady', 'lifeInsurance', 'individualHealth', 
-      'familyHealth', 'retirementPlan', 'investmentPlan', 'bonus', 
-      'stockOptions', 'otherBenefits', 'retirementAge', 'careerTrajectory', 
+      'educationLevel', 'skillsLicenses', 'educationPlans', 'parentEducation',
+      'employmentStatus', 'jobTitle', 'employerName', 'startDate', 'salary', 
+      'workDuties', 'advancements', 'overtime', 'workSteady', 'lifeInsurance', 
+      'individualHealth', 'familyHealth', 'retirementPlan', 'investmentPlan', 
+      'bonus', 'stockOptions', 'otherBenefits', 'retirementAge', 'careerTrajectory', 
       'jobExpenses', 'additionalInfo', 'settlementDate', 'trialDate',
       'trialLocation', 'opposingCounselFirm', 'opposingEconomist'
     ]
@@ -258,9 +259,33 @@ export default function WrongfulDeathForm() {
     }
   }
 
+  const formActions = (
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+      <Button 
+        type="button" 
+        variant="outline" 
+        onClick={handleSaveDraft} 
+        disabled={isSavingDraft || isSubmitting}
+        className="text-sm px-3 py-2"
+        size="sm"
+      >
+        {isSavingDraft ? 'Saving...' : 'Save Draft'}
+      </Button>
+      <Button 
+        type="submit" 
+        disabled={isSubmitting || isSavingDraft}
+        className="text-sm px-3 py-2"
+        size="sm"
+        form="wrongful-death-form"
+      >
+        {isSubmitting ? 'Submitting...' : 'Submit Form'}
+      </Button>
+    </div>
+  )
+
   return (
     <>
-      <Header />
+      <Header formActions={formActions} />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Title (H1) */}
         <div className="mb-8">
@@ -279,7 +304,7 @@ export default function WrongfulDeathForm() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form id="wrongful-death-form" onSubmit={handleSubmit} className="space-y-8">
           <WdContact />
           
           <WdDemographics />
@@ -293,7 +318,9 @@ export default function WrongfulDeathForm() {
           
           <WdMedical />
           
-          <WdEducation 
+          <WdEducation />
+          
+          <WdEmployment 
             employmentYears={employmentYears}
             setEmploymentYears={setEmploymentYears}
             uploadedFiles={uploadedFiles}
@@ -307,26 +334,6 @@ export default function WrongfulDeathForm() {
           <WdOther />
           
           <WdLitigation />
-
-          {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleSaveDraft} 
-              disabled={isSavingDraft || isSubmitting}
-              className="flex-1"
-            >
-              {isSavingDraft ? 'Saving...' : 'Save Draft'}
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting || isSavingDraft}
-              className="flex-1"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Form'}
-            </Button>
-          </div>
         </form>
       </div>
     </>

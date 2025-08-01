@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wrongful Termination Economic Loss Information Form</title>
+    <style>
+        @media print {
+            body { margin: 0; font-size: 12px; }
+            .page-break { page-break-before: always; }
+            .no-print { display: none; }
+            /* Hide date input placeholder text when printing */
+            input[type="date"]::-webkit-datetime-edit-text,
+            input[type="date"]::-webkit-datetime-edit-month-field,
+            input[type="date"]::-webkit-datetime-edit-day-field,
+            input[type="date"]::-webkit-datetime-edit-year-field {
+                color: transparent !important;
+            }
+            input[type="date"]::-webkit-inner-spin-button,
+            input[type="date"]::-webkit-calendar-picker-indicator {
+                display: none !important;
+            }
+            /* Firefox compatibility */
+            input[type="date"] {
+                -moz-appearance: textfield;
+            }
+            /* Ensure the field appears empty when printing */
+            input[type="date"]:not(:focus):not(:valid) {
+                color: transparent;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            margin: 20px;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .form-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .form-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: -20px -20px 15px -20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .subsection-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+            color: #555;
+        }
+        
+        .field-group {
+            margin-bottom: 15px;
+        }
+        
+        .field-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .field-narrow {
+            flex: 0.5;
+            min-width: 100px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], 
+        select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .textarea-large {
+            min-height: 120px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .checkbox-item input[type="radio"] {
+            margin: 0;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            font-weight: normal;
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        .table-section {
+            margin: 20px 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            background-color: #f0f8ff;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+            font-style: italic;
+        }
+        
+        .download-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+        
+        @media screen {
+            .container {
+                max-width: 8.5in;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="form-title">Wrongful Termination Economic Loss Information Form</div>
+            <div class="form-subtitle">
+                For assistance in completing this form, please contact us at forms@the-bradley-group.com or 608-218-4166.
+            </div>
+        </div>
+
+        <div class="instructions no-print">
+            <strong>Instructions:</strong> <br>
+            Unless otherwise indicated, all items on this form refer to the plaintiff.<br>
+            <br>
+            This form can be:<br>
+            1. completed electronically and then printed or saved to .pdf, or <br>
+            2. printed first and completed by hand. <br>
+            <br>
+            Please send this completed form along with all supporting documents to forms@the-bradley-group.com.
+        </div>
+
+        <!-- Contact Section -->
+        <div class="section">
+            <div class="section-title">Contact Information</div>
+            <p style="font-style: italic; margin-bottom: 15px;">Please provide the plaintiff's contact information.</p>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">First Name</label>
+                    <input type="text" name="firstName">
+                </div>
+                <div class="field">
+                    <label class="required">Last Name</label>
+                    <input type="text" name="lastName">
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Address 1</label>
+                <input type="text" name="address1">
+            </div>
+            
+            <div class="field-group">
+                <label>Address 2</label>
+                <input type="text" name="address2">
+            </div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">City</label>
+                    <input type="text" name="city">
+                </div>
+                <div class="field-narrow">
+                    <label class="required">State</label>
+                    <input type="text" name="state">
+                </div>
+                <div class="field-narrow">
+                    <label class="required">Zip Code</label>
+                    <input type="text" name="zipCode">
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Email Address</label>
+                <input type="email" name="email">
+            </div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Phone Number</label>
+                    <input type="tel" name="phone">
+                </div>
+                <div class="field">
+                    <label class="required">Phone Type</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" name="phoneType" value="mobile" id="mobile">
+                            <label for="mobile">Mobile</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="phoneType" value="home" id="home">
+                            <label for="home">Home</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="phoneType" value="work" id="work">
+                            <label for="work">Work</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="phoneType" value="other" id="other">
+                            <label for="other">Other</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demographics Section -->
+        <div class="section">
+            <div class="section-title">Demographics</div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Gender</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" name="gender" value="male" id="male">
+                            <label for="male">Male</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="gender" value="female" id="female">
+                            <label for="female">Female</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="gender" value="non-binary" id="non-binary">
+                            <label for="non-binary">Non-binary</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="required">Marital Status</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="single" id="single">
+                            <label for="single">Single</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="married" id="married">
+                            <label for="married">Married</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="divorced" id="divorced">
+                            <label for="divorced">Divorced</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="widowed" id="widowed">
+                            <label for="widowed">Widowed</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="separated" id="separated">
+                            <label for="separated">Separated</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="domestic-partnership" id="domestic-partnership">
+                            <label for="domestic-partnership">Domestic Partnership</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="field-row" style="margin-top: 20px;">
+                <div class="field">
+                    <label class="required">Date of Birth</label>
+                    <input type="date" name="dateOfBirth">
+                </div>
+                <div class="field">
+                    <label class="required">Date of Termination</label>
+                    <input type="date" name="dateOfTermination">
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Ethnicity</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="american-indian-alaska-native" id="american-indian">
+                        <label for="american-indian">American Indian or Alaska Native</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="asian" id="asian">
+                        <label for="asian">Asian</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="black-african-american" id="black">
+                        <label for="black">Black or African American</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="hispanic-latino" id="hispanic">
+                        <label for="hispanic">Hispanic or Latino</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="native-hawaiian-pacific-islander" id="hawaiian">
+                        <label for="hawaiian">Native Hawaiian or Other Pacific Islander</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="white" id="white">
+                        <label for="white">White</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="two-or-more-races" id="multiracial">
+                        <label for="multiracial">Two or More Races</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="field-group" style="margin-top: 20px;">
+                <label class="required">Reason for Termination</label>
+                <textarea name="terminationReason" class="textarea-large" placeholder="Please provide details about the circumstances of the termination"></textarea>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Education Section -->
+        <div class="section">
+            <div class="section-title">Education</div>
+            
+            <div class="subsection-title">Pre-Termination</div>
+            
+            <div class="field-group">
+                <label class="required">Highest level of education completed prior to termination</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="high-school" id="hs">
+                        <label for="hs">High School</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="some-college" id="some-college">
+                        <label for="some-college">Some College</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="associates" id="associates">
+                        <label for="associates">Associate's Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="bachelors" id="bachelors">
+                        <label for="bachelors">Bachelor's Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="masters" id="masters">
+                        <label for="masters">Master's Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="doctorate" id="doctorate">
+                        <label for="doctorate">Doctorate</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="professional" id="professional">
+                        <label for="professional">Professional Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preTerminationEducation" value="other" id="other-ed">
+                        <label for="other-ed">Other</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">List any licenses, training, or special skills held by the plaintiff at the time of the termination (enter "N/A" if not applicable)</label>
+                <textarea name="preTerminationSkills"></textarea>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Detail any plans the plaintiff had to attain further educational degrees, licenses, or training at the time of the termination (enter "N/A" if not applicable)</label>
+                <textarea name="preTerminationEducationPlans"></textarea>
+            </div>
+            
+            <div class="subsection-title">Post-Termination</div>
+            
+            <div class="field-group">
+                <label class="required">Detail any education, training, or special skills the plaintiff has acquired since the date of termination, including the length and costs of all programs (enter "N/A" if not applicable)</label>
+                <textarea name="postTerminationEducation" class="textarea-large"></textarea>
+            </div>
+        </div>
+
+        <!-- Employment Section -->
+        <div class="section">
+            <div class="section-title">Employment</div>
+            
+            <div class="subsection-title">Pre-Termination Employment</div>
+            
+            <div class="field-group">
+                <label class="required">Detail all employment history of the plaintiff for each year beginning five years prior to the termination (or from high school graduation, whichever is later)</label>
+                <textarea name="preTerminationEmploymentDetails" class="textarea-large"></textarea>
+            </div>
+            
+            <div class="table-section">
+                <p><strong>Pre-Termination Employment Years:</strong></p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Year</th>
+                            <th style="width: 40%;">Annual Income</th>
+                            <th style="width: 35%;">Percent of Year Employed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="subsection-title">Post-Termination Employment</div>
+            
+            <div class="field-group">
+                <label class="required">Detail all employment of the plaintiff since the date of termination</label>
+                <textarea name="postTerminationEmploymentDetails" class="textarea-large"></textarea>
+            </div>
+            
+            <div class="table-section">
+                <p><strong>Post-Termination Employment Years:</strong></p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Year</th>
+                            <th style="width: 40%;">Annual Income</th>
+                            <th style="width: 35%;">Percent of Year Employed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Describe job search efforts since termination, including applications submitted, interviews conducted, and any job offers received</label>
+                <textarea name="jobSearchEfforts" class="textarea-large"></textarea>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Other Section -->
+        <div class="section">
+            <div class="section-title">Other</div>
+            
+            <div class="field-group">
+                <label class="required">Please provide any additional pertinent information which may have some bearing on past or future income or expenses.</label>
+                <textarea name="additionalInfo" class="textarea-large" ></textarea>
+            </div>
+        </div>
+
+        <!-- Litigation Section -->
+        <div class="section">
+            <div class="section-title">Litigation</div>
+            
+            <div class="field-group">
+                <label>Matter No. (for law firm internal use only)</label>
+                <input type="text" name="matterNo">
+            </div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Date of Next Settlement Negotiation</label>
+                    <input type="date" name="settlementDate">
+                </div>
+                <div class="field">
+                    <label class="required">Date of Trial</label>
+                    <input type="date" name="trialDate">
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Location of Trial</label>
+                <input type="text" name="trialLocation">
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Name of firm of opposing counsel</label>
+                <input type="text" name="opposingCounselFirm">
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Name and firm of opposing counsel's economist</label>
+                <input type="text" name="opposingEconomist">
+            </div>
+        </div>
+
+        <!-- Document Attachments Section -->
+        <div class="section">
+            <div class="section-title">Document Attachments</div>
+            <p style="font-style: italic; margin-bottom: 15px;">
+                Please attach the following documents when submitting this form:
+            </p>
+            
+            <div style="margin-left: 20px;">
+                <p><strong>Pre-Termination Employment Documents:</strong></p>
+                <ul style="list-style-type: none;">
+                    <li>☐ Tax returns (last 5 years prior to termination)</li>
+                    <li>☐ Pay stubs</li>
+                    <li>☐ Employment contracts</li>
+                    <li>☐ Benefits information</li>
+                </ul>
+            </div>
+
+            <div style="margin-left: 20px;">
+                <p><strong>Post-Termination Employment Documents:</strong></p>
+                <ul style="list-style-type: none;">
+                    <li>☐ Tax returns (all years since termination)</li>
+                    <li>☐ Pay stubs</li>
+                    <li>☐ Employment contracts</li>
+                    <li>☐ Benefits information from termination employment</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Filer Section -->
+        <div class="section">
+            <div class="section-title">Filer</div>
+            <p style="font-style: italic; margin-bottom: 15px;">
+                Information about the person completing this form (either the plaintiff or an authorized representative on the plaintiff's behalf)
+            </p>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Filer's Full Name</label>
+                    <input type="text" name="filerFullName">
+                </div>
+                <div class="field">
+                    <label class="required">Date Submitted</label>
+                    <input type="date" name="dateSubmitted">
+                </div>
+            </div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Filer's Phone Number</label>
+                    <input type="tel" name="filerPhone">
+                </div>
+                <div class="field">
+                    <label class="required">Filer's Email Address</label>
+                    <input type="email" name="filerEmail">
+                </div>
+            </div>
+            
+            <div class="field-group" style="margin-top: 20px;">
+                <label>Relationship to Plaintiff (if not self)</label>
+                <input type="text" name="relationshipToPlaintiff" placeholder="e.g., spouse, parent, legal guardian, attorney">
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Print functionality
+        function printForm() {
+            window.print();
+        }
+        
+        // Auto-save to localStorage for digital completion
+        function saveFormData() {
+            const formData = {};
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'radio' || input.type === 'checkbox') {
+                    if (input.checked) {
+                        formData[input.name] = input.value;
+                    }
+                } else {
+                    formData[input.name] = input.value;
+                }
+            });
+            localStorage.setItem('wrongfulTerminationForm', JSON.stringify(formData));
+        }
+        
+        // Load saved form data
+        function loadFormData() {
+            const savedData = localStorage.getItem('wrongfulTerminationForm');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                Object.keys(formData).forEach(key => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'radio' || input.type === 'checkbox') {
+                            if (input.value === formData[key]) {
+                                input.checked = true;
+                            }
+                        } else {
+                            input.value = formData[key];
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFormData();
+            
+            // Auto-save on input change
+            document.addEventListener('input', saveFormData);
+            document.addEventListener('change', saveFormData);
+        });
+    </script>
+</body>
+</html>

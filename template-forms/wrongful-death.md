@@ -50,10 +50,10 @@ For each person receiving assistnace from the deceased but not living in the sam
 [table rows]
 
 ## Medical
-Describe decedent's health and any issues prior to death.*
+Describe decedent's health prior to death, including known health issues or shortened life expectancy.*
 [text area]
 
-Describe any work missed due to health issues prior to death.*
+Describe any work missed due to health issues.*
 [text area]
 
 
@@ -64,8 +64,14 @@ Highest level of education completed*
 List any licenses, training, or special skills held by the decedent (enter "N/A" if not applicable)*
 [textfield]
 
+Detail any plans the decedent had to attain further educational degrees, licenses, or training at the time of death (enter "N/A" if not applicable)*
+[textfield]
+
+If the decedent was a minor or had yet to finish formal education at the time of the death, list the education levels and occupations of the decedent's parents.*
+[text area]
+
 ## Employment
-Employment status at the time of the incident*
+Employment status at the time of death*
 [dropdown -- ]
 
 Job title or position*

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/browser-client'
+import Link from 'next/link'
 import {
   Table,
   TableBody,
@@ -13,6 +14,8 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Eye } from 'lucide-react'
 
 interface FormSubmission {
   id: string
@@ -43,6 +46,8 @@ export function FirmFormsTable() {
     try {
       setLoading(true)
       console.log('Fetching forms for firm:', userProfile.firm_id)
+      
+      const supabase = createClient()
       
       // Fetch both submitted forms and drafts
       const [formsResult, draftsResult] = await Promise.all([
@@ -162,6 +167,7 @@ export function FirmFormsTable() {
                   <TableHead>Status</TableHead>
                   <TableHead>Last Edited</TableHead>
                   <TableHead>User</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -185,6 +191,18 @@ export function FirmFormsTable() {
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
                       {getUserEmail(form)}
+                    </TableCell>
+                    <TableCell>
+                      {form.status === 'submitted' ? (
+                        <Link href={`/forms/personal-injury/${form.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-gray-500">Draft</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

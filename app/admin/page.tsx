@@ -13,8 +13,8 @@ export default function AdminPage() {
       if (!user || !isSiteAdmin) {
         router.push('/')
       } else {
-        // Redirect site admin to firms management
-        router.push('/admin/firms')
+        // Redirect site admin to site management
+        router.push('/admin/site')
       }
     }
   }, [user, userProfile, loading, isSiteAdmin, router])

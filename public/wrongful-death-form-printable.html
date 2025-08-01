@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wrongful Death Economic Loss Information Form</title>
+    <style>
+        @media print {
+            body { margin: 0; font-size: 12px; }
+            .page-break { page-break-before: always; }
+            .no-print { display: none; }
+            /* Hide date input placeholder text when printing */
+            input[type="date"]::-webkit-datetime-edit-text,
+            input[type="date"]::-webkit-datetime-edit-month-field,
+            input[type="date"]::-webkit-datetime-edit-day-field,
+            input[type="date"]::-webkit-datetime-edit-year-field {
+                color: transparent !important;
+            }
+            input[type="date"]::-webkit-inner-spin-button,
+            input[type="date"]::-webkit-calendar-picker-indicator {
+                display: none !important;
+            }
+            /* Firefox compatibility */
+            input[type="date"] {
+                -moz-appearance: textfield;
+            }
+            /* Ensure the field appears empty when printing */
+            input[type="date"]:not(:focus):not(:valid) {
+                color: transparent;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            margin: 20px;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .form-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .form-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: -20px -20px 15px -20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .subsection-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+            color: #555;
+        }
+        
+        .field-group {
+            margin-bottom: 15px;
+        }
+        
+        .field-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .field-narrow {
+            flex: 0.5;
+            min-width: 100px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        
+        .required::after {
+            content: " *";
+            color: red;
+        }
+
+        .sublabel {
+            margin: 0;
+            font-weight: normal;
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], 
+        select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .textarea-large {
+            min-height: 120px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .checkbox-item input[type="radio"] {
+            margin: 0;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            font-weight: normal;
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        .table-section {
+            margin: 20px 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            background-color: #f0f8ff;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+            font-style: italic;
+        }
+        
+        .download-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+        
+        @media screen {
+            .container {
+                max-width: 8.5in;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="form-title">Wrongful Death Economic Loss Information Form</div>
+            <div class="form-subtitle">
+                For assistance in completing this form, please contact us at forms@the-bradley-group.com or 608-218-4166.
+            </div>
+        </div>
+
+        <div class="instructions no-print">
+            <strong>Instructions:</strong> <br>
+            Unless otherwise indicated, all items on this form refer to the decedent.<br>
+            <br>
+            This form can be:<br>
+            1. completed electronically and then printed or saved to .pdf, or <br>
+            2. printed first and completed by hand. <br>
+            <br>
+            Please send this completed form along with all supporting documents to forms@the-bradley-group.com.
+        </div>
+
+        <!-- Contact Section -->
+        <div class="section">
+            <div class="section-title">Decedent Information</div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">First Name</label>
+                    <input type="text" name="firstName">
+                </div>
+                <div class="field">
+                    <label class="required">Last Name</label>
+                    <input type="text" name="lastName">
+                </div>
+            </div>
+
+            <p>Address at time of death</p>
+            
+            <div class="field-group">
+                <label class="required">Address 1</label>
+                <input type="text" name="address1">
+            </div>
+            
+            <div class="field-group">
+                <label>Address 2</label>
+                <input type="text" name="address2">
+            </div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">City</label>
+                    <input type="text" name="city">
+                </div>
+                <div class="field-narrow">
+                    <label class="required">State</label>
+                    <input type="text" name="state">
+                </div>
+                <div class="field-narrow">
+                    <label class="required">Zip Code</label>
+                    <input type="text" name="zipCode">
+                </div>
+            </div>
+        </div>
+
+        <!-- Demographics Section -->
+        <div class="section">
+            <div class="section-title">Demographics</div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Gender</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" name="gender" value="male" id="male">
+                            <label for="male">Male</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="gender" value="female" id="female">
+                            <label for="female">Female</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="gender" value="non-binary" id="non-binary">
+                            <label for="non-binary">Non-binary</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="required">Marital Status</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="single" id="single">
+                            <label for="single">Single</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="married" id="married">
+                            <label for="married">Married</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="divorced" id="divorced">
+                            <label for="divorced">Divorced</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="widowed" id="widowed">
+                            <label for="widowed">Widowed</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="separated" id="separated">
+                            <label for="separated">Separated</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" name="maritalStatus" value="domestic-partnership" id="domestic-partnership">
+                            <label for="domestic-partnership">Domestic Partnership</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="field-row" style="margin-top: 20px;">
+                <div class="field">
+                    <label class="required">Date of Birth</label>
+                    <input type="date" name="dateOfBirth">
+                </div>
+                <div class="field">
+                    <label class="required">Date of Death</label>
+                    <input type="date" name="dateOfDeath">
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Ethnicity</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="american-indian-alaska-native" id="american-indian">
+                        <label for="american-indian">American Indian or Alaska Native</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="asian" id="asian">
+                        <label for="asian">Asian</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="black-african-american" id="black">
+                        <label for="black">Black or African American</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="hispanic-latino" id="hispanic">
+                        <label for="hispanic">Hispanic or Latino</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="native-hawaiian-pacific-islander" id="hawaiian">
+                        <label for="hawaiian">Native Hawaiian or Other Pacific Islander</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="white" id="white">
+                        <label for="white">White</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="ethnicity" value="two-or-more-races" id="multiracial">
+                        <label for="multiracial">Two or More Races</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- Dependents Section -->
+        <div class="section">
+            <div class="section-title">Dependents</div>
+            
+            <div class="subsection-title">Household</div>
+            <p style="font-style: italic; margin-bottom: 15px;">
+                For each person living in the decedent's household at the time of death, please list the name, date of birth, and relationship to the decedent.
+            </p>
+            
+            <div class="table-section">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Full Name</th>
+                            <th style="width: 25%;">Date of Birth</th>
+                            <th style="width: 35%;">Relationship to Decedent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="subsection-title">Other Dependents</div>
+            <p style="font-style: italic; margin-bottom: 15px;">
+                For other dependent individuals (not living in the household), please list the name, date of birth, and relationship to the decedent.
+            </p>
+            
+            <div class="table-section">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Full Name</th>
+                            <th style="width: 25%;">Date of Birth</th>
+                            <th style="width: 35%;">Relationship to Decedent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Medical Section -->
+        <div class="section">
+            <div class="section-title">Medical</div>
+            
+            <div class="field-group">
+                <label class="required">Describe decedent's health prior to death, including known health issues or shortened life expectancy.</label>
+                <textarea name="healthPriorToDeath" class="textarea-large"></textarea>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Describe any work missed due to health issues.</label>
+                <textarea name="missedWork" class="textarea-large"></textarea>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="section">
+            <div class="section-title">Education</div>
+            
+            <div class="field-group">
+                <label class="required">Highest level of education completed</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="high-school" id="hs">
+                        <label for="hs">High School</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="some-college" id="some-college">
+                        <label for="some-college">Some College</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="associates" id="associates">
+                        <label for="associates">Associate's Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="bachelors" id="bachelors">
+                        <label for="bachelors">Bachelor's Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="masters" id="masters">
+                        <label for="masters">Master's Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="doctorate" id="doctorate">
+                        <label for="doctorate">Doctorate</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="professional" id="professional">
+                        <label for="professional">Professional Degree</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="preDeathEducation" value="other" id="other-ed">
+                        <label for="other-ed">Other</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">List any licenses, training, or special skills held by the decedent (enter "N/A" if not applicable)</label>
+                <textarea name="preDeathSkills"></textarea>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Detail any plans the decedent had to attain further educational degrees, licenses, or training at the time of death (enter "N/A" if not applicable)</label>
+                <textarea name="educationPlans"></textarea>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Detail parent education for both of decedent's parents when feasible (enter "N/A" if not applicable)</label>
+                <textarea name="parentEducation"></textarea>
+            </div>
+            
+        </div>
+        
+        <!-- Employment Section -->
+        <div class="section">
+            <div class="section-title">Employment</div>
+            
+            <div class="field-group">
+                <label class="required">Employment status at the time of death</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="employmentStatus" value="full-time" id="full-time">
+                        <label for="full-time">Full-time</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="employmentStatus" value="part-time" id="part-time">
+                        <label for="part-time">Part-time</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="employmentStatus" value="self-employed" id="self-employed">
+                        <label for="self-employed">Self-employed</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="employmentStatus" value="unemployed" id="unemployed">
+                        <label for="unemployed">Unemployed</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="employmentStatus" value="student" id="student">
+                        <label for="student">Student</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="employmentStatus" value="retired" id="retired">
+                        <label for="retired">Retired</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Job title or position</label>
+                    <input type="text" name="jobTitle">
+                </div>
+                <div class="field">
+                    <label class="required">Employer Name</label>
+                    <input type="text" name="employerName">
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Start date</label>
+                    <input type="date" name="startDate">
+                </div>
+                <div class="field">
+                    <label class="required">Hourly wage or annual salary</label>
+                    <input type="text" name="salary">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="required">Brief description of work duties and responsibilities at date of death</label>
+                <textarea name="workDuties" rows="3"></textarea>
+            </div>
+
+            <div class="field-group">
+                <label class="required">List all advancements within the company, including promotions and raises (include title changes, raise amounts, and dates)</label>
+                <textarea name="advancements" rows="3"></textarea>
+            </div>
+
+            <div class="field-group">
+                <label class="required">Please describe any overtime work, including wages and frequency</label>
+                <textarea name="overtime" rows="3"></textarea>
+            </div>
+
+            <div class="field-group">
+                <label class="required">Was work steady?</label>
+                <input type="text" name="workSteady">
+            </div>
+
+            <div class="table-section">
+                <p><strong>Annual wages and salary received*</strong></p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Year</th>
+                            <th style="width: 40%;">Income</th>
+                            <th style="width: 35%;">% of Year Employed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="field-group" style="margin-top: 20px;">
+                <label style="font-weight: bold;">Upload documentation supporting wages and salary received.*</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; color: #666;">
+                    Please attach copies of supporting documentation such as tax returns, pay stubs, or employment records.
+                </p>
+            </div>
+
+            <!-- Benefits Section -->
+            <div class="benefits-section" style="margin-top: 30px;">
+                <p style="font-weight: bold; margin-bottom: 10px;">Benefits*</p>
+                <p style="font-style: italic; margin: 5px 0 15px 0; color: #666;">
+                    Please describe all benefits provided by the employer, or to which the employer contributed prior to the injury.
+                </p>
+
+                <div class="field-group">
+                    <label>Life Insurance:</label>
+                    <input type="text" name="lifeInsurance">
+                </div>
+
+                <div class="field-group">
+                    <label>Individual Health Insurance:</label>
+                    <input type="text" name="individualHealth">
+                </div>
+
+                <div class="field-group">
+                    <label>Family Health Insurance:</label>
+                    <input type="text" name="familyHealth">
+                </div>
+
+                <div class="field-group">
+                    <label>Retirement Plan:</label>
+                    <input type="text" name="retirementPlan">
+                </div>
+
+                <div class="field-group">
+                    <label>Investment Plan:</label>
+                    <input type="text" name="investmentPlan">
+                </div>
+
+                <div class="field-group">
+                    <label>Bonus:</label>
+                    <input type="text" name="bonus">
+                </div>
+
+                <div class="field-group">
+                    <label>Stock Options:</label>
+                    <input type="text" name="stockOptions">
+                </div>
+
+                <div class="field-group">
+                    <label>Other:</label>
+                    <input type="text" name="otherBenefits">
+                </div>
+
+                <div class="field-group" style="margin-top: 20px;">
+                    <label style="font-weight: bold;">Please attach copies of any I.R.A., 401K, Profit Sharing, or other benefit plans.</label>
+                    <p style="font-style: italic; margin: 5px 0 10px 0; color: #666;">
+                        Please attach benefit plan documentation.
+                    </p>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="required">At what age was the plaintiff planning to retire?</label>
+                <input type="text" name="retirementAge">
+            </div>
+
+            <div class="field-group">
+                <label class="required">What were the plaintiff's career trajectory expectations prior to death (promotions, pay raises, etc.)?</label>
+                <textarea name="careerTrajectory" rows="3"></textarea>
+            </div>
+
+            <div class="field-group">
+                <label class="required">List any out-of-the-ordinary expenses associated with this job</label>
+                <textarea name="jobExpenses" rows="3"></textarea>
+            </div>
+        </div>
+
+  <!-- Household Services Section -->
+        <div class="section">
+            <div class="section-title">Household Services</div>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; margin-bottom: 20px; border-left: 4px solid #007bff;">
+                <p style="font-weight: bold; margin-bottom: 10px;">For each category of tasks below, please indicate the injured party's ability to complete the listed tasks using a scale of 0-5, as described below:</p>
+                <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.6;">
+                    <li>0 - Injury has no impact on ability to complete task, or did not complete task prior to injury.</li>
+                    <li>1 - Injury has a minor impact on ability to complete task.</li>
+                    <li>2 - Injury has a moderate impact on ability to complete task.</li>
+                    <li>3 - Injury has a major impact on ability to complete task.</li>
+                    <li>4 - Injury completely prevents completion of these tasks.</li>
+                </ul>
+            </div>
+            
+            <!-- Care of Dependent Family Members -->
+            <div class="field-group">
+                <label class="required" style="font-size: 15px; font-weight: bold;">Care of Dependent Family Members</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; font-size: 13px; color: #666;">
+                    dressing, bathing, feeding, supervising, or transporting to and from events (includes children and adults)
+                </p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="dependentCare" value="0" id="dependentCare0">
+                        <label for="dependentCare0">0 - No impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="dependentCare" value="1" id="dependentCare1">
+                        <label for="dependentCare1">1 - Minor impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="dependentCare" value="2" id="dependentCare2">
+                        <label for="dependentCare2">2 - Moderate impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="dependentCare" value="3" id="dependentCare3">
+                        <label for="dependentCare3">3 - Major impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="dependentCare" value="4" id="dependentCare4">
+                        <label for="dependentCare4">4 - Completely prevents</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pet Care -->
+            <div class="field-group">
+                <label class="required" style="font-size: 15px; font-weight: bold;">Pet Care</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; font-size: 13px; color: #666;">
+                    feeding, grooming, walking, picking up after, or otherwise caring for household pets
+                </p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="petCare" value="0" id="petCare0">
+                        <label for="petCare0">0 - No impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="petCare" value="1" id="petCare1">
+                        <label for="petCare1">1 - Minor impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="petCare" value="2" id="petCare2">
+                        <label for="petCare2">2 - Moderate impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="petCare" value="3" id="petCare3">
+                        <label for="petCare3">3 - Major impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="petCare" value="4" id="petCare4">
+                        <label for="petCare4">4 - Completely prevents</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Indoor Housework -->
+            <div class="field-group">
+                <label class="required" style="font-size: 15px; font-weight: bold;">Indoor Housework</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; font-size: 13px; color: #666;">
+                    vacuuming, sweeping, mopping, dusting, making beds, emptying trash, washing clothes, ironing, folding and putting laundry away, putting groceries away
+                </p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="indoorHousework" value="0" id="indoorHousework0">
+                        <label for="indoorHousework0">0 - No impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="indoorHousework" value="1" id="indoorHousework1">
+                        <label for="indoorHousework1">1 - Minor impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="indoorHousework" value="2" id="indoorHousework2">
+                        <label for="indoorHousework2">2 - Moderate impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="indoorHousework" value="3" id="indoorHousework3">
+                        <label for="indoorHousework3">3 - Major impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="indoorHousework" value="4" id="indoorHousework4">
+                        <label for="indoorHousework4">4 - Completely prevents</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Meal Preparation and Cleanup -->
+            <div class="field-group">
+                <label class="required" style="font-size: 15px; font-weight: bold;">Meal Preparation and Cleanup</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; font-size: 13px; color: #666;">
+                    food preparation, cooking, serving, setting & clearing a table, washing dishes, loading & unloading a dishwasher, cleaning the kitchen
+                </p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="mealPrep" value="0" id="mealPrep0">
+                        <label for="mealPrep0">0 - No impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="mealPrep" value="1" id="mealPrep1">
+                        <label for="mealPrep1">1 - Minor impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="mealPrep" value="2" id="mealPrep2">
+                        <label for="mealPrep2">2 - Moderate impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="mealPrep" value="3" id="mealPrep3">
+                        <label for="mealPrep3">3 - Major impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="mealPrep" value="4" id="mealPrep4">
+                        <label for="mealPrep4">4 - Completely prevents</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Home/Yard Maintenance -->
+            <div class="field-group">
+                <label class="required" style="font-size: 15px; font-weight: bold;">Home/Yard Maintenance</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; font-size: 13px; color: #666;">
+                    painting, house repairs, gardening, mowing, trimming, edging, weeding
+                </p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="homeMaintenance" value="0" id="homeMaintenance0">
+                        <label for="homeMaintenance0">0 - No impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="homeMaintenance" value="1" id="homeMaintenance1">
+                        <label for="homeMaintenance1">1 - Minor impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="homeMaintenance" value="2" id="homeMaintenance2">
+                        <label for="homeMaintenance2">2 - Moderate impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="homeMaintenance" value="3" id="homeMaintenance3">
+                        <label for="homeMaintenance3">3 - Major impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="homeMaintenance" value="4" id="homeMaintenance4">
+                        <label for="homeMaintenance4">4 - Completely prevents</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vehicle Maintenance -->
+            <div class="field-group">
+                <label class="required" style="font-size: 15px; font-weight: bold;">Vehicle Maintenance</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; font-size: 13px; color: #666;">
+                    car washing, vacuuming, arranging appointments for maintenance & repair, taking vehicles to appointments
+                </p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="vehicleMaintenance" value="0" id="vehicleMaintenance0">
+                        <label for="vehicleMaintenance0">0 - No impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="vehicleMaintenance" value="1" id="vehicleMaintenance1">
+                        <label for="vehicleMaintenance1">1 - Minor impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="vehicleMaintenance" value="2" id="vehicleMaintenance2">
+                        <label for="vehicleMaintenance2">2 - Moderate impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="vehicleMaintenance" value="3" id="vehicleMaintenance3">
+                        <label for="vehicleMaintenance3">3 - Major impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="vehicleMaintenance" value="4" id="vehicleMaintenance4">
+                        <label for="vehicleMaintenance4">4 - Completely prevents</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Errands -->
+            <div class="field-group">
+                <label class="required" style="font-size: 15px; font-weight: bold;">Errands</label>
+                <p style="font-style: italic; margin: 5px 0 10px 0; font-size: 13px; color: #666;">
+                    shopping for groceries and other household items, disposing of trash, yard waste, etc. and other travel to complete tasks not included in other categories
+                </p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" name="errands" value="0" id="errands0">
+                        <label for="errands0">0 - No impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="errands" value="1" id="errands1">
+                        <label for="errands1">1 - Minor impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="errands" value="2" id="errands2">
+                        <label for="errands2">2 - Moderate impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="errands" value="3" id="errands3">
+                        <label for="errands3">3 - Major impact</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" name="errands" value="4" id="errands4">
+                        <label for="errands4">4 - Completely prevents</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Section -->
+        <div class="section">
+            <div class="section-title">Other</div>
+            
+            <div class="field-group">
+                <label class="required">Please provide any additional pertinent information which may have some bearing on past or future income or expenses</label>
+                <textarea name="additionalInfo" class="textarea-large"></textarea>
+            </div>
+        </div>
+
+        <!-- Litigation Section -->
+        <div class="section">
+            <div class="section-title">Litigation</div>
+            
+            <div class="field-group">
+                <label>Matter No. (for law firm internal use only)</label>
+                <input type="text" name="matterNo">
+            </div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Date of Next Settlement Negotiation</label>
+                    <input type="date" name="settlementDate">
+                </div>
+                <div class="field">
+                    <label class="required">Date of Trial</label>
+                    <input type="date" name="trialDate">
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Location of Trial</label>
+                <input type="text" name="trialLocation">
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Name of firm of opposing counsel</label>
+                <input type="text" name="opposingCounselFirm">
+            </div>
+            
+            <div class="field-group">
+                <label class="required">Name and firm of opposing counsel's economist</label>
+                <input type="text" name="opposingEconomist">
+            </div>
+        </div>
+
+        <!-- Document Attachments Section -->
+        <div class="section">
+            <div class="section-title">Document Attachments</div>
+            <p style="font-style: italic; margin-bottom: 15px;">
+                Please attach the following documents when submitting this form:
+            </p>
+            
+            <div style="margin-left: 20px;">
+                
+                <ul style="list-style-type: none">
+                 <li>☐ Tax returns (last 5 years prior to death)</li>
+                    <li>☐ Pay stubs</li>
+                    <li>☐ Employment contracts</li>
+                    <li>☐ Benefits information</li>
+                    <li>☐ Retirement account statements</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Filer Section -->
+        <div class="section">
+            <div class="section-title">Filer</div>
+            <p style="font-style: italic; margin-bottom: 15px;">
+                Information about the person completing this form
+            </p>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Filer's Full Name</label>
+                    <input type="text" name="filerFullName">
+                </div>
+                <div class="field">
+                    <label class="required">Date Submitted</label>
+                    <input type="date" name="dateSubmitted">
+                </div>
+            </div>
+            
+            <div class="field-row">
+                <div class="field">
+                    <label class="required">Filer's Phone Number</label>
+                    <input type="tel" name="filerPhone">
+                </div>
+                <div class="field">
+                    <label class="required">Filer's Email Address</label>
+                    <input type="email" name="filerEmail">
+                </div>
+            </div>
+            
+            <div class="field-group" style="margin-top: 20px;">
+                <label>Relationship to Decedent</label>
+                <input type="text" name="relationshipToDecedent" placeholder="e.g., spouse, parent, child, personal representative">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Print functionality
+        function printForm() {
+            window.print();
+        }
+        
+        // Auto-save to localStorage for digital completion
+        function saveFormData() {
+            const formData = {};
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'radio' || input.type === 'checkbox') {
+                    if (input.checked) {
+                        formData[input.name] = input.value;
+                    }
+                } else {
+                    formData[input.name] = input.value;
+                }
+            });
+            localStorage.setItem('wrongfulDeathForm', JSON.stringify(formData));
+        }
+        
+        // Load saved form data
+        function loadFormData() {
+            const savedData = localStorage.getItem('wrongfulDeathForm');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                Object.keys(formData).forEach(key => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'radio' || input.type === 'checkbox') {
+                            if (input.value === formData[key]) {
+                                input.checked = true;
+                            }
+                        } else {
+                            input.value = formData[key];
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFormData();
+            
+            // Auto-save on input change
+            document.addEventListener('input', saveFormData);
+            document.addEventListener('change', saveFormData);
+        });
+    </script>
+</body>
+</html>

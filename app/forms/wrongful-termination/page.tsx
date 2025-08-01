@@ -244,9 +244,33 @@ export default function WrongfulTerminationForm() {
     }
   }
 
+  const formActions = (
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+      <Button 
+        type="button" 
+        variant="outline" 
+        onClick={handleSaveDraft} 
+        disabled={isSavingDraft || isSubmitting}
+        className="text-sm px-3 py-2"
+        size="sm"
+      >
+        {isSavingDraft ? 'Saving...' : 'Save Draft'}
+      </Button>
+      <Button 
+        type="submit" 
+        disabled={isSubmitting || isSavingDraft}
+        className="text-sm px-3 py-2"
+        size="sm"
+        form="wrongful-termination-form"
+      >
+        {isSubmitting ? 'Submitting...' : 'Submit Form'}
+      </Button>
+    </div>
+  )
+
   return (
     <>
-      <Header />
+      <Header formActions={formActions} />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Title (H1) */}
         <div className="mb-8">
@@ -265,7 +289,7 @@ export default function WrongfulTerminationForm() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form id="wrongful-termination-form" onSubmit={handleSubmit} className="space-y-8">
           <WtContact />
           
           <WtDemographics />
@@ -286,26 +310,6 @@ export default function WrongfulTerminationForm() {
           <WtOther />
           
           <WtLitigation />
-
-          {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleSaveDraft} 
-              disabled={isSavingDraft || isSubmitting}
-              className="flex-1"
-            >
-              {isSavingDraft ? 'Saving...' : 'Save Draft'}
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting || isSavingDraft}
-              className="flex-1"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Form'}
-            </Button>
-          </div>
         </form>
       </div>
     </>

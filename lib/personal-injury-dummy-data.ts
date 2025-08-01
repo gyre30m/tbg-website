@@ -26,12 +26,14 @@ export const personalInjuryDummyData = {
   // Medical - Future
   lifeExpectancy: "Medical evaluations indicate no reduction in life expectancy due to the injury, though chronic pain management will be ongoing.",
   futureMedical: "Future medical expenses include: ongoing physical therapy ($150/session, 2x weekly for 3 years), pain management injections ($800 quarterly), potential spinal fusion surgery ($75,000 if conservative treatment fails), ergonomic equipment for home office ($2,500), and annual MRI monitoring ($1,200/year). Total estimated future medical costs: $125,000-200,000 depending on surgical intervention.",
+  futureExpenses: "Ongoing physical therapy ($150/session, 2x weekly for 3 years = $46,800), pain management injections ($800 quarterly for 20 years = $64,000), potential spinal fusion surgery ($75,000-$125,000 if conservative treatment fails), ergonomic equipment for home office ($2,500), annual MRI monitoring ($1,200/year for life), specialized mattress and furniture ($3,000), long-term prescription medications ($200/month = $48,000 over 20 years). Total estimated future medical costs: $240,000-$290,000 depending on surgical intervention.",
 
   // Education - Pre-Injury
   preInjuryEducation: "masters",
   preInjurySkills: "Google Ads Certification, HubSpot Content Marketing Certification, Project Management Professional (PMP), Fluent in Spanish",
   educationPlans: "Sarah was enrolled in an Executive MBA program at the University of Chicago, scheduled to complete in 2025. She has had to withdraw due to her injury and inability to attend evening classes.",
   parentEducation: "N/A - Sarah completed her formal education prior to injury",
+  parentsEducation: "N/A",
 
   // Education - Post-Injury
   postInjuryEducation: "Sarah has completed online courses in digital marketing automation and customer relationship management through Coursera, costing $800 total. These were necessary adaptations to her reduced physical capacity at work.",
@@ -58,8 +60,11 @@ export const personalInjuryDummyData = {
   preInjuryOtherBenefits: "4 weeks paid vacation, sick leave, $2,500/year professional development allowance, gym membership",
 
   preInjuryRetirementAge: "62",
+  retirementAge: "65",
   preInjuryCareerTrajectory: "Sarah was on track for promotion to Senior Marketing Manager ($95,000-105,000) within 2 years, with potential advancement to Marketing Director ($120,000-140,000) by age 45. She was pursuing her Executive MBA to qualify for VP-level positions.",
+  careerTrajectory: "Senior VP of Marketing with an annual salary range of $300 - $350,000",
   preInjuryJobExpenses: "Professional association memberships ($500/year), continuing education courses ($2,000/year), travel expenses for client meetings ($3,000/year)",
+  jobExpenses: "N/A",
   disabilityRating: "Sarah has been evaluated by Dr. Michael Chen, orthopedic specialist, who rated her with a 15% permanent partial disability for her lower back injury. She is cleared for sedentary work with restrictions on lifting over 10 pounds and prolonged sitting.",
 
   // Employment - Post-Injury
@@ -84,7 +89,9 @@ export const personalInjuryDummyData = {
   postInjuryOtherBenefits: "No additional benefits in current freelance role",
 
   postInjuryRetirementAge: "67 (delayed due to reduced earning capacity)",
+  postRetirementAge: "70",
   postInjuryJobExpenses: "Home office equipment ($1,500), software subscriptions ($600/year), professional liability insurance ($400/year)",
+  postJobExpenses: "N/A",
 
   // Other Information
   additionalInfo: "Sarah's injury has fundamentally changed her career trajectory and earning capacity. She went from a promising corporate career path to limited freelance work. The family has had to relocate to a single-story home due to her mobility issues, incurring $15,000 in moving costs. Her husband has taken on additional household responsibilities, affecting his own career advancement opportunities.",

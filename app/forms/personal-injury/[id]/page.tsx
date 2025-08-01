@@ -1,0 +1,379 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
+import { Header } from '@/components/ui/header'
+import { PersonalInjuryFormView } from '@/components/ui/personal-injury-form-view'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
+import { ArrowLeft, Save, X } from 'lucide-react'
+import { createClient } from '@/lib/supabase/browser-client'
+import { updatePersonalInjuryForm } from '@/lib/actions'
+import type { PersonalInjuryFormData } from '@/components/ui/personal-injury-form-view'
+
+// Import the existing form components for edit mode
+import { PiContact } from '@/components/ui/pi-contact'
+import { PiDemographics } from '@/components/ui/pi-demographics'
+import { PiHousehold } from '@/components/ui/pi-household'
+import { PiMedical } from '@/components/ui/pi-medical'
+import { PiEducation } from '@/components/ui/pi-education'
+import { PiEmployment } from '@/components/ui/pi-employment'
+import { PiHouseholdServices } from '@/components/ui/pi-household-services'
+import { PiOther } from '@/components/ui/pi-other'
+import { PiLitigation } from '@/components/ui/pi-litigation'
+import { useDocumentUpload } from '@/hooks/useDocumentUpload'
+
+interface HouseholdMember {
+  id: string
+  fullName: string
+  dateOfBirth: string
+  relationship: string
+}
+
+interface EmploymentYear {
+  id: string
+  year: string
+  income: string
+  percentEmployed: string
+}
+
+interface UploadedFile {
+  id: string
+  fileName: string
+  fileUrl: string
+  fileSize: number
+  fileType: string
+  storagePath?: string
+  category: string
+}
+
+export default function PersonalInjuryFormDetailPage() {
+  const { user, loading, userProfile } = useAuth()
+  const router = useRouter()
+  const params = useParams()
+  const formId = params?.id as string
+  const { uploadMultipleDocuments, uploading } = useDocumentUpload()
+
+  const [formData, setFormData] = useState<PersonalInjuryFormData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [canEdit, setCanEdit] = useState(false)
+
+  // Edit mode state (same as original form)
+  const [householdMembers, setHouseholdMembers] = useState<HouseholdMember[]>([])
+  const [preInjuryYears, setPreInjuryYears] = useState<EmploymentYear[]>([])
+  const [postInjuryYears, setPostInjuryYears] = useState<EmploymentYear[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
+
+  useEffect(() => {
+    if (user && formId) {
+      fetchFormData()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, formId])
+
+  const fetchFormData = async () => {
+    try {
+      setIsLoading(true)
+      const supabase = createClient()
+      
+      const { data, error } = await supabase
+        .from('personal_injury_forms')
+        .select('*')
+        .eq('id', formId)
+        .single()
+
+      if (error) {
+        console.error('Error fetching form:', error)
+        toast.error('Form not found')
+        router.push('/forms')
+        return
+      }
+
+      // Check if user can edit this form
+      const isSiteAdmin = userProfile?.role === 'site_admin'
+      const isOwner = data.submitted_by === user?.id
+      const isSameFirm = data.firm_id === userProfile?.firm_id
+
+      setCanEdit(isSiteAdmin || (isOwner && isSameFirm))
+      setFormData(data)
+      
+      // Initialize edit mode state with current data
+      setHouseholdMembers(data.household_members || [])
+      setPreInjuryYears(data.pre_injury_years || [])
+      setPostInjuryYears(data.post_injury_years || [])
+      setUploadedFiles(data.uploaded_files || [])
+
+    } catch (error) {
+      console.error('Error fetching form data:', error)
+      toast.error('Failed to load form')
+      router.push('/forms')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleEdit = () => {
+    setIsEditing(true)
+    // Populate form fields with current data
+    setTimeout(() => {
+      populateFormFields()
+    }, 100)
+  }
+
+  const populateFormFields = () => {
+    const form = document.querySelector('form') as HTMLFormElement
+    if (!form || !formData) return
+
+    // Populate all form fields with current data
+    Object.keys(formData).forEach(key => {
+      const field = form.querySelector(`[name="${convertDbFieldToFormField(key)}"]`) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      if (field && formData[key] !== null && formData[key] !== undefined) {
+        if (key.includes('date') && formData[key]) {
+          // Handle date fields
+          const date = new Date(formData[key] as string)
+          field.value = date.toISOString().split('T')[0]
+        } else {
+          field.value = String(formData[key])
+        }
+        
+        // Trigger change event for React components
+        const event = new Event('change', { bubbles: true })
+        field.dispatchEvent(event)
+      }
+    })
+  }
+
+  // Convert database field names to form field names
+  const convertDbFieldToFormField = (dbField: string): string => {
+    const fieldMapping: Record<string, string> = {
+      'first_name': 'firstName',
+      'last_name': 'lastName',
+      'zip_code': 'zipCode',
+      'phone_type': 'phoneType',
+      'date_of_birth': 'dateOfBirth',
+      'marital_status': 'maritalStatus',
+      'incident_date': 'incidentDate',
+      'injury_description': 'injuryDescription',
+      'caregiver_claim': 'caregiverClaim',
+      'life_expectancy': 'lifeExpectancy',
+      'future_medical': 'futureMedical',
+      'pre_injury_education': 'preInjuryEducation',
+      'pre_injury_skills': 'preInjurySkills',
+      'education_plans': 'educationPlans',
+      'parent_education': 'parentEducation',
+      'post_injury_education': 'postInjuryEducation',
+      // Add more mappings as needed
+    }
+    
+    return fieldMapping[dbField] || dbField
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    // Reset state to original values
+    if (formData) {
+      setHouseholdMembers((formData.household_members as HouseholdMember[]) || [])
+      setPreInjuryYears((formData.pre_injury_years as EmploymentYear[]) || [])
+      setPostInjuryYears((formData.post_injury_years as EmploymentYear[]) || [])
+      setUploadedFiles((formData.uploaded_files as UploadedFile[]) || [])
+    }
+  }
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSaving(true)
+    
+    try {
+      const form = e.target as HTMLFormElement
+      const formDataObj = new FormData(form)
+      
+      // Add complex data
+      formDataObj.append('householdMembers', JSON.stringify(householdMembers))
+      formDataObj.append('preInjuryYears', JSON.stringify(preInjuryYears))
+      formDataObj.append('postInjuryYears', JSON.stringify(postInjuryYears))
+      formDataObj.append('uploadedFiles', JSON.stringify(uploadedFiles))
+      
+      const result = await updatePersonalInjuryForm(formId, formDataObj)
+      
+      if (result.success) {
+        toast.success('Form updated successfully!')
+        setIsEditing(false)
+        // Refresh form data to show updated version
+        await fetchFormData()
+      } else {
+        toast.error('Failed to update form')
+      }
+      
+    } catch (error) {
+      console.error('Error updating form:', error)
+      toast.error('Failed to update form. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleFileUpload = async (files: FileList, category: string) => {
+    const fileArray = Array.from(files)
+    
+    try {
+      const results = await uploadMultipleDocuments(fileArray, category)
+      
+      const newUploadedFiles = results
+        .filter(result => result.success)
+        .map(result => ({
+          id: Date.now().toString() + Math.random(),
+          fileName: result.fileName!,
+          fileUrl: result.fileUrl!,
+          fileSize: result.fileSize!,
+          fileType: result.fileType!,
+          storagePath: result.storagePath,
+          category
+        }))
+      
+      setUploadedFiles(prev => [...prev, ...newUploadedFiles])
+      
+      const successCount = results.filter(r => r.success).length
+      const failCount = results.length - successCount
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} file(s) uploaded successfully`)
+      }
+      if (failCount > 0) {
+        toast.error(`${failCount} file(s) failed to upload`)
+      }
+      
+    } catch {
+      toast.error('Failed to upload files')
+    }
+  }
+
+  const removeFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId))
+  }
+
+  if (loading || isLoading) {
+    return (
+      <>
+        <Header />
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="text-center py-12">Loading...</div>
+        </div>
+      </>
+    )
+  }
+
+  if (!user) {
+    router.push('/forms')
+    return null
+  }
+
+  if (!formData) {
+    return (
+      <>
+        <Header />
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="text-center py-12">Form not found</div>
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Header />
+      
+      {!isEditing ? (
+        <>
+          {/* Back button */}
+          <div className="container mx-auto px-4 pt-4 max-w-4xl">
+            <Button 
+              variant="ghost" 
+              onClick={() => router.push('/forms')}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Forms
+            </Button>
+          </div>
+          
+          {/* Read-only view */}
+          <PersonalInjuryFormView 
+            formData={formData}
+            onEdit={canEdit ? handleEdit : undefined}
+            canEdit={canEdit}
+          />
+        </>
+      ) : (
+        /* Edit mode */
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-3xl font-bold tracking-tight">Edit Personal Injury Form</h1>
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleCancel}
+                  disabled={isSaving}
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+              </div>
+            </div>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-yellow-800">
+                You are editing a submitted form. Changes will be tracked and a new version will be created.
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSave} className="space-y-8">
+            <PiContact />
+            <PiDemographics />
+            <PiHousehold 
+              householdMembers={householdMembers}
+              setHouseholdMembers={setHouseholdMembers}
+            />
+            <PiMedical 
+              uploadedFiles={uploadedFiles}
+              handleFileUpload={handleFileUpload}
+              removeFile={removeFile}
+              uploading={uploading}
+            />
+            <PiEducation />
+            <PiEmployment 
+              preInjuryYears={preInjuryYears}
+              setPreInjuryYears={setPreInjuryYears}
+              postInjuryYears={postInjuryYears}
+              setPostInjuryYears={setPostInjuryYears}
+              uploadedFiles={uploadedFiles}
+              handleFileUpload={handleFileUpload}
+              removeFile={removeFile}
+              uploading={uploading}
+            />
+            <PiHouseholdServices />
+            <PiOther />
+            <PiLitigation />
+
+            {/* Save button */}
+            <div className="flex justify-end pt-6">
+              <Button 
+                type="submit" 
+                disabled={isSaving}
+                className="flex items-center gap-2"
+              >
+                <Save className="w-4 h-4" />
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
+  )
+}

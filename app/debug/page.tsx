@@ -234,7 +234,7 @@ export default function DebugPage() {
             <li>Run the database setup script from <code className="bg-gray-100 px-2 py-1 rounded">/database-setup.sql</code></li>
             <li>Create an account with <code className="bg-gray-100 px-2 py-1 rounded">bradley@the-bradley-group.com</code> to become site admin</li>
             <li>Verify that the user profile was created automatically with site admin role</li>
-            <li>Access <code className="bg-gray-100 px-2 py-1 rounded">/admin/firms</code> to manage firms and users</li>
+            <li>Access <code className="bg-gray-100 px-2 py-1 rounded">/admin/site</code> to manage firms and users</li>
             <li>Create firms and invite users as needed</li>
           </ol>
         </CardContent>

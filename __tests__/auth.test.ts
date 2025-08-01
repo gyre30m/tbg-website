@@ -55,7 +55,7 @@ const TEST_USERS = {
 describe('Authentication System Tests', () => {
   let testFirm1Id: string
   let testFirm2Id: string
-  let testUserIds: Record<string, string> = {}
+  const testUserIds: Record<string, string> = {}
 
   beforeAll(async () => {
     // Setup test data using service role

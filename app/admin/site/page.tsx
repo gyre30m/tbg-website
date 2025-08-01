@@ -1,21 +1,17 @@
 'use client'
 
 import { useAuth } from '@/lib/auth-context'
+import { SiteAdminPanel } from '@/components/ui/site-admin-panel'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-export default function AdminFirmsPage() {
+export default function AdminSitePage() {
   const { user, userProfile, loading, isSiteAdmin } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading) {
-      if (!user || !isSiteAdmin) {
-        router.push('/')
-      } else {
-        // Redirect to new site admin location
-        router.push('/admin/site')
-      }
+    if (!loading && (!user || !isSiteAdmin)) {
+      router.push('/')
     }
   }, [user, userProfile, loading, isSiteAdmin, router])
 
@@ -35,10 +31,5 @@ export default function AdminFirmsPage() {
     )
   }
 
-  // This should rarely be seen as the useEffect redirect should happen first
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-lg">Redirecting to site admin...</div>
-    </div>
-  )
+  return <SiteAdminPanel />
 }

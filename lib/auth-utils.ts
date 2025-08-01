@@ -1,9 +1,10 @@
 'use server'
 
-import { supabase } from './supabase'
+import { createClient } from './supabase/server-client'
 import type { Firm, UserProfile } from './types'
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('user_profiles')
     .select(`
@@ -25,6 +26,7 @@ export async function getUserFirm(userId: string): Promise<Firm | null> {
   const profile = await getUserProfile(userId)
   if (!profile?.firm_id) return null
 
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('firms')
     .select('*')
@@ -54,6 +56,7 @@ export async function createFirm(name: string, domain: string): Promise<Firm | n
     console.log('createFirm called with:', { name, domain })
     
     // First create the firm
+    const supabase = await createClient()
     const { data: firm, error: firmError } = await supabase
       .from('firms')
       .insert([{
@@ -86,6 +89,7 @@ export async function inviteUserToFirm(
   try {
     // Check if domain matches firm domain
     const emailDomain = email.split('@')[1]
+    const supabase = await createClient()
     const { data: firm } = await supabase
       .from('firms')
       .select('domain')
@@ -120,6 +124,7 @@ export async function inviteUserToFirm(
 export async function validateEmailDomain(email: string, firmId: string): Promise<boolean> {
   const emailDomain = email.split('@')[1]
   
+  const supabase = await createClient()
   const { data: firm } = await supabase
     .from('firms')
     .select('domain')

@@ -1,16 +1,22 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
-import { supabase } from './supabase'
+import { createClient } from './supabase/browser-client'
 import { UserProfile, Firm } from './types'
 
-interface AuthContextType {
+interface AuthState {
   user: User | null
   session: Session | null
-  userProfile: UserProfile | null
-  userFirm: Firm | null
-  loading: boolean
+  profile: UserProfile | null
+  firm: Firm | null
+  isLoading: boolean
+}
+
+interface AuthContextType extends AuthState {
+  userProfile: UserProfile | null // Keep for backward compatibility
+  userFirm: Firm | null // Keep for backward compatibility
+  loading: boolean // Keep for backward compatibility
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>
@@ -22,18 +28,22 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-  const [userFirm, setUserFirm] = useState<Firm | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    session: null,
+    profile: null,
+    firm: null,
+    isLoading: true
+  })
+  
+  // Create a single supabase client instance for this context
+  const supabase = createClient()
 
   const fetchUserProfile = async (userId: string) => {
     try {
       // Check if we're in a password reset scenario by looking at the URL
       if (typeof window !== 'undefined' && window.location.pathname === '/auth/reset-password') {
-        setUserProfile(null)
-        setUserFirm(null)
+        setAuthState(prev => ({ ...prev, profile: null, firm: null }))
         return
       }
       
@@ -57,8 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (error.code === 'PGRST116') {
             // No profile exists - user needs to create one
             console.log('No user profile found for user:', userId)
-            setUserProfile(null)
-            setUserFirm(null)
+            setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
           } else {
             throw error
@@ -66,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         console.log('Successfully fetched profile:', profile)
-        setUserProfile(profile)
+        setAuthState(prev => ({ ...prev, profile }))
         
         // Fetch firm if user has one
         if (profile && profile.firm_id) {
@@ -78,12 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
           if (firmError) {
             console.error('Error fetching firm:', firmError)
-            setUserFirm(null)
+            setAuthState(prev => ({ ...prev, firm: null }))
           } else {
-            setUserFirm(firm)
+            setAuthState(prev => ({ ...prev, firm }))
           }
         } else {
-          setUserFirm(null)
+          setAuthState(prev => ({ ...prev, firm: null }))
         }
         
       } catch (queryError) {
@@ -101,36 +110,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           updated_at: new Date().toISOString()
         }
         
-        setUserProfile(basicProfile)
-        setUserFirm(null)
+        setAuthState(prev => ({ ...prev, profile: basicProfile, firm: null }))
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
-      setUserProfile(null)
-      setUserFirm(null)
+      setAuthState(prev => ({ ...prev, profile: null, firm: null }))
     }
   }
 
-  const refreshProfile = async () => {
-    if (user?.id) {
-      await fetchUserProfile(user.id)
+  const refreshProfile = useCallback(async () => {
+    if (authState.user?.id) {
+      await fetchUserProfile(authState.user.id)
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authState.user?.id])
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
+      setAuthState(prev => ({ 
+        ...prev, 
+        session, 
+        user: session?.user ?? null
+      }))
       
       if (session?.user?.id) {
         await fetchUserProfile(session.user.id)
       }
       
-      setLoading(false)
+      setAuthState(prev => ({ ...prev, isLoading: false }))
     }).catch((error) => {
       console.error('Error getting session:', error)
-      setLoading(false)
+      setAuthState(prev => ({ ...prev, isLoading: false }))
     })
 
     // Listen for auth changes
@@ -138,62 +149,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       try {
-        setSession(session)
-        setUser(session?.user ?? null)
+        setAuthState(prev => ({ 
+          ...prev, 
+          session, 
+          user: session?.user ?? null 
+        }))
         
         if (session?.user?.id) {
           await fetchUserProfile(session.user.id)
         } else {
-          setUserProfile(null)
-          setUserFirm(null)
+          setAuthState(prev => ({ 
+            ...prev, 
+            profile: null, 
+            firm: null 
+          }))
         }
       } catch (error) {
         console.error('Error in auth state change:', error)
       } finally {
-        setLoading(false)
+        setAuthState(prev => ({ ...prev, isLoading: false }))
       }
     })
 
     return () => subscription.unsubscribe()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
     return { error }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut()
-    setUserProfile(null)
-    setUserFirm(null)
-  }
+    setAuthState(prev => ({ 
+      ...prev, 
+      profile: null, 
+      firm: null 
+    }))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = useCallback(async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     })
     return { error }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const isSiteAdmin = userProfile?.role === 'site_admin'
-  const isFirmAdmin = userProfile?.role === 'firm_admin'
+  const isSiteAdmin = useMemo(() => authState.profile?.role === 'site_admin', [authState.profile])
+  const isFirmAdmin = useMemo(() => authState.profile?.role === 'firm_admin', [authState.profile])
 
-  const value = {
-    user,
-    session,
-    userProfile,
-    userFirm,
-    loading,
+  const value = useMemo(() => ({
+    // New consolidated state
+    ...authState,
+    // Backward compatibility aliases
+    userProfile: authState.profile,
+    userFirm: authState.firm,
+    loading: authState.isLoading,
+    // Methods
     signIn,
     signOut,
     resetPassword,
     isSiteAdmin,
     isFirmAdmin,
     refreshProfile,
-  }
+  }), [authState, isSiteAdmin, isFirmAdmin, signIn, signOut, resetPassword, refreshProfile])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
