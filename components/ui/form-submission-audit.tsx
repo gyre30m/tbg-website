@@ -30,8 +30,8 @@ export function FormSubmissionAudit() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState({
-    formType: '',
-    actionType: '',
+    formType: 'all',
+    actionType: 'all',
     dateRange: '30', // days
     searchUser: ''
   })
@@ -49,7 +49,7 @@ export function FormSubmissionAudit() {
       // Build the query parameters
       const params: Record<string, unknown> = {}
       
-      if (filters.formType) {
+      if (filters.formType && filters.formType !== 'all') {
         params.p_form_type = filters.formType
       }
       
@@ -66,7 +66,7 @@ export function FormSubmissionAudit() {
       let filteredData = data || []
 
       // Apply client-side filters
-      if (filters.actionType) {
+      if (filters.actionType && filters.actionType !== 'all') {
         filteredData = filteredData.filter((entry: AuditEntry) => entry.action_type === filters.actionType)
       }
 
@@ -79,7 +79,7 @@ export function FormSubmissionAudit() {
       }
 
       // Apply date range filter
-      if (filters.dateRange) {
+      if (filters.dateRange && filters.dateRange !== 'all') {
         const daysBack = parseInt(filters.dateRange)
         const cutoffDate = new Date()
         cutoffDate.setDate(cutoffDate.getDate() - daysBack)
@@ -166,7 +166,7 @@ export function FormSubmissionAudit() {
                 <SelectValue placeholder="All forms" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All forms</SelectItem>
+                <SelectItem value="all">All forms</SelectItem>
                 <SelectItem value="personal_injury">Personal Injury</SelectItem>
                 <SelectItem value="wrongful_death">Wrongful Death</SelectItem>
                 <SelectItem value="wrongful_termination">Wrongful Termination</SelectItem>
@@ -181,7 +181,7 @@ export function FormSubmissionAudit() {
                 <SelectValue placeholder="All actions" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All actions</SelectItem>
+                <SelectItem value="all">All actions</SelectItem>
                 <SelectItem value="submitted">Submitted</SelectItem>
                 <SelectItem value="resubmitted">Resubmitted</SelectItem>
                 <SelectItem value="updated">Updated</SelectItem>
@@ -201,7 +201,7 @@ export function FormSubmissionAudit() {
                 <SelectItem value="30">Last 30 days</SelectItem>
                 <SelectItem value="90">Last 90 days</SelectItem>
                 <SelectItem value="365">Last year</SelectItem>
-                <SelectItem value="">All time</SelectItem>
+                <SelectItem value="all">All time</SelectItem>
               </SelectContent>
             </Select>
           </div>
