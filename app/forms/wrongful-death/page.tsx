@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header'
 import { Button } from '@/components/ui/button'
 import { useDocumentUpload } from '@/hooks/useDocumentUpload'
 import { submitWrongfulDeathForm, saveDraftWrongfulDeathForm } from '@/lib/actions'
+import { createClient } from '@/lib/supabase/browser-client'
 import { toast } from 'sonner'
 import { WdContact } from '@/components/ui/wd-contact'
 import { WdDemographics } from '@/components/ui/wd-demographics'
@@ -46,6 +47,36 @@ export default function WrongfulDeathForm() {
   const { user, loading, userProfile } = useAuth()
   const router = useRouter()
   const { uploadMultipleDocuments, uploading } = useDocumentUpload()
+
+  // Helper function to get firm forms redirect URL
+  const getFirmFormsUrl = async () => {
+    if (!userProfile?.firm_id) {
+      return '/forms?submitted=true' // fallback to original behavior
+    }
+
+    try {
+      const supabase = createClient()
+      
+      // Try to fetch firm by id
+      const { data: firmData, error: firmError } = await supabase
+        .from('firms')
+        .select('*')
+        .eq('id', userProfile.firm_id)
+        .single()
+
+      if (firmError) {
+        console.error('Error fetching firm:', firmError)
+        return '/forms?submitted=true' // fallback
+      }
+      
+      // Use slug if available, otherwise use name
+      const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name)
+      return `/firms/${firmIdentifier}/forms?submitted=true`
+    } catch (error) {
+      console.error('Error getting firm forms URL:', error)
+      return '/forms?submitted=true' // fallback
+    }
+  }
   
   const [householdDependents, setHouseholdDependents] = useState<Dependent[]>([
     { id: '1', fullName: '', dateOfBirth: '', relationship: '' }
@@ -217,7 +248,8 @@ export default function WrongfulDeathForm() {
       
       if (result.success) {
         toast.success('Form submitted successfully!')
-        router.push('/forms?submitted=true')
+        const redirectUrl = await getFirmFormsUrl()
+        router.push(redirectUrl)
       } else {
         toast.error('Failed to submit form')
       }

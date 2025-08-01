@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header'
 import { Button } from '@/components/ui/button'
 import { useDocumentUpload } from '@/hooks/useDocumentUpload'
 import { submitPersonalInjuryForm, saveDraftPersonalInjuryForm, deletePersonalInjuryForm } from '@/lib/actions'
+import { createClient } from '@/lib/supabase/browser-client'
 import { toast } from 'sonner'
 import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog'
 import { CancelFormDialog } from '@/components/ui/cancel-form-dialog'
@@ -49,6 +50,39 @@ export default function PersonalInjuryForm() {
   const { user, loading, userProfile } = useAuth()
   const router = useRouter()
   const { uploadMultipleDocuments, uploading } = useDocumentUpload()
+
+  // Helper function to get firm forms redirect URL
+  const getFirmFormsUrl = async () => {
+    if (!userProfile?.firm_id) {
+      return '/forms?submitted=true' // fallback to original behavior
+    }
+
+    try {
+      const supabase = createClient()
+      
+      // Try to fetch firm by slug first, then by name if slug doesn't exist
+      let firmData = null
+      const { data: slugData, error: slugError } = await supabase
+        .from('firms')
+        .select('*')
+        .eq('id', userProfile.firm_id)
+        .single()
+
+      if (slugError) {
+        console.error('Error fetching firm:', slugError)
+        return '/forms?submitted=true' // fallback
+      }
+      
+      firmData = slugData
+      
+      // Use slug if available, otherwise use name
+      const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name)
+      return `/firms/${firmIdentifier}/forms?submitted=true`
+    } catch (error) {
+      console.error('Error getting firm forms URL:', error)
+      return '/forms?submitted=true' // fallback
+    }
+  }
   const [householdMembers, setHouseholdMembers] = useState<HouseholdMember[]>([
     { id: '1', fullName: '', dateOfBirth: '', relationship: '' }
   ])
@@ -252,7 +286,8 @@ export default function PersonalInjuryForm() {
       if (result.success) {
         toast.success('Form submitted successfully!')
         setHasBeenSaved(true)
-        router.push('/forms?submitted=true')
+        const redirectUrl = await getFirmFormsUrl()
+        router.push(redirectUrl)
       } else {
         toast.error('Failed to submit form')
       }

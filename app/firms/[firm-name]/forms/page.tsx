@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { createClient } from '@/lib/supabase/browser-client'
-import { ArrowLeft, Eye, Calendar, User, Plus, ChevronDown } from 'lucide-react'
+import { Eye, Calendar, User, Plus, ChevronDown, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -345,14 +345,20 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
                 Viewing submitted forms for {firm.name}
               </p>
             </div>
-            <Button 
-              variant="ghost" 
-              onClick={() => router.push('/forms')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Forms
-            </Button>
+            {/* Show Firm Admin button only if user is the firm admin */}
+            {user && firm && user.id === firm.firm_admin_id && (
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  const firmIdentifier = firm.slug || encodeURIComponent(firm.name)
+                  router.push(`/firms/${firmIdentifier}/admin`)
+                }}
+                className="flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Firm Admin
+              </Button>
+            )}
           </div>
           
           <div className="flex items-center gap-4">

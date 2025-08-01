@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { LogOut, User, Edit, Settings } from "lucide-react";
 import {
@@ -20,8 +21,15 @@ interface HeaderProps {
 
 export function Header({ formActions }: HeaderProps) {
   const { user, userProfile, signOut } = useAuth();
+  const router = useRouter();
 
   if (!user) return null;
+
+  // Custom sign out handler that redirects to home page
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
 
   // const getRoleBadge = () => {
   //   if (isSiteAdmin) return <Badge variant="default">Site Admin</Badge>;
@@ -118,7 +126,7 @@ export function Header({ formActions }: HeaderProps) {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={signOut}
+                  onClick={handleSignOut}
                   className="flex items-center space-x-2 cursor-pointer text-red-600 focus:text-red-600"
                 >
                   <LogOut className="h-4 w-4" />

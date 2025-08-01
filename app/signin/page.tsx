@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/browser-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,18 +13,59 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export default function SignInPage() {
-  const { user, signIn } = useAuth()
+  const { user, userProfile, signIn } = useAuth()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSigningIn, setIsSigningIn] = useState(false)
 
+  // Helper function to get appropriate redirect URL based on user role
+  const getRedirectUrl = useCallback(async () => {
+    // Only site admins get the global view, firm admins and users get their firm's view
+    if (!userProfile) {
+      return '/forms/all' // fallback if no profile yet
+    }
+    
+    if (userProfile.role === 'site_admin') {
+      return '/admin/firms' // site admins go to firms management
+    }
+
+    // For firm admins and regular users, redirect to their firm's forms page
+    if (userProfile.firm_id) {
+      try {
+        const supabase = createClient()
+        
+        // Fetch firm data
+        const { data: firmData, error: firmError } = await supabase
+          .from('firms')
+          .select('*')
+          .eq('id', userProfile.firm_id)
+          .single()
+
+        if (firmError) {
+          console.error('Error fetching firm for redirect:', firmError)
+          return '/forms/all' // fallback
+        }
+        
+        // Use slug if available, otherwise use name
+        const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name)
+        return `/firms/${firmIdentifier}/forms`
+      } catch (error) {
+        console.error('Error getting firm redirect URL:', error)
+        return '/forms/all' // fallback
+      }
+    }
+
+    // Fallback for users without firm
+    return '/forms/all'
+  }, [userProfile])
+
   // Redirect if already signed in
   useEffect(() => {
-    if (user) {
-      router.push('/forms/all')
+    if (user && userProfile) {
+      getRedirectUrl().then(url => router.push(url))
     }
-  }, [user, router])
+  }, [user, userProfile, router, getRedirectUrl])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,7 +78,7 @@ export default function SignInPage() {
         toast.error(error.message || 'Failed to sign in')
       } else {
         toast.success('Successfully signed in!')
-        router.push('/forms/all')
+        // Note: redirect will be handled by useEffect when userProfile loads
       }
     } catch {
       toast.error('An unexpected error occurred')

@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header'
 import { Button } from '@/components/ui/button'
 import { useDocumentUpload } from '@/hooks/useDocumentUpload'
 import { submitWrongfulTerminationForm, saveDraftWrongfulTerminationForm } from '@/lib/actions'
+import { createClient } from '@/lib/supabase/browser-client'
 import { toast } from 'sonner'
 import { WtContact } from '@/components/ui/wt-contact'
 import { WtDemographics } from '@/components/ui/wt-demographics'
@@ -36,6 +37,36 @@ export default function WrongfulTerminationForm() {
   const { user, loading, userProfile } = useAuth()
   const router = useRouter()
   const { uploadMultipleDocuments, uploading } = useDocumentUpload()
+
+  // Helper function to get firm forms redirect URL
+  const getFirmFormsUrl = async () => {
+    if (!userProfile?.firm_id) {
+      return '/forms?submitted=true' // fallback to original behavior
+    }
+
+    try {
+      const supabase = createClient()
+      
+      // Try to fetch firm by id
+      const { data: firmData, error: firmError } = await supabase
+        .from('firms')
+        .select('*')
+        .eq('id', userProfile.firm_id)
+        .single()
+
+      if (firmError) {
+        console.error('Error fetching firm:', firmError)
+        return '/forms?submitted=true' // fallback
+      }
+      
+      // Use slug if available, otherwise use name
+      const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name)
+      return `/firms/${firmIdentifier}/forms?submitted=true`
+    } catch (error) {
+      console.error('Error getting firm forms URL:', error)
+      return '/forms?submitted=true' // fallback
+    }
+  }
   
   const [preTerminationYears, setPreTerminationYears] = useState<EmploymentYear[]>([
     { id: '1', year: '', income: '', percentEmployed: '' }
@@ -203,7 +234,8 @@ export default function WrongfulTerminationForm() {
       
       if (result.success) {
         toast.success('Form submitted successfully!')
-        router.push('/forms?submitted=true')
+        const redirectUrl = await getFirmFormsUrl()
+        router.push(redirectUrl)
       } else {
         toast.error('Failed to submit form')
       }
