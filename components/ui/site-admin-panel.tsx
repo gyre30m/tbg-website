@@ -166,7 +166,7 @@ export function SiteAdminPanel() {
     email: string,
     firmId: string,
     role: "firm_admin" | "user" = "user"
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<{ success: boolean; error?: string; warning?: string }> => {
     try {
       // Check if domain matches firm domain
       const emailDomain = email.split("@")[1];
@@ -200,7 +200,38 @@ export function SiteAdminPanel() {
         return { success: false, error: inviteError.message };
       }
 
-      return { success: true };
+      // Send email invitation using Supabase Auth
+      try {
+        const { data: authData, error: authError } = await supabase.auth.admin.inviteUserByEmail(
+          email.toLowerCase(),
+          {
+            redirectTo: `${window.location.origin}/auth/signup?firmId=${firmId}&role=${role}&email=${encodeURIComponent(email)}`,
+            data: {
+              firm_id: firmId,
+              role: role,
+              invited_by: 'site_admin'
+            }
+          }
+        );
+
+        if (authError) {
+          console.error("Error sending invitation email:", authError);
+          // Don't fail completely - the invitation record was created
+          return { 
+            success: true, 
+            warning: `Invitation record created but email failed to send: ${authError.message}` 
+          };
+        }
+
+        console.log("Invitation email sent successfully:", authData);
+        return { success: true };
+      } catch (emailError) {
+        console.error("Exception sending invitation email:", emailError);
+        return { 
+          success: true, 
+          warning: "Invitation record created but email failed to send. Please send the signup link manually." 
+        };
+      }
     } catch (error) {
       console.error("Exception in inviteUserToFirmClient:", error);
       return { success: false, error: "Failed to invite user" };
@@ -254,12 +285,14 @@ export function SiteAdminPanel() {
             .eq("firm_id", firm.id)
             .eq("role", "firm_admin")
             .order("created_at", { ascending: true })
-            .limit(1)
-            .single();
+            .limit(1);
+
+          // Use the first admin if any exist, otherwise null
+          const firstAdmin = adminData && adminData.length > 0 ? adminData[0] : null;
 
           return {
             ...firm,
-            firmAdmin: adminError ? null : adminData,
+            firmAdmin: adminError ? null : firstAdmin,
           };
         })
       );
@@ -485,12 +518,21 @@ export function SiteAdminPanel() {
         console.log("Invitation result:", inviteResult);
 
         if (inviteResult.success) {
-          const signupUrl = `${window.location.origin}/auth/signup?firmId=${
-            firm.id
-          }&role=firm_admin&email=${encodeURIComponent(adminEmail)}`;
-          setMessage(
-            `Firm created successfully! Send this signup link to ${adminEmail}: ${signupUrl}`
-          );
+          if (inviteResult.warning) {
+            // Show warning but still treat as success
+            const signupUrl = `${window.location.origin}/auth/signup?firmId=${
+              firm.id
+            }&role=firm_admin&email=${encodeURIComponent(adminEmail)}`;
+            setMessage(
+              `Firm created successfully! ${inviteResult.warning} Signup link: ${signupUrl}`
+            );
+          } else {
+            // Email sent successfully
+            setMessage(
+              `Firm created successfully! Invitation email sent to ${adminEmail}.`
+            );
+          }
+          
           setFormData({
             name: "",
             domain: "",
