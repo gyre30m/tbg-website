@@ -120,4 +120,25 @@ CREATE POLICY "Users can update their own profile" ON public.user_profiles
 ```
 
 ## Status
-**PARTIALLY APPLIED** - Some policies may already exist. Use the troubleshooting queries above to identify which ones are missing.
+**POLICIES EXIST BUT CONFLICT** - The issue is overly permissive `allow_authenticated_*` policies.
+
+## Root Cause Found
+The `user_profiles` table has conflicting policies:
+- ✅ User-specific policies exist and are correct
+- ❌ `allow_authenticated_*` policies are too permissive (qual: true)
+
+## Fix: Remove Overly Permissive Policies
+Run this in Supabase SQL Editor:
+
+```sql
+-- Remove the overly permissive policies
+DROP POLICY IF EXISTS "allow_authenticated_insert" ON public.user_profiles;
+DROP POLICY IF EXISTS "allow_authenticated_select" ON public.user_profiles;
+DROP POLICY IF EXISTS "allow_authenticated_update" ON public.user_profiles;
+```
+
+## Verify Fix
+After removing those policies, the remaining policies should work correctly:
+- Users can view/insert/update their OWN profiles only
+- Admin can manage all profiles
+- No more 406 errors
