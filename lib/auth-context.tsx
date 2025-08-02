@@ -146,19 +146,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (queryError) {
         console.warn('Profile query failed, using fallback profile:', queryError)
         
-        // Fallback to basic profile if query fails
-        const basicProfile: UserProfile = {
-          id: 'temp-id',
-          user_id: userId,
-          role: 'user',
-          first_name: undefined,
-          last_name: undefined,
-          firm_id: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+        // Try to create fallback profile from user metadata
+        try {
+          const { data: { user: currentUser } } = await supabase.auth.getUser()
+          
+          if (currentUser?.user_metadata?.firm_id && currentUser?.user_metadata?.role) {
+            console.log('Using fallback profile from user metadata (timeout/error case)')
+            const fallbackProfile: UserProfile = {
+              id: userId + '-fallback',
+              user_id: userId,
+              first_name: currentUser.user_metadata.first_name || '',
+              last_name: currentUser.user_metadata.last_name || '',
+              firm_id: currentUser.user_metadata.firm_id,
+              role: currentUser.user_metadata.role,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+            setAuthState(prev => ({ ...prev, profile: fallbackProfile }))
+            
+            // Try to fetch firm if we have firm_id
+            try {
+              const { data: firm, error: firmError } = await supabase
+                .from('firms')
+                .select('*')
+                .eq('id', fallbackProfile.firm_id)
+                .single()
+              
+              if (!firmError && firm) {
+                setAuthState(prev => ({ ...prev, firm }))
+              }
+            } catch (firmFetchError) {
+              console.warn('Could not fetch firm in fallback:', firmFetchError)
+            }
+          } else {
+            // No metadata available - use basic profile
+            console.log('No user metadata available, using basic profile')
+            const basicProfile: UserProfile = {
+              id: 'temp-id',
+              user_id: userId,
+              role: 'user',
+              first_name: undefined,
+              last_name: undefined,
+              firm_id: undefined,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }
+            setAuthState(prev => ({ ...prev, profile: basicProfile, firm: null }))
+          }
+        } catch (fallbackError) {
+          console.warn('Could not create fallback profile:', fallbackError)
+          // Use basic profile as last resort
+          const basicProfile: UserProfile = {
+            id: 'temp-id',
+            user_id: userId,
+            role: 'user',
+            first_name: undefined,
+            last_name: undefined,
+            firm_id: undefined,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setAuthState(prev => ({ ...prev, profile: basicProfile, firm: null }))
         }
-        
-        setAuthState(prev => ({ ...prev, profile: basicProfile, firm: null }))
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
