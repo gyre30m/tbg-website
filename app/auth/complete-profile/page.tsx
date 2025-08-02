@@ -160,10 +160,29 @@ export default function CompleteProfilePage() {
       setSuccess('Profile completed successfully!')
       
       // Redirect to appropriate page based on role
-      setTimeout(() => {
+      setTimeout(async () => {
         if (user?.user_metadata?.firm_id) {
-          // Regular user - go to forms
-          router.push('/forms')
+          // Get firm details to construct proper redirect
+          try {
+            const { data: firmData } = await supabase
+              .from('firms')
+              .select('slug, name')
+              .eq('id', user.user_metadata.firm_id)
+              .single()
+
+            if (firmData) {
+              // Use slug if available, otherwise use name
+              const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name)
+              router.push(`/firms/${firmIdentifier}/forms`)
+            } else {
+              // Fallback to generic forms page
+              router.push('/forms')
+            }
+          } catch (error) {
+            console.error('Error fetching firm for redirect:', error)
+            // Fallback to generic forms page
+            router.push('/forms')
+          }
         } else {
           // No firm assigned - go to profile
           router.push('/profile')

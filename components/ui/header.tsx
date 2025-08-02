@@ -4,7 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { LogOut, Edit } from "lucide-react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/browser-client";
+import { LogOut, Edit, FileText } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +25,33 @@ interface HeaderProps {
 export function Header({ formActions }: HeaderProps) {
   const { user, userProfile, signOut } = useAuth();
   const router = useRouter();
+  const [firmFormsUrl, setFirmFormsUrl] = useState<string>('/forms');
+
+  // Fetch firm data to construct proper forms URL
+  useEffect(() => {
+    const fetchFirmFormsUrl = async () => {
+      if (userProfile?.firm_id) {
+        try {
+          const supabase = createClient();
+          const { data: firmData } = await supabase
+            .from('firms')
+            .select('slug, name')
+            .eq('id', userProfile.firm_id)
+            .single();
+
+          if (firmData) {
+            const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name);
+            setFirmFormsUrl(`/firms/${firmIdentifier}/forms`);
+          }
+        } catch (error) {
+          console.error('Error fetching firm for forms URL:', error);
+          // Keep default /forms URL
+        }
+      }
+    };
+
+    fetchFirmFormsUrl();
+  }, [userProfile]);
 
   if (!user) return null;
 
@@ -101,6 +130,15 @@ export function Header({ formActions }: HeaderProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={firmFormsUrl}
+                    className="flex items-center space-x-2 cursor-pointer"
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span>Forms</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link
                     href="/profile"
