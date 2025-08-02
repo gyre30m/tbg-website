@@ -191,7 +191,6 @@ export function SiteAdminPanel() {
             email: email.toLowerCase(),
             firm_id: firmId,
             role,
-            status: "pending",
             invited_at: new Date().toISOString(),
           },
         ]);
