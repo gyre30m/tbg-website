@@ -3,6 +3,44 @@
 import { createClient } from './supabase/server-client'
 import { createAdminClient } from './supabase/admin-client'
 
+// Helper function to send form submission notification email
+async function sendFormNotificationEmail(
+  formType: 'personal_injury' | 'wrongful_death' | 'wrongful_termination',
+  formId: string,
+  formData: Record<string, unknown>,
+  userFullName: string,
+  firmName?: string
+) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/send-form-notification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        formType,
+        formId,
+        submitterName: `${formData.first_name || 'Unknown'} ${formData.last_name || 'User'}`,
+        submitterEmail: formData.email || 'Not provided',
+        firmName,
+        formData,
+        userFullName
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('Failed to send notification email:', errorData)
+    } else {
+      const result = await response.json()
+      console.log('Notification email sent successfully:', result.emailId)
+    }
+  } catch (error) {
+    console.error('Error sending notification email:', error)
+    // Don't throw error - we don't want email failures to break form submission
+  }
+}
+
 // Generic function to extract normalized form data for Personal Injury forms
 function extractPersonalInjuryData(formData: FormData) {
   // Helper function to handle required fields - returns "N/A" if empty, as per form instructions
@@ -104,11 +142,12 @@ function extractPersonalInjuryData(formData: FormData) {
     vehicle_maintenance: getRequiredField(formData.get('vehicleMaintenance') as string),
     errands: getRequiredField(formData.get('errands') as string),
     
-    // Litigation (all required except matter_no)
+    // Litigation (all required except matter_no and defendant)
     matter_no: getOptionalField(formData.get('matterNo') as string),
     settlement_date: formData.get('settlementDate') ? new Date(formData.get('settlementDate') as string).toISOString() : null,
     trial_date: formData.get('trialDate') ? new Date(formData.get('trialDate') as string).toISOString() : null,
     trial_location: getRequiredField(formData.get('trialLocation') as string),
+    defendant: getOptionalField(formData.get('defendant') as string),
     opposing_counsel_firm: getRequiredField(formData.get('opposingCounselFirm') as string),
     opposing_economist: getRequiredField(formData.get('opposingEconomist') as string),
     
@@ -183,6 +222,7 @@ function extractWrongfulDeathData(formData: FormData) {
     settlement_date: formData.get('settlementDate') ? new Date(formData.get('settlementDate') as string).toISOString() : null,
     trial_date: formData.get('trialDate') ? new Date(formData.get('trialDate') as string).toISOString() : null,
     trial_location: formData.get('trialLocation') as string || null,
+    defendant: formData.get('defendant') as string || null,
     opposing_counsel_firm: formData.get('opposingCounselFirm') as string || null,
     opposing_economist: formData.get('opposingEconomist') as string || null,
     
@@ -277,6 +317,7 @@ function extractWrongfulTerminationData(formData: FormData) {
     settlement_date: formData.get('settlementDate') ? new Date(formData.get('settlementDate') as string).toISOString() : null,
     trial_date: formData.get('trialDate') ? new Date(formData.get('trialDate') as string).toISOString() : null,
     trial_location: formData.get('trialLocation') as string || null,
+    defendant: formData.get('defendant') as string || null,
     opposing_counsel_firm: formData.get('opposingCounselFirm') as string || null,
     opposing_economist: formData.get('opposingEconomist') as string || null,
     
@@ -378,6 +419,40 @@ export async function submitPersonalInjuryForm(formData: FormData) {
       await createAuditTrail(formId, 'personal_injury', 'submitted', user.id, profile?.firm_id, {
         form_fields_count: Object.keys(normalizedData).length
       })
+
+      // Get firm name and user full name for email notification
+      let firmName = 'Unknown Firm'
+      let userFullName = 'Unknown User'
+      
+      if (profile?.firm_id) {
+        const { data: firmData } = await supabase
+          .from('firms')
+          .select('name')
+          .eq('id', profile.firm_id)
+          .single()
+        
+        firmName = firmData?.name || 'Unknown Firm'
+      }
+
+      // Get user's full name from profile
+      const { data: userProfileData } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (userProfileData) {
+        userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
+      }
+
+      // Send notification email
+      await sendFormNotificationEmail(
+        'personal_injury',
+        formId,
+        normalizedData,
+        userFullName,
+        firmName
+      )
     }
 
     console.log('Personal injury form submitted successfully!')
@@ -452,6 +527,40 @@ export async function submitWrongfulDeathForm(formData: FormData) {
       await createAuditTrail(formId, 'wrongful_death', 'submitted', user.id, profile?.firm_id, {
         form_fields_count: Object.keys(normalizedData).length
       })
+
+      // Get firm name and user full name for email notification
+      let firmName = 'Unknown Firm'
+      let userFullName = 'Unknown User'
+      
+      if (profile?.firm_id) {
+        const { data: firmData } = await supabase
+          .from('firms')
+          .select('name')
+          .eq('id', profile.firm_id)
+          .single()
+        
+        firmName = firmData?.name || 'Unknown Firm'
+      }
+
+      // Get user's full name from profile
+      const { data: userProfileData } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (userProfileData) {
+        userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
+      }
+
+      // Send notification email
+      await sendFormNotificationEmail(
+        'wrongful_death',
+        formId,
+        normalizedData,
+        userFullName,
+        firmName
+      )
     }
 
     console.log('Wrongful death form submitted successfully!')
@@ -526,6 +635,40 @@ export async function submitWrongfulTerminationForm(formData: FormData) {
       await createAuditTrail(formId, 'wrongful_termination', 'submitted', user.id, profile?.firm_id, {
         form_fields_count: Object.keys(normalizedData).length
       })
+
+      // Get firm name and user full name for email notification
+      let firmName = 'Unknown Firm'
+      let userFullName = 'Unknown User'
+      
+      if (profile?.firm_id) {
+        const { data: firmData } = await supabase
+          .from('firms')
+          .select('name')
+          .eq('id', profile.firm_id)
+          .single()
+        
+        firmName = firmData?.name || 'Unknown Firm'
+      }
+
+      // Get user's full name from profile
+      const { data: userProfileData } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (userProfileData) {
+        userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
+      }
+
+      // Send notification email
+      await sendFormNotificationEmail(
+        'wrongful_termination',
+        formId,
+        normalizedData,
+        userFullName,
+        firmName
+      )
     }
 
     console.log('Wrongful termination form submitted successfully!')

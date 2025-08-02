@@ -7,7 +7,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-export function PiEducation() {
+interface PiEducationProps {
+  initialData?: Record<string, unknown>
+}
+
+export function PiEducation({ initialData }: PiEducationProps) {
   return (
     <Card>
       <CardHeader>
@@ -20,7 +24,7 @@ export function PiEducation() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="preInjuryEducation">Highest level of education completed prior to injury*</Label>
-              <Select name="preInjuryEducation" required>
+              <Select name="preInjuryEducation" defaultValue={String(initialData?.pre_injury_education || '')} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select education level" />
                 </SelectTrigger>
@@ -39,17 +43,17 @@ export function PiEducation() {
             
             <div>
               <Label htmlFor="preInjurySkills">List any licenses, training, or special skills held by the injured party at the time of the incident (enter &quot;N/A&quot; if not applicable)*</Label>
-              <Input id="preInjurySkills" name="preInjurySkills" required />
+              <Input id="preInjurySkills" name="preInjurySkills" defaultValue={String(initialData?.pre_injury_skills || '')} required />
             </div>
             
             <div>
               <Label htmlFor="educationPlans">Detail any plans the injured party had to attain further educational degrees, licenses, or training at the time of the incident (enter &quot;N/A&quot; if not applicable)*</Label>
-              <Input id="educationPlans" name="educationPlans" required />
+              <Input id="educationPlans" name="educationPlans" defaultValue={String(initialData?.education_plans || '')} required />
             </div>
             
             <div>
               <Label htmlFor="parentsEducation">If the plaintiff was a minor or had yet to finish formal education at the time of the injury, list the education levels and occupations of the plaintiff&apos;s parents.*</Label>
-              <Textarea id="parentsEducation" name="parentsEducation" required rows={3} />
+              <Textarea id="parentsEducation" name="parentsEducation" defaultValue={String(initialData?.parent_education || '')} required rows={3} />
             </div>
           </div>
         </div>
@@ -61,7 +65,7 @@ export function PiEducation() {
           <h3 className="text-lg font-semibold mb-4">Post-Injury</h3>
           <div>
             <Label htmlFor="postInjuryEducation">Detail any education, training, or special skills the plaintiff has acquired since the date of the injury, including the length and costs of all programs (enter &quot;N/A&quot; if not applicable).*</Label>
-            <Textarea id="postInjuryEducation" name="postInjuryEducation" required rows={4} />
+            <Textarea id="postInjuryEducation" name="postInjuryEducation" defaultValue={String(initialData?.post_injury_education || '')} required rows={4} />
           </div>
         </div>
       </CardContent>

@@ -21,9 +21,10 @@ interface PiMedicalProps {
   handleFileUpload: (files: FileList, category: string) => Promise<void>
   removeFile: (fileId: string) => void
   uploading: boolean
+  initialData?: Record<string, unknown>
 }
 
-export function PiMedical({ uploadedFiles, handleFileUpload, removeFile, uploading }: PiMedicalProps) {
+export function PiMedical({ uploadedFiles, handleFileUpload, removeFile, uploading, initialData }: PiMedicalProps) {
   return (
     <Card>
       <CardHeader>
@@ -36,17 +37,17 @@ export function PiMedical({ uploadedFiles, handleFileUpload, removeFile, uploadi
           <div className="space-y-4">
             <div>
               <Label htmlFor="incidentDate">Date of Incident*</Label>
-              <Input id="incidentDate" name="incidentDate" type="date" required />
+              <Input id="incidentDate" name="incidentDate" type="date" defaultValue={initialData?.incident_date ? new Date(String(initialData.incident_date)).toISOString().split('T')[0] : ''} required />
             </div>
             
             <div>
               <Label htmlFor="injuryDescription">Describe the nature of the injury and limitations*</Label>
-              <Textarea id="injuryDescription" name="injuryDescription" required rows={4} />
+              <Textarea id="injuryDescription" name="injuryDescription" defaultValue={String(initialData?.injury_description || '')} required rows={4} />
             </div>
             
             <div>
               <Label htmlFor="caregiverClaim">If another party is making a claim for lost earnings due to time spent caring for the plaintiff, please provide details*</Label>
-              <Textarea id="caregiverClaim" name="caregiverClaim" required rows={4} />
+              <Textarea id="caregiverClaim" name="caregiverClaim" defaultValue={String(initialData?.caregiver_claim || '')} required rows={4} />
             </div>
           </div>
         </div>
@@ -59,12 +60,12 @@ export function PiMedical({ uploadedFiles, handleFileUpload, removeFile, uploadi
           <div className="space-y-4">
             <div>
               <Label htmlFor="lifeExpectancy">If medical evidence indicates plaintiff&apos;s life expectancy has been reduced to this injury, provide details.*</Label>
-              <Textarea id="lifeExpectancy" name="lifeExpectancy" required rows={4} />
+              <Textarea id="lifeExpectancy" name="lifeExpectancy" defaultValue={String(initialData?.life_expectancy || '')} required rows={4} />
             </div>
             
             <div>
               <Label htmlFor="futureExpenses">Detail future medical expenses including current cost and number of years they will be incurred. Consider nursing home care, in-home nursing care, physician care, drugs, medical appliances, physical therapy, psychiatric therapy, and surgery. If a Life Care Planner is preparing a report, please reference that here, and attach it below when available.*</Label>
-              <Textarea id="futureExpenses" name="futureExpenses" required rows={6} />
+              <Textarea id="futureExpenses" name="futureExpenses" defaultValue={String(initialData?.future_medical || '')} required rows={6} />
             </div>
             
             <div>

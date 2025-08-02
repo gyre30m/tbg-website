@@ -4,7 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-export function PiHouseholdServices() {
+interface PiHouseholdServicesProps {
+  initialData?: Record<string, unknown>
+}
+
+export function PiHouseholdServices({ initialData }: PiHouseholdServicesProps) {
   return (
     <Card>
       <CardHeader>
@@ -28,7 +32,7 @@ export function PiHouseholdServices() {
           <p className="text-sm text-muted-foreground mb-2">
             dressing, bathing, feeding, supervising, or transporting to and from events (includes children and adults)
           </p>
-          <Select name="dependentCare" required>
+          <Select name="dependentCare" defaultValue={String(initialData?.dependent_care || '')} required>
             <SelectTrigger>
               <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
@@ -47,7 +51,7 @@ export function PiHouseholdServices() {
           <p className="text-sm text-muted-foreground mb-2">
             feeding, grooming, walking, picking up after, or otherwise caring for household pets
           </p>
-          <Select name="petCare" required>
+          <Select name="petCare" defaultValue={String(initialData?.pet_care || '')} required>
             <SelectTrigger>
               <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
@@ -66,7 +70,7 @@ export function PiHouseholdServices() {
           <p className="text-sm text-muted-foreground mb-2">
             vacuuming, sweeping, mopping, dusting, making beds, emptying trash, washing clothes, ironing, folding and putting laundry away, putting groceries away
           </p>
-          <Select name="indoorHousework" required>
+          <Select name="indoorHousework" defaultValue={String(initialData?.indoor_housework || '')} required>
             <SelectTrigger>
               <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
@@ -85,7 +89,7 @@ export function PiHouseholdServices() {
           <p className="text-sm text-muted-foreground mb-2">
             food preparation, cooking, serving, setting & clearing a table, washing dishes, loading & unloading a dishwasher, cleaning the kitchen
           </p>
-          <Select name="mealPrep" required>
+          <Select name="mealPrep" defaultValue={String(initialData?.meal_prep || '')} required>
             <SelectTrigger>
               <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
@@ -104,7 +108,7 @@ export function PiHouseholdServices() {
           <p className="text-sm text-muted-foreground mb-2">
             painting, house repairs, gardening, mowing, trimming, edging, weeding
           </p>
-          <Select name="homeMaintenance" required>
+          <Select name="homeMaintenance" defaultValue={String(initialData?.home_maintenance || '')} required>
             <SelectTrigger>
               <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
@@ -123,7 +127,7 @@ export function PiHouseholdServices() {
           <p className="text-sm text-muted-foreground mb-2">
             car washing, vacuuming, arranging appointments for maintenance & repair, taking vehicles to appointments
           </p>
-          <Select name="vehicleMaintenance" required>
+          <Select name="vehicleMaintenance" defaultValue={String(initialData?.vehicle_maintenance || '')} required>
             <SelectTrigger>
               <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>
@@ -142,7 +146,7 @@ export function PiHouseholdServices() {
           <p className="text-sm text-muted-foreground mb-2">
             shopping for groceries and other household items, disposing of trash, yard waste, etc. and other travel to complete tasks not included in other categories
           </p>
-          <Select name="errands" required>
+          <Select name="errands" defaultValue={String(initialData?.errands || '')} required>
             <SelectTrigger>
               <SelectValue placeholder="Select impact level (0-4)" />
             </SelectTrigger>

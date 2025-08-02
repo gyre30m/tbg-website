@@ -5,7 +5,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-export function PiDemographics() {
+interface PiDemographicsProps {
+  initialData?: Record<string, unknown>
+}
+
+export function PiDemographics({ initialData }: PiDemographicsProps) {
   return (
     <Card>
       <CardHeader>
@@ -15,7 +19,7 @@ export function PiDemographics() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="gender">Gender*</Label>
-            <Select name="gender" required>
+            <Select name="gender" defaultValue={String(initialData?.gender || '')} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
@@ -28,7 +32,7 @@ export function PiDemographics() {
           </div>
           <div>
             <Label htmlFor="maritalStatus">Marital Status*</Label>
-            <Select name="maritalStatus" required>
+            <Select name="maritalStatus" defaultValue={String(initialData?.marital_status || '')} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select marital status" />
               </SelectTrigger>
@@ -47,7 +51,7 @@ export function PiDemographics() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="ethnicity">Ethnicity*</Label>
-            <Select name="ethnicity" required>
+            <Select name="ethnicity" defaultValue={String(initialData?.ethnicity || '')} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select ethnicity" />
               </SelectTrigger>
@@ -64,7 +68,13 @@ export function PiDemographics() {
           </div>
           <div>
             <Label htmlFor="dateOfBirth">Date of Birth*</Label>
-            <Input id="dateOfBirth" name="dateOfBirth" type="date" required />
+            <Input 
+              id="dateOfBirth" 
+              name="dateOfBirth" 
+              type="date" 
+              defaultValue={initialData?.date_of_birth ? new Date(String(initialData.date_of_birth)).toISOString().split('T')[0] : ''} 
+              required 
+            />
           </div>
         </div>
       </CardContent>

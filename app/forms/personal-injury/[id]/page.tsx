@@ -117,58 +117,6 @@ export default function PersonalInjuryFormDetailPage() {
 
   const handleEdit = () => {
     setIsEditing(true)
-    // Populate form fields with current data
-    setTimeout(() => {
-      populateFormFields()
-    }, 100)
-  }
-
-  const populateFormFields = () => {
-    const form = document.querySelector('form') as HTMLFormElement
-    if (!form || !formData) return
-
-    // Populate all form fields with current data
-    Object.keys(formData).forEach(key => {
-      const field = form.querySelector(`[name="${convertDbFieldToFormField(key)}"]`) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      if (field && formData[key] !== null && formData[key] !== undefined) {
-        if (key.includes('date') && formData[key]) {
-          // Handle date fields
-          const date = new Date(formData[key] as string)
-          field.value = date.toISOString().split('T')[0]
-        } else {
-          field.value = String(formData[key])
-        }
-        
-        // Trigger change event for React components
-        const event = new Event('change', { bubbles: true })
-        field.dispatchEvent(event)
-      }
-    })
-  }
-
-  // Convert database field names to form field names
-  const convertDbFieldToFormField = (dbField: string): string => {
-    const fieldMapping: Record<string, string> = {
-      'first_name': 'firstName',
-      'last_name': 'lastName',
-      'zip_code': 'zipCode',
-      'phone_type': 'phoneType',
-      'date_of_birth': 'dateOfBirth',
-      'marital_status': 'maritalStatus',
-      'incident_date': 'incidentDate',
-      'injury_description': 'injuryDescription',
-      'caregiver_claim': 'caregiverClaim',
-      'life_expectancy': 'lifeExpectancy',
-      'future_medical': 'futureMedical',
-      'pre_injury_education': 'preInjuryEducation',
-      'pre_injury_skills': 'preInjurySkills',
-      'education_plans': 'educationPlans',
-      'parent_education': 'parentEducation',
-      'post_injury_education': 'postInjuryEducation',
-      // Add more mappings as needed
-    }
-    
-    return fieldMapping[dbField] || dbField
   }
 
   const handleCancel = () => {
@@ -333,8 +281,8 @@ export default function PersonalInjuryFormDetailPage() {
           </div>
 
           <form onSubmit={handleSave} className="space-y-8">
-            <PiContact />
-            <PiDemographics />
+            <PiContact initialData={formData || undefined} />
+            <PiDemographics initialData={formData || undefined} />
             <PiHousehold 
               householdMembers={householdMembers}
               setHouseholdMembers={setHouseholdMembers}
@@ -344,8 +292,9 @@ export default function PersonalInjuryFormDetailPage() {
               handleFileUpload={handleFileUpload}
               removeFile={removeFile}
               uploading={uploading}
+              initialData={formData || undefined}
             />
-            <PiEducation />
+            <PiEducation initialData={formData || undefined} />
             <PiEmployment 
               preInjuryYears={preInjuryYears}
               setPreInjuryYears={setPreInjuryYears}
@@ -356,9 +305,9 @@ export default function PersonalInjuryFormDetailPage() {
               removeFile={removeFile}
               uploading={uploading}
             />
-            <PiHouseholdServices />
-            <PiOther />
-            <PiLitigation />
+            <PiHouseholdServices initialData={formData || undefined} />
+            <PiOther initialData={formData || undefined} />
+            <PiLitigation initialData={formData || undefined} />
 
             {/* Save button */}
             <div className="flex justify-end pt-6">

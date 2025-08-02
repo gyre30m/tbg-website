@@ -4,7 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
-export function PiOther() {
+interface PiOtherProps {
+  initialData?: Record<string, unknown>
+}
+
+export function PiOther({ initialData }: PiOtherProps) {
   return (
     <Card>
       <CardHeader>
@@ -16,6 +20,7 @@ export function PiOther() {
           <Textarea 
             id="additionalInfo" 
             name="additionalInfo" 
+            defaultValue={String(initialData?.additional_info || '')}
             required 
             rows={4} 
             className="mt-2"
