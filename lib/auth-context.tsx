@@ -72,12 +72,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else if (error.code === 'PGRST301' || (error as { status?: number }).status === 406) {
             // 406 Not Acceptable - likely RLS issue
             console.warn('Profile access denied (RLS) for user:', userId, 'Error:', error.message)
-            // Log more details to help debug
-            console.warn('This usually means the RLS policy is blocking access. Check that:')
-            console.warn('1. RLS is enabled on user_profiles table')
-            console.warn('2. The user has a profile with user_id =', userId)
-            console.warn('3. The SELECT policy allows user_id = auth.uid()')
-            setAuthState(prev => ({ ...prev, profile: null, firm: null }))
+            
+            // Fallback: Try to get user metadata from current auth session
+            try {
+              const { data: { user: currentUser } } = await supabase.auth.getUser()
+              
+              if (currentUser?.user_metadata?.firm_id && currentUser?.user_metadata?.role) {
+                console.log('Using fallback profile from user metadata')
+                const fallbackProfile: UserProfile = {
+                  id: userId + '-fallback',
+                  user_id: userId,
+                  first_name: currentUser.user_metadata.first_name || '',
+                  last_name: currentUser.user_metadata.last_name || '',
+                  firm_id: currentUser.user_metadata.firm_id,
+                  role: currentUser.user_metadata.role,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                }
+              setAuthState(prev => ({ ...prev, profile: fallbackProfile }))
+              
+              // Still try to fetch firm if we have firm_id
+              if (fallbackProfile.firm_id) {
+                try {
+                  const { data: firm, error: firmError } = await supabase
+                    .from('firms')
+                    .select('*')
+                    .eq('id', fallbackProfile.firm_id)
+                    .single()
+                  
+                  if (!firmError && firm) {
+                    setAuthState(prev => ({ ...prev, firm }))
+                  }
+                } catch (firmFetchError) {
+                  console.warn('Could not fetch firm:', firmFetchError)
+                }
+              }
+              } else {
+                console.log('No user metadata available for fallback profile')
+                setAuthState(prev => ({ ...prev, profile: null, firm: null }))
+              }
+            } catch (fallbackError) {
+              console.warn('Could not create fallback profile:', fallbackError)
+              setAuthState(prev => ({ ...prev, profile: null, firm: null }))
+            }
             return
           } else {
             console.error('Profile query error:', error)
