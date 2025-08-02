@@ -58,6 +58,16 @@ interface FormSubmission {
   version?: number
 }
 
+interface SiteAdmin {
+  id: string
+  first_name: string | null
+  last_name: string | null
+  email: string
+  created_at: string
+  updated_at: string
+  role: string
+}
+
 const FORM_TYPE_LABELS = {
   personal_injury: 'Personal Injury',
   wrongful_death: 'Wrongful Death',
@@ -69,8 +79,10 @@ export function SiteAdminPanel() {
   const { uploadImage, uploading: imageUploading, uploadProgress } = useImageUpload()
   const [firms, setFirms] = useState<Firm[]>([])
   const [forms, setForms] = useState<FormSubmission[]>([])
+  const [siteAdmins, setSiteAdmins] = useState<SiteAdmin[]>([])
   const [loading, setLoading] = useState(true)
   const [formsLoading, setFormsLoading] = useState(true)
+  const [adminsLoading, setAdminsLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [error, setError] = useState('')
@@ -79,6 +91,7 @@ export function SiteAdminPanel() {
   const [totalFormsCount, setTotalFormsCount] = useState(0)
   const [activeTab, setActiveTab] = useState('firms')
   const formsLoadedRef = useRef(false)
+  const adminsLoadedRef = useRef(false)
   const [formData, setFormData] = useState<CreateFirmFormData>({
     name: '',
     domain: '',
@@ -179,6 +192,14 @@ export function SiteAdminPanel() {
     if (activeTab === 'forms' && !formsLoadedRef.current) {
       formsLoadedRef.current = true
       fetchAllForms()
+    }
+  }, [activeTab])
+
+  // Fetch site admins data only when switching to admins tab for the first time
+  useEffect(() => {
+    if (activeTab === 'admins' && !adminsLoadedRef.current) {
+      adminsLoadedRef.current = true
+      fetchSiteAdmins()
     }
   }, [activeTab])
 
@@ -302,6 +323,42 @@ export function SiteAdminPanel() {
     }
   }
 
+  const fetchSiteAdmins = async () => {
+    try {
+      setAdminsLoading(true)
+      const supabaseClient = createClient()
+
+      // Fetch users with site_admin role from user_profiles table
+      const { data, error } = await supabaseClient
+        .from('user_profiles')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          email,
+          created_at,
+          updated_at,
+          role
+        `)
+        .eq('role', 'site_admin')
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching site admins:', error)
+        toast.error('Failed to load site admins')
+        return
+      }
+
+      setSiteAdmins(data || [])
+
+    } catch (error) {
+      console.error('Error fetching site admins:', error)
+      toast.error('Failed to load site admins')
+    } finally {
+      setAdminsLoading(false)
+    }
+  }
+
   const handleImageUpload = async (file: File) => {
     try {
       setError('')
@@ -418,6 +475,24 @@ export function SiteAdminPanel() {
     }
   }
 
+  // Helper functions for site admin table
+  const getAdminFullName = (admin: SiteAdmin): string => {
+    const firstName = admin.first_name || ''
+    const lastName = admin.last_name || ''
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`
+    }
+    return firstName || lastName || 'Unknown Name'
+  }
+
+  const getAdminSinceDate = (admin: SiteAdmin): string => {
+    return new Date(admin.created_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -442,9 +517,10 @@ export function SiteAdminPanel() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="firms">Law Firms</TabsTrigger>
             <TabsTrigger value="forms">All Forms</TabsTrigger>
+            <TabsTrigger value="admins">Site Admin</TabsTrigger>
           </TabsList>
 
           <TabsContent value="firms" className="space-y-6">
@@ -812,6 +888,68 @@ export function SiteAdminPanel() {
                 })}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="admins" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  {siteAdmins.length} Site Admin{siteAdmins.length !== 1 ? 's' : ''}
+                </Badge>
+              </div>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Site Administrators
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {adminsLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Loading site administrators...</p>
+                  </div>
+                ) : siteAdmins.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg mb-2">No site administrators found</p>
+                    <p className="text-gray-400 text-sm">
+                      Site administrators will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Full Name</TableHead>
+                          <TableHead>Email Address</TableHead>
+                          <TableHead>Admin Since</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {siteAdmins.map((admin) => (
+                          <TableRow key={admin.id}>
+                            <TableCell className="font-medium">
+                              {getAdminFullName(admin)}
+                            </TableCell>
+                            <TableCell>
+                              {admin.email}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {getAdminSinceDate(admin)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
