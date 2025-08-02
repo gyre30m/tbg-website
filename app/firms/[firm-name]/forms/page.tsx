@@ -358,7 +358,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">{firm.name} - Forms</h1>
               <p className="text-gray-600 mt-2">
-                Viewing submitted forms for {firm.name}
+                Viewing all forms for {firm.name}
               </p>
             </div>
             {/* Show Firm Admin button only if user is the firm admin */}
@@ -448,9 +448,9 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           <CardContent>
             {forms.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500 text-lg mb-2">No submitted forms found</p>
+                <p className="text-gray-500 text-lg mb-2">No forms found</p>
                 <p className="text-gray-400 text-sm">
-                  Forms will appear here once they are submitted by {firm.name} users
+                  Forms will appear here once they are saved or submitted by {firm.name}&apos;s users
                 </p>
               </div>
             ) : (
