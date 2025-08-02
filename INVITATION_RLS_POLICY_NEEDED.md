@@ -1,8 +1,7 @@
-# Missing RLS Policy and Schema Column for User Invitations
+# Missing RLS Policy for User Invitations
 
-## Issues
-1. Users cannot update their own invitations when accepting them because there's no RLS policy allowing it.
-2. The `user_invitations` table is missing a `user_id` column to link accepted invitations to users.
+## Issue
+Users cannot update their own invitations when accepting them because there's no RLS policy allowing it.
 
 ## Current Table Schema
 ```sql
@@ -23,17 +22,15 @@ CREATE TABLE public.user_invitations (
 - Firm admins can manage their firm's invitations
 - **Missing**: Users can accept their own invitations
 
-## Required Database Changes
+## Current Schema Analysis
+The table design is sufficient for invitation tracking:
+- `email + firm_id` uniquely identifies invitations (enforced by UNIQUE constraint)
+- `accepted_at` timestamp tracks when invitation was accepted
+- No additional `user_id` column needed - users can be identified by email
 
-### 1. Add user_id Column (Optional Enhancement)
-```sql
--- Add user_id column to link accepted invitations to users
-ALTER TABLE public.user_invitations 
-ADD COLUMN user_id UUID REFERENCES auth.users(id);
-```
+## Required Database Change
 
-### 2. Add RLS Policy
-Add this policy to the `user_invitations` table:
+Add this RLS policy to the `user_invitations` table:
 
 ```sql
 -- Allow users to accept their own invitations
@@ -51,7 +48,7 @@ When users click invitation links and complete their profiles, they need to mark
 
 ## Alternative Policy (More Restrictive)
 ```sql
--- Allow users to only set accepted_at on their own invitations
+-- Allow users to only set accepted_at on their own invitations (prevents re-acceptance)
 CREATE POLICY "Users can accept their own invitations" ON public.user_invitations
     FOR UPDATE USING (
         email = auth.jwt() ->> 'email'
@@ -60,6 +57,5 @@ CREATE POLICY "Users can accept their own invitations" ON public.user_invitation
     WITH CHECK (
         email = auth.jwt() ->> 'email'
         AND accepted_at IS NOT NULL  -- Only allow setting accepted_at
-        AND user_id = auth.uid()     -- Must set their own user_id
     );
 ```
