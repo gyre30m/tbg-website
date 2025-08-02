@@ -13,7 +13,7 @@ import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
 export default function CompleteProfilePage() {
   const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, refreshProfile } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -178,6 +178,10 @@ export default function CompleteProfilePage() {
       }
 
       setSuccess('Profile completed successfully!')
+      
+      // Refresh the auth context so it can fetch the newly created profile
+      console.log('Refreshing auth context to fetch newly created profile...')
+      await refreshProfile()
       
       // Redirect to appropriate page based on role
       setTimeout(async () => {
