@@ -21,9 +21,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { createClient } from '@/lib/supabase/browser-client'
-import { Calendar, User, Plus, ChevronDown, Settings } from 'lucide-react'
+import { Calendar, User, Plus, ChevronDown, Settings, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface FirmFormsPageProps {
@@ -70,6 +70,7 @@ const FORM_TYPE_LABELS = {
 export default function FirmFormsPage({ params }: FirmFormsPageProps) {
   const { user, loading, userProfile } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [forms, setForms] = useState<FormSubmission[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
@@ -77,6 +78,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
   const [firmLoading, setFirmLoading] = useState(true)
   const [hasAccess, setHasAccess] = useState(false)
   const [firmName, setFirmName] = useState<string>('')
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   useEffect(() => {
     const initializePage = async () => {
@@ -349,6 +351,25 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
     }
   }, [user, userProfile, firm, hasAccess, fetchFirmForms])
 
+  // Check for form submission success
+  useEffect(() => {
+    const submitted = searchParams.get('submitted')
+    if (submitted === 'true') {
+      setShowSuccessMessage(true)
+      // Remove the submitted parameter from URL without redirecting
+      const newUrl = new URL(window.location.href)
+      newUrl.searchParams.delete('submitted')
+      window.history.replaceState({}, '', newUrl.toString())
+      
+      // Hide success message after 5 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false)
+      }, 5000)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams])
+
   // Check authentication and permissions
   if (loading || firmLoading || isLoading) {
     return (
@@ -429,6 +450,19 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
     <>
       <Header />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Success Message */}
+        {showSuccessMessage && (
+          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-medium">Form submitted successfully!</span>
+            </div>
+            <p className="mt-1 text-sm text-green-700 dark:text-green-300">
+              Your form has been submitted and will appear in the table below.
+            </p>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">

@@ -3,15 +3,34 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/browser-client'
 import { Firm } from '@/lib/types'
-import { Settings, Upload } from 'lucide-react'
+import { Settings, Upload, User, Calendar, Plus, ChevronDown, Eye } from 'lucide-react'
 import { useImageUpload } from '@/hooks/useImageUpload'
+import { toast } from 'sonner'
 
 interface CreateFirmFormData {
   name: string
@@ -25,16 +44,40 @@ interface CreateFirmFormData {
   main_phone: string
 }
 
+interface FormSubmission {
+  id: string
+  first_name: string | null
+  last_name: string | null
+  matter_no: string | null
+  form_type: 'personal_injury' | 'wrongful_death' | 'wrongful_termination'
+  status: string
+  created_at: string
+  updated_at: string
+  submitted_by: string
+  firm_id: string | null
+  version?: number
+}
+
+const FORM_TYPE_LABELS = {
+  personal_injury: 'Personal Injury',
+  wrongful_death: 'Wrongful Death',
+  wrongful_termination: 'Wrongful Termination'
+}
+
 export function SiteAdminPanel() {
   const router = useRouter()
   const { uploadImage, uploading: imageUploading, uploadProgress } = useImageUpload()
   const [firms, setFirms] = useState<Firm[]>([])
+  const [forms, setForms] = useState<FormSubmission[]>([])
   const [loading, setLoading] = useState(true)
+  const [formsLoading, setFormsLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('')
+  const [totalFormsCount, setTotalFormsCount] = useState(0)
+  const [activeTab, setActiveTab] = useState('firms')
   const [formData, setFormData] = useState<CreateFirmFormData>({
     name: '',
     domain: '',
@@ -127,7 +170,10 @@ export function SiteAdminPanel() {
 
   useEffect(() => {
     fetchFirms()
-  }, [])
+    if (activeTab === 'forms') {
+      fetchAllForms()
+    }
+  }, [activeTab])
 
   const fetchFirms = async () => {
     try {
@@ -147,6 +193,105 @@ export function SiteAdminPanel() {
       console.error('Error in fetchFirms:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchAllForms = async () => {
+    try {
+      setFormsLoading(true)
+      const supabaseClient = createClient()
+
+      // Fetch from all three form types (site admin sees all forms)
+      const fetchPromises = []
+
+      // Personal Injury Forms
+      const piQuery = supabaseClient
+        .from('personal_injury_forms')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          matter_no,
+          status,
+          created_at,
+          updated_at,
+          submitted_by,
+          firm_id,
+          version
+        `)
+        .eq('status', 'submitted')
+
+      fetchPromises.push(
+        piQuery.order('updated_at', { ascending: false }).then(({ data, error }) => {
+          if (error) throw error
+          return (data || []).map(form => ({ ...form, form_type: 'personal_injury' as const }))
+        })
+      )
+
+      // Wrongful Death Forms
+      const wdQuery = supabaseClient
+        .from('wrongful_death_forms')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          matter_no,
+          status,
+          created_at,
+          updated_at,
+          submitted_by,
+          firm_id,
+          version
+        `)
+        .eq('status', 'submitted')
+
+      fetchPromises.push(
+        Promise.resolve(wdQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
+          if (error && error.code !== 'PGRST116') throw error // Ignore "not found" errors
+          return (data || []).map(form => ({ ...form, form_type: 'wrongful_death' as const }))
+        }).catch(() => []) // Return empty array if table doesn't exist
+      )
+
+      // Wrongful Termination Forms
+      const wtQuery = supabaseClient
+        .from('wrongful_termination_forms')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          matter_no,
+          status,
+          created_at,
+          updated_at,
+          submitted_by,
+          firm_id,
+          version
+        `)
+        .eq('status', 'submitted')
+
+      fetchPromises.push(
+        Promise.resolve(wtQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
+          if (error && error.code !== 'PGRST116') throw error // Ignore "not found" errors
+          return (data || []).map(form => ({ ...form, form_type: 'wrongful_termination' as const }))
+        }).catch(() => []) // Return empty array if table doesn't exist
+      )
+
+      // Wait for all queries to complete
+      const results = await Promise.all(fetchPromises)
+      
+      // Combine and sort all forms by updated_at
+      const allForms = results.flat().sort((a, b) => 
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      )
+
+      setForms(allForms)
+      setTotalFormsCount(allForms.length)
+
+    } catch (error) {
+      console.error('Error fetching forms:', error)
+      toast.error('Failed to load forms')
+    } finally {
+      setFormsLoading(false)
     }
   }
 
@@ -231,6 +376,41 @@ export function SiteAdminPanel() {
     setMessage('')
   }
 
+  // Helper functions for forms table
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getPlaintiffName = (form: FormSubmission): string => {
+    const lastName = form.last_name || 'Unknown'
+    const firstName = form.first_name || 'Unknown'
+    return `${lastName}, ${firstName}`
+  }
+
+  const getSubmittedBy = (form: FormSubmission): string => {
+    // For now, just show the user ID since we simplified the query
+    return form.submitted_by.substring(0, 8) + '...' || 'Unknown User'
+  }
+
+  const getFormUrl = (form: FormSubmission): string => {
+    switch (form.form_type) {
+      case 'personal_injury':
+        return `/forms/personal-injury/${form.id}`
+      case 'wrongful_death':
+        return `/forms/wrongful-death/${form.id}`
+      case 'wrongful_termination':
+        return `/forms/wrongful-termination/${form.id}`
+      default:
+        return '#'
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -246,16 +426,26 @@ export function SiteAdminPanel() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Site Administration</h1>
-            <p className="text-gray-600 mt-2">Manage law firms and system settings</p>
+            <p className="text-gray-600 mt-2">Manage law firms and view all forms</p>
           </div>
-          <Button onClick={() => setShowCreateForm(true)} disabled={showCreateForm}>
-            Create New Firm
-          </Button>
         </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="firms">Law Firms</TabsTrigger>
+            <TabsTrigger value="forms">All Forms</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="firms" className="space-y-6">
+            <div className="flex justify-end">
+              <Button onClick={() => setShowCreateForm(true)} disabled={showCreateForm}>
+                Create New Firm
+              </Button>
+            </div>
 
         {showCreateForm && (
           <Card className="mb-8">
@@ -436,46 +626,187 @@ export function SiteAdminPanel() {
           </Card>
         )}
 
-        <div className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Law Firms ({firms.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {firms.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No law firms created yet.</p>
-              ) : (
-                <div className="space-y-4">
-                  {firms.map((firm) => (
-                    <div
-                      key={firm.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div>
-                        <h3 className="font-semibold">{firm.name}</h3>
-                        <p className="text-sm text-gray-600">Domain: {firm.domain}</p>
-                        <p className="text-sm text-gray-500">
-                          Created: {new Date(firm.created_at).toLocaleDateString()}
-                        </p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Law Firms ({firms.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {firms.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No law firms created yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {firms.map((firm) => (
+                      <div
+                        key={firm.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div>
+                          <h3 className="font-semibold">{firm.name}</h3>
+                          <p className="text-sm text-gray-600">Domain: {firm.domain}</p>
+                          <p className="text-sm text-gray-500">
+                            Created: {new Date(firm.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleManageFirm(firm)}
+                          >
+                            <Settings className="w-4 h-4 mr-2" />
+                            Manage
+                          </Button>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleManageFirm(firm)}
-                        >
-                          <Settings className="w-4 h-4 mr-2" />
-                          Manage
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
+          <TabsContent value="forms" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {totalFormsCount} Total Forms
+                </Badge>
+                <Badge variant="secondary">Site Admin View</Badge>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    New Form
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/forms/personal-injury" className="flex items-center cursor-pointer">
+                      Personal Injury Form
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/forms/wrongful-death" className="flex items-center cursor-pointer">
+                      Wrongful Death Form
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/forms/wrongful-termination" className="flex items-center cursor-pointer">
+                      Wrongful Termination Form
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  All Form Submissions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {formsLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Loading forms...</p>
+                  </div>
+                ) : forms.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg mb-2">No submitted forms found</p>
+                    <p className="text-gray-400 text-sm">
+                      Forms will appear here once they are submitted
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Plaintiff</TableHead>
+                          <TableHead>Defendant</TableHead>
+                          <TableHead>Matter</TableHead>
+                          <TableHead>Type of Action</TableHead>
+                          <TableHead>Submitted</TableHead>
+                          <TableHead>Submitted By</TableHead>
+                          <TableHead>Version</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {forms.map((form) => (
+                          <TableRow key={`${form.form_type}-${form.id}`}>
+                            <TableCell className="font-medium">
+                              {getPlaintiffName(form)}
+                            </TableCell>
+                            <TableCell className="text-gray-400 italic">
+                              TBD
+                            </TableCell>
+                            <TableCell>
+                              {form.matter_no || (
+                                <span className="text-gray-400 italic">Not assigned</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {FORM_TYPE_LABELS[form.form_type]}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {formatDate(form.created_at)}
+                            </TableCell>
+                            <TableCell className="text-sm text-gray-600">
+                              {getSubmittedBy(form)}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="secondary" className="text-xs">
+                                v{form.version || 1}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Link href={getFormUrl(form)}>
+                                <Button variant="ghost" size="sm">
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View
+                                </Button>
+                              </Link>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Summary Stats for Forms */}
+            {forms.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Object.entries(FORM_TYPE_LABELS).map(([type, label]) => {
+                  const count = forms.filter(f => f.form_type === type).length
+                  return (
+                    <Card key={type}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">{label} Forms</p>
+                            <p className="text-2xl font-bold">{count}</p>
+                          </div>
+                          <Badge variant="outline">{count > 0 ? 'Active' : 'None'}</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Messages */}
         {(error || message) && (

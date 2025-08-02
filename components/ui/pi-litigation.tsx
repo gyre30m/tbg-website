@@ -32,6 +32,11 @@ export function PiLitigation() {
         </div>
 
         <div>
+          <Label htmlFor="defendant">Defendant</Label>
+          <Input id="defendant" name="defendant" />
+        </div>
+
+        <div>
           <Label htmlFor="opposingCounselFirm">Name of firm of opposing counsel*</Label>
           <Input id="opposingCounselFirm" name="opposingCounselFirm" required />
         </div>

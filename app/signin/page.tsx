@@ -27,7 +27,7 @@ export default function SignInPage() {
     }
     
     if (userProfile.role === 'site_admin') {
-      return '/admin/firms' // site admins go to firms management
+      return '/admin/site' // site admins go to site administration
     }
 
     // For firm admins and regular users, redirect to their firm's forms page

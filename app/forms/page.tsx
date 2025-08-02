@@ -3,8 +3,65 @@
 import { FileText, ClipboardList, Users, Download } from "lucide-react";
 import Link from "next/link";
 import { FormsHeader } from "@/components/ui/forms-header";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
+import { createClient } from "@/lib/supabase/browser-client";
+import { useEffect, useState, Suspense } from "react";
 
-export default function FormsPage() {
+function FormsPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { userProfile } = useAuth();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    const handleSubmittedRedirect = async () => {
+      const submitted = searchParams.get('submitted');
+      
+      if (submitted === 'true' && userProfile?.firm_id) {
+        setIsRedirecting(true);
+        
+        try {
+          const supabase = createClient();
+          
+          // Fetch firm to get slug or name for redirect
+          const { data: firmData, error: firmError } = await supabase
+            .from('firms')
+            .select('*')
+            .eq('id', userProfile.firm_id)
+            .single();
+
+          if (!firmError && firmData) {
+            // Use slug if available, otherwise use name
+            const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name);
+            router.replace(`/firms/${firmIdentifier}/forms?submitted=true`);
+            return;
+          }
+        } catch (error) {
+          console.error('Error redirecting to firm forms:', error);
+        }
+        
+        setIsRedirecting(false);
+      }
+    };
+
+    if (userProfile) {
+      handleSubmittedRedirect();
+    }
+  }, [searchParams, userProfile, router]);
+
+  if (isRedirecting) {
+    return (
+      <>
+        <FormsHeader />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p>Redirecting to your firm&apos;s forms page...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
   const forms = [
     {
       id: 1,
@@ -99,5 +156,22 @@ export default function FormsPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function FormsPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <FormsHeader />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p>Loading...</p>
+          </div>
+        </div>
+      </>
+    }>
+      <FormsPageContent />
+    </Suspense>
   );
 }
