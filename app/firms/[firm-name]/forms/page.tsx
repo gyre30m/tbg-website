@@ -55,6 +55,12 @@ interface Firm {
   slug: string
 }
 
+interface UserProfile {
+  id: string
+  first_name: string
+  last_name: string
+}
+
 const FORM_TYPE_LABELS = {
   personal_injury: 'Personal Injury',
   wrongful_death: 'Wrongful Death',
@@ -170,19 +176,37 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           updated_at,
           submitted_by,
           firm_id,
-          version,
-          profiles!personal_injury_forms_submitted_by_fkey(first_name, last_name)
+          version
         `)
         .in('status', ['submitted', 'saved'])
         .eq('firm_id', firm.id)
 
       fetchPromises.push(
-        piQuery.order('updated_at', { ascending: false }).then(({ data, error }) => {
+        piQuery.order('updated_at', { ascending: false }).then(async ({ data, error }) => {
           if (error) throw error
+          
+          // Get user profiles for submitted_by fields
+          const userIds = [...new Set((data || []).map(form => form.submitted_by).filter(Boolean))]
+          let userProfiles: Record<string, UserProfile> = {}
+          
+          if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('id, first_name, last_name')
+              .in('id', userIds)
+            
+            userProfiles = (profiles || []).reduce((acc, profile) => {
+              acc[profile.id] = profile
+              return acc
+            }, {} as Record<string, UserProfile>)
+          }
+          
           return (data || []).map(form => ({ 
             ...form, 
             form_type: 'personal_injury' as const,
-            submitter_name: form.profiles && form.profiles.length > 0 ? `${form.profiles[0].last_name}, ${form.profiles[0].first_name}` : 'Unknown User'
+            submitter_name: userProfiles[form.submitted_by] 
+              ? `${userProfiles[form.submitted_by].last_name}, ${userProfiles[form.submitted_by].first_name}` 
+              : 'Unknown User'
           }))
         })
       )
@@ -200,19 +224,37 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           updated_at,
           submitted_by,
           firm_id,
-          version,
-          profiles!wrongful_death_forms_submitted_by_fkey(first_name, last_name)
+          version
         `)
         .in('status', ['submitted', 'saved'])
         .eq('firm_id', firm.id)
 
       fetchPromises.push(
-        Promise.resolve(wdQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
+        Promise.resolve(wdQuery.order('updated_at', { ascending: false })).then(async ({ data, error }) => {
           if (error && error.code !== 'PGRST116') throw error
+          
+          // Get user profiles for submitted_by fields
+          const userIds = [...new Set((data || []).map(form => form.submitted_by).filter(Boolean))]
+          let userProfiles: Record<string, UserProfile> = {}
+          
+          if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('id, first_name, last_name')
+              .in('id', userIds)
+            
+            userProfiles = (profiles || []).reduce((acc, profile) => {
+              acc[profile.id] = profile
+              return acc
+            }, {} as Record<string, UserProfile>)
+          }
+          
           return (data || []).map(form => ({ 
             ...form, 
             form_type: 'wrongful_death' as const,
-            submitter_name: form.profiles && form.profiles.length > 0 ? `${form.profiles[0].last_name}, ${form.profiles[0].first_name}` : 'Unknown User'
+            submitter_name: userProfiles[form.submitted_by] 
+              ? `${userProfiles[form.submitted_by].last_name}, ${userProfiles[form.submitted_by].first_name}` 
+              : 'Unknown User'
           }))
         }).catch(() => [])
       )
@@ -230,19 +272,37 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           updated_at,
           submitted_by,
           firm_id,
-          version,
-          profiles!wrongful_termination_forms_submitted_by_fkey(first_name, last_name)
+          version
         `)
         .in('status', ['submitted', 'saved'])
         .eq('firm_id', firm.id)
 
       fetchPromises.push(
-        Promise.resolve(wtQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
+        Promise.resolve(wtQuery.order('updated_at', { ascending: false })).then(async ({ data, error }) => {
           if (error && error.code !== 'PGRST116') throw error
+          
+          // Get user profiles for submitted_by fields
+          const userIds = [...new Set((data || []).map(form => form.submitted_by).filter(Boolean))]
+          let userProfiles: Record<string, UserProfile> = {}
+          
+          if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('id, first_name, last_name')
+              .in('id', userIds)
+            
+            userProfiles = (profiles || []).reduce((acc, profile) => {
+              acc[profile.id] = profile
+              return acc
+            }, {} as Record<string, UserProfile>)
+          }
+          
           return (data || []).map(form => ({ 
             ...form, 
             form_type: 'wrongful_termination' as const,
-            submitter_name: form.profiles && form.profiles.length > 0 ? `${form.profiles[0].last_name}, ${form.profiles[0].first_name}` : 'Unknown User'
+            submitter_name: userProfiles[form.submitted_by] 
+              ? `${userProfiles[form.submitted_by].last_name}, ${userProfiles[form.submitted_by].first_name}` 
+              : 'Unknown User'
           }))
         }).catch(() => [])
       )
