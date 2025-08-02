@@ -71,5 +71,53 @@ Without these policies:
 - ❌ Users can't update their profiles later
 - ❌ Site admin detection fails due to circular dependency
 
+## Troubleshooting
+
+### Check Existing Policies
+First, check what policies already exist by running this in Supabase SQL Editor:
+
+```sql
+-- List all RLS policies on user_profiles table
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'user_profiles' 
+ORDER BY policyname;
+```
+
+### Apply Missing Policies Only
+Based on the error "policy already exists", try adding them one at a time:
+
+```sql
+-- Try INSERT policy first
+CREATE POLICY "Users can create their own profile" ON public.user_profiles
+    FOR INSERT WITH CHECK (user_id = auth.uid());
+```
+
+If you get "already exists" error, that policy is already there.
+
+```sql
+-- Try UPDATE policy (this one reportedly already exists)
+-- CREATE POLICY "Users can update their own profile" ON public.user_profiles
+--     FOR UPDATE USING (user_id = auth.uid())
+--     WITH CHECK (user_id = auth.uid());
+```
+
+### Alternative: Check and Drop Existing Policies
+If needed, you can drop and recreate policies:
+
+```sql
+-- Drop existing policies (if they exist but aren't working)
+DROP POLICY IF EXISTS "Users can create their own profile" ON public.user_profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.user_profiles;
+
+-- Then create new ones
+CREATE POLICY "Users can create their own profile" ON public.user_profiles
+    FOR INSERT WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can update their own profile" ON public.user_profiles
+    FOR UPDATE USING (user_id = auth.uid())
+    WITH CHECK (user_id = auth.uid());
+```
+
 ## Status
-**NEEDS TO BE APPLIED** - These policies should be added via Supabase SQL Editor.
+**PARTIALLY APPLIED** - Some policies may already exist. Use the troubleshooting queries above to identify which ones are missing.
