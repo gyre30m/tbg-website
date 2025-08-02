@@ -149,15 +149,32 @@ export default function CompleteProfilePage() {
         }
 
         // Mark invitation as accepted if applicable
-        if (user.user_metadata?.firm_id) {
-          await supabase
-            .from('user_invitations')
-            .update({ 
-              accepted_at: new Date().toISOString(),
-              user_id: user.id 
-            })
-            .eq('email', user.email?.toLowerCase())
-            .eq('firm_id', user.user_metadata.firm_id)
+        if (user.user_metadata?.firm_id && user.email) {
+          console.log('Marking invitation as accepted for:', user.email, 'firm:', user.user_metadata.firm_id)
+          
+          try {
+            const response = await fetch('/api/accept-invitation', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: user.email.toLowerCase(),
+                firmId: user.user_metadata.firm_id,
+                userId: user.id
+              })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              console.log('Successfully marked invitation as accepted:', result)
+            } else {
+              console.error('Error accepting invitation:', result.error)
+            }
+          } catch (invitationError) {
+            console.error('Exception accepting invitation:', invitationError)
+          }
         }
       }
 
