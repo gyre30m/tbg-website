@@ -17,6 +17,7 @@ export default function CompleteProfilePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [hasPrefilledData, setHasPrefilledData] = useState(false)
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -61,16 +62,19 @@ export default function CompleteProfilePage() {
     }
     
     handleInvitationToken()
-    
-    // Pre-fill data if available
-    if (user?.user_metadata) {
+  }, [])
+
+  // Separate effect for pre-filling form data (only once when user becomes available)
+  useEffect(() => {
+    if (user?.user_metadata && !hasPrefilledData) {
       setFormData(prev => ({
         ...prev,
         firstName: user.user_metadata.first_name || '',
         lastName: user.user_metadata.last_name || ''
       }))
+      setHasPrefilledData(true)
     }
-  }, [user, authLoading, router])
+  }, [user, hasPrefilledData])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
