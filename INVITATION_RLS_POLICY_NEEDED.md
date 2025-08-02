@@ -1,7 +1,9 @@
-# Missing RLS Policy for User Invitations
+# User Invitations RLS Policy - RESOLVED ✅
 
-## Issue
-Users cannot update their own invitations when accepting them because there's no RLS policy allowing it.
+## Issue (RESOLVED)
+~~Users cannot update their own invitations when accepting them because there's no RLS policy allowing it.~~
+
+**STATUS: RESOLVED** - The restrictive RLS policy has been applied via Supabase SQL Editor.
 
 ## Current Table Schema
 ```sql
@@ -18,9 +20,9 @@ CREATE TABLE public.user_invitations (
 ```
 
 ## Current Policies
-- Site admins can manage all invitations
+- Site admins can manage all invitations  
 - Firm admins can manage their firm's invitations
-- **Missing**: Users can accept their own invitations
+- ✅ **Users can accept their own invitations** (APPLIED)
 
 ## Current Schema Analysis
 The table design is sufficient for invitation tracking:
@@ -28,25 +30,11 @@ The table design is sufficient for invitation tracking:
 - `accepted_at` timestamp tracks when invitation was accepted
 - No additional `user_id` column needed - users can be identified by email
 
-## Required Database Change
+## ✅ Applied RLS Policy (COMPLETED)
 
-Add this RLS policy to the `user_invitations` table:
+The following restrictive RLS policy was successfully applied via Supabase SQL Editor:
 
-```sql
--- Allow users to accept their own invitations
-CREATE POLICY "Users can accept their own invitations" ON public.user_invitations
-    FOR UPDATE USING (
-        email = auth.jwt() ->> 'email'
-    );
-```
-
-## Current Workaround
-Created `/api/accept-invitation` endpoint that uses admin client to bypass RLS and update invitations when users complete their profiles.
-
-## Why This is Needed
-When users click invitation links and complete their profiles, they need to mark the invitation as accepted by setting `accepted_at` timestamp. Without this policy, the update fails due to RLS restrictions.
-
-## Alternative Policy (More Restrictive)
+## Solution Implemented
 ```sql
 -- Allow users to only set accepted_at on their own invitations (prevents re-acceptance)
 CREATE POLICY "Users can accept their own invitations" ON public.user_invitations
@@ -59,3 +47,17 @@ CREATE POLICY "Users can accept their own invitations" ON public.user_invitation
         AND accepted_at IS NOT NULL  -- Only allow setting accepted_at
     );
 ```
+
+**Status**: ✅ **APPLIED via Supabase SQL Editor**
+
+## Benefits of This Policy
+- **Security**: Only users can update their own invitations (by email match)
+- **Prevents re-acceptance**: Users can't accept already-accepted invitations
+- **Controlled updates**: Only allows setting `accepted_at` timestamp
+- **No admin bypass needed**: Users can now directly update invitations
+
+## Next Steps
+With this RLS policy in place, the invitation system can be simplified:
+1. Remove the `/api/accept-invitation` workaround endpoint (optional)
+2. Update complete-profile page to directly update user_invitations table
+3. Users will be able to accept invitations without admin privileges
