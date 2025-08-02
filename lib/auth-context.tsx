@@ -65,13 +65,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (error) {
           if (error.code === 'PGRST116') {
-            // No profile exists - user needs to create one
-            console.log('No user profile found for user:', userId)
+            // No profile exists - user needs to create one (normal for invited users)
+            console.log('No user profile found for user:', userId, '- this is normal for invited users before completing profile')
             setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
-          } else if (error.code === 'PGRST301') {
-            // 406 Not Acceptable - RLS issue (should be rare now)
-            console.warn('Profile access denied (RLS) for user:', userId, 'Error:', error.message)
+          } else if (error.code === 'PGRST301' || (error as { status?: number }).status === 406) {
+            // 406 Not Acceptable - could be RLS issue OR no profile exists yet
+            console.log('Profile access denied or not found for user:', userId, '- likely invited user before completing profile')
             setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
           } else {
