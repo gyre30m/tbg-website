@@ -200,30 +200,32 @@ export function SiteAdminPanel() {
         return { success: false, error: inviteError.message };
       }
 
-      // Send email invitation using Supabase Auth
+      // Send email invitation using API endpoint with admin privileges
       try {
-        const { data: authData, error: authError } = await supabase.auth.admin.inviteUserByEmail(
-          email.toLowerCase(),
-          {
-            redirectTo: `${window.location.origin}/auth/signup?firmId=${firmId}&role=${role}&email=${encodeURIComponent(email)}`,
-            data: {
-              firm_id: firmId,
-              role: role,
-              invited_by: 'site_admin'
-            }
-          }
-        );
+        const response = await fetch('/api/invite-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email.toLowerCase(),
+            firmId,
+            role
+          })
+        });
 
-        if (authError) {
-          console.error("Error sending invitation email:", authError);
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error("Error sending invitation email:", result.error);
           // Don't fail completely - the invitation record was created
           return { 
             success: true, 
-            warning: `Invitation record created but email failed to send: ${authError.message}` 
+            warning: `Invitation record created but email failed to send: ${result.error}` 
           };
         }
 
-        console.log("Invitation email sent successfully:", authData);
+        console.log("Invitation email sent successfully:", result);
         return { success: true };
       } catch (emailError) {
         console.error("Exception sending invitation email:", emailError);
