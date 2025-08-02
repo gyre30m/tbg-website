@@ -63,14 +63,48 @@ The profile might be created in a transaction that hasn't committed yet when the
 ### 3. RLS Policy Issue
 The SELECT policy might not be evaluating correctly.
 
-## Temporary Workaround
-If you need to get the app working while debugging, you could temporarily add a more permissive policy:
+## Issue Found: Anon Key vs Authenticated Role
 
+The 406 error is likely because:
+1. The request uses both `apikey` (anon key) and `authorization` (user JWT)
+2. Supabase might be evaluating policies based on the anon role instead of authenticated
+
+## Fix: Ensure Authenticated Role Access
+
+### 1. Check Current RLS Policies
 ```sql
--- TEMPORARY: Allow authenticated users to read any profile
--- REMOVE THIS AFTER DEBUGGING
-CREATE POLICY "TEMP_DEBUG_allow_all_reads" ON public.user_profiles
-    FOR SELECT USING (true);
+-- See which roles have access
+SELECT policyname, roles, cmd, qual 
+FROM pg_policies 
+WHERE tablename = 'user_profiles' 
+ORDER BY policyname;
 ```
 
-Then test if the 406 error goes away. If it does, the issue is definitely with the RLS policy evaluation.
+### 2. Ensure Policies Apply to Authenticated Users
+The policies should have `roles = {public}` or `roles = {authenticated}`. If they only show `{public}`, that might be the issue.
+
+### 3. Test with Exact Supabase Context
+```sql
+-- Test as authenticated user with proper claims
+BEGIN;
+SET LOCAL role TO 'authenticated';
+SET LOCAL request.jwt.claims TO '{"sub": "29a637b1-5b11-4c96-9735-5e4ae25d2436"}';
+
+SELECT current_setting('request.jwt.claims', true)::json->>'sub' as jwt_sub,
+       auth.uid() as auth_uid,
+       current_user;
+
+SELECT * FROM public.user_profiles WHERE user_id = '29a637b1-5b11-4c96-9735-5e4ae25d2436';
+ROLLBACK;
+```
+
+## Temporary Workaround
+If the policies are correct but still failing:
+
+```sql
+-- TEMPORARY: Explicitly allow authenticated role
+CREATE POLICY "Authenticated users can view their own profile" ON public.user_profiles
+    FOR SELECT 
+    TO authenticated
+    USING (user_id = auth.uid());
+```
