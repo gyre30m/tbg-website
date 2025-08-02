@@ -206,17 +206,40 @@ export function SiteAdminPanel() {
   const fetchFirms = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase
+      const supabaseClient = createClient()
+      
+      // First get all firms
+      const { data: firmsData, error: firmsError } = await supabaseClient
         .from('firms')
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Error fetching firms:', error)
+      if (firmsError) {
+        console.error('Error fetching firms:', firmsError)
         return
       }
 
-      setFirms(data || [])
+      // Then get firm admin info for each firm
+      const firmsWithAdmins = await Promise.all(
+        (firmsData || []).map(async (firm) => {
+          // Get the most senior firm admin for this firm (earliest created_at)
+          const { data: adminData, error: adminError } = await supabaseClient
+            .from('user_profiles')
+            .select('first_name, last_name, email, created_at')
+            .eq('firm_id', firm.id)
+            .eq('role', 'firm_admin')
+            .order('created_at', { ascending: true })
+            .limit(1)
+            .single()
+
+          return {
+            ...firm,
+            firmAdmin: adminError ? null : adminData
+          }
+        })
+      )
+
+      setFirms(firmsWithAdmins)
     } catch (error) {
       console.error('Error in fetchFirms:', error)
     } finally {
@@ -493,6 +516,22 @@ export function SiteAdminPanel() {
     })
   }
 
+  // Helper function for firm admin display
+  const getFirmAdminInfo = (firm: Firm & { firmAdmin?: { first_name?: string, last_name?: string, email?: string } | null }) => {
+    if (!firm.firmAdmin) {
+      return { name: 'No admin assigned', email: '' }
+    }
+    
+    const firstName = firm.firmAdmin.first_name || ''
+    const lastName = firm.firmAdmin.last_name || ''
+    const fullName = firstName && lastName ? `${firstName} ${lastName}` : (firstName || lastName || 'Unknown Name')
+    
+    return {
+      name: fullName,
+      email: firm.firmAdmin.email || ''
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -717,31 +756,54 @@ export function SiteAdminPanel() {
                 {firms.length === 0 ? (
                   <p className="text-gray-500 text-center py-8">No law firms created yet.</p>
                 ) : (
-                  <div className="space-y-4">
-                    {firms.map((firm) => (
-                      <div
-                        key={firm.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                      >
-                        <div>
-                          <h3 className="font-semibold">{firm.name}</h3>
-                          <p className="text-sm text-gray-600">Domain: {firm.domain}</p>
-                          <p className="text-sm text-gray-500">
-                            Created: {new Date(firm.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleManageFirm(firm)}
-                          >
-                            <Settings className="w-4 h-4 mr-2" />
-                            Manage
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Firm Name</TableHead>
+                          <TableHead>Firm Admin</TableHead>
+                          <TableHead>Domain</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {firms.map((firm) => {
+                          const adminInfo = getFirmAdminInfo(firm)
+                          return (
+                            <TableRow key={firm.id}>
+                              <TableCell className="font-medium">
+                                {firm.name}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-sm">{adminInfo.name}</span>
+                                  {adminInfo.email && (
+                                    <span className="text-xs text-gray-500">{adminInfo.email}</span>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {firm.domain}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {new Date(firm.created_at).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleManageFirm(firm)}
+                                >
+                                  <Settings className="w-4 h-4 mr-2" />
+                                  Manage
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
                   </div>
                 )}
               </CardContent>
