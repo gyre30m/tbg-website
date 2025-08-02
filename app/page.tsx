@@ -14,6 +14,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { AuthButton } from "@/components/ui/auth-button";
 import {
   Card,
   CardContent,
@@ -28,17 +29,8 @@ import { faqData } from "@/lib/utils";
 import HSContactForm from "@/components/ui/contact-form";
 
 export default function Home() {
-  const { user, userProfile } = useAuth();
+  const { user } = useAuth();
 
-  const getUserInitials = () => {
-    if (userProfile?.first_name && userProfile?.last_name) {
-      return `${userProfile.first_name[0]}${userProfile.last_name[0]}`.toUpperCase();
-    }
-    if (user?.email) {
-      return user.email[0].toUpperCase();
-    }
-    return "U";
-  };
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 py-4 flex items-center border-b">
@@ -110,23 +102,11 @@ export default function Home() {
 
           {/* Sign In / User Button */}
           {user ? (
-            <Link
-              href="/forms/all"
-              className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-              title={`Signed in as ${
-                userProfile?.first_name
-                  ? `${userProfile.first_name} ${userProfile.last_name}`
-                  : user.email
-              }`}
-            >
-              {getUserInitials()}
+            <Link href="/forms/all" className="no-underline">
+              <AuthButton />
             </Link>
           ) : (
-            <Link href="/signin">
-              <Button size="sm" className="text-sm">
-                Sign in
-              </Button>
-            </Link>
+            <AuthButton />
           )}
         </nav>
       </header>

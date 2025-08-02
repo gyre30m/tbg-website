@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { LogOut, User, Edit, Settings } from "lucide-react";
+import { LogOut, Edit, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { AuthButton } from "@/components/ui/auth-button";
 
 interface HeaderProps {
   formActions?: React.ReactNode;
@@ -83,18 +84,9 @@ export function Header({ formActions }: HeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center space-x-2 h-10"
+                  className="p-0 h-auto hover:bg-transparent"
                 >
-                  <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                      <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                    </div>
-                    <div className="hidden sm:block text-left">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {getUserDisplayName()}
-                      </div>
-                    </div>
-                  </div>
+                  <AuthButton />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">

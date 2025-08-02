@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wrongful Death Economic Loss Information Form</title>
+    <link rel="stylesheet" href="/auth-button-styles.css">
     <style>
         @media print {
             body { margin: 0; font-size: 12px; }
@@ -263,44 +264,6 @@
             align-items: center;
         }
         
-        .sign-in-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .sign-in-btn:hover {
-            background: #1d4ed8;
-        }
-        
-        .user-circle {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #2563eb;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-            margin-right: 12px;
-        }
-        
-        .user-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-        }
         
         @media (max-width: 640px) {
             .user-name {
@@ -320,10 +283,7 @@
                 <div id="auth-section">
                     <!-- Default to sign in button, will be updated by JavaScript -->
                     <a href="/signin" class="sign-in-btn">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                        Sign In
+                        Sign in
                     </a>
                 </div>
             </div>

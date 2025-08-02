@@ -1,0 +1,63 @@
+/* Auth Button Styles for Static HTML */
+.sign-in-btn {
+    background: #111827; /* gray-900 */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.sign-in-btn:hover {
+    background: #1f2937; /* gray-800 */
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .sign-in-btn {
+        background: #f3f4f6; /* gray-100 */
+        color: #111827; /* gray-900 */
+    }
+    
+    .sign-in-btn:hover {
+        background: #e5e7eb; /* gray-200 */
+    }
+}
+
+.user-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #111827; /* gray-900 */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .user-circle {
+        background: #f3f4f6; /* gray-100 */
+        color: #111827; /* gray-900 */
+    }
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827; /* gray-900 */
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .user-name {
+        color: #f3f4f6; /* gray-100 */
+    }
+}
