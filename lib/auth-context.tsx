@@ -69,9 +69,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('No user profile found for user:', userId)
             setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
-          } else if (error.code === 'PGRST301') {
+          } else if (error.code === 'PGRST301' || (error as { status?: number }).status === 406) {
             // 406 Not Acceptable - likely RLS issue
-            console.warn('Profile access denied (RLS):', error.message)
+            console.warn('Profile access denied (RLS) for user:', userId, 'Error:', error.message)
+            // Log more details to help debug
+            console.warn('This usually means the RLS policy is blocking access. Check that:')
+            console.warn('1. RLS is enabled on user_profiles table')
+            console.warn('2. The user has a profile with user_id =', userId)
+            console.warn('3. The SELECT policy allows user_id = auth.uid()')
             setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
           } else {
