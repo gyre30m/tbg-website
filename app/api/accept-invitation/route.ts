@@ -3,11 +3,11 @@ import { createAdminClient } from '@/lib/supabase/admin-client'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, firmId, userId } = await request.json()
+    const { email, firmId } = await request.json()
 
-    if (!email || !firmId || !userId) {
+    if (!email || !firmId) {
       return NextResponse.json(
-        { error: 'Missing required fields: email, firmId, userId' },
+        { error: 'Missing required fields: email, firmId' },
         { status: 400 }
       )
     }
@@ -19,8 +19,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from('user_invitations')
       .update({ 
-        accepted_at: new Date().toISOString(),
-        user_id: userId 
+        accepted_at: new Date().toISOString()
       })
       .eq('email', email.toLowerCase())
       .eq('firm_id', firmId)

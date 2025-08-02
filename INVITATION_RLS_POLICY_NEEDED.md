@@ -1,15 +1,38 @@
-# Missing RLS Policy for User Invitations
+# Missing RLS Policy and Schema Column for User Invitations
 
-## Issue
-Users cannot update their own invitations when accepting them because there's no RLS policy allowing it.
+## Issues
+1. Users cannot update their own invitations when accepting them because there's no RLS policy allowing it.
+2. The `user_invitations` table is missing a `user_id` column to link accepted invitations to users.
+
+## Current Table Schema
+```sql
+CREATE TABLE public.user_invitations (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email TEXT NOT NULL,
+    firm_id UUID REFERENCES public.firms(id),
+    role TEXT NOT NULL CHECK (role IN ('firm_admin', 'user')),
+    invited_by UUID REFERENCES auth.users(id),
+    invited_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    accepted_at TIMESTAMP WITH TIME ZONE,
+    UNIQUE(email, firm_id)
+);
+```
 
 ## Current Policies
 - Site admins can manage all invitations
 - Firm admins can manage their firm's invitations
 - **Missing**: Users can accept their own invitations
 
-## Required Database Policy
+## Required Database Changes
 
+### 1. Add user_id Column (Optional Enhancement)
+```sql
+-- Add user_id column to link accepted invitations to users
+ALTER TABLE public.user_invitations 
+ADD COLUMN user_id UUID REFERENCES auth.users(id);
+```
+
+### 2. Add RLS Policy
 Add this policy to the `user_invitations` table:
 
 ```sql

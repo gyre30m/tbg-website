@@ -160,8 +160,7 @@ export default function CompleteProfilePage() {
               },
               body: JSON.stringify({
                 email: user.email.toLowerCase(),
-                firmId: user.user_metadata.firm_id,
-                userId: user.id
+                firmId: user.user_metadata.firm_id
               })
             });
 
