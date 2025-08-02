@@ -138,7 +138,32 @@ DROP POLICY IF EXISTS "allow_authenticated_update" ON public.user_profiles;
 ```
 
 ## Verify Fix
-After removing those policies, the remaining policies should work correctly:
-- Users can view/insert/update their OWN profiles only
-- Admin can manage all profiles
-- No more 406 errors
+After removing those policies, check if RLS is enabled:
+
+```sql
+-- Check if RLS is enabled on user_profiles table
+SELECT tablename, rowsecurity 
+FROM pg_tables 
+WHERE schemaname = 'public' AND tablename = 'user_profiles';
+```
+
+If `rowsecurity` is `false`, enable it:
+
+```sql
+-- Enable RLS on user_profiles table
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+```
+
+## Additional Debugging
+If still getting 406 errors after enabling RLS:
+
+```sql
+-- Check if the user has a profile
+SELECT * FROM public.user_profiles WHERE user_id = '97e71b4a-c9c0-4b5d-b34a-bc5acf8c09fe';
+
+-- Test the policy directly
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '97e71b4a-c9c0-4b5d-b34a-bc5acf8c09fe';
+SELECT * FROM public.user_profiles WHERE user_id = '97e71b4a-c9c0-4b5d-b34a-bc5acf8c09fe';
+RESET ROLE;
+```
