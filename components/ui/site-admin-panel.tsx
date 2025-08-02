@@ -12,7 +12,6 @@ import { supabase } from '@/lib/supabase'
 import { Firm } from '@/lib/types'
 import { Settings, Upload } from 'lucide-react'
 import { useImageUpload } from '@/hooks/useImageUpload'
-import { FormSubmissionAudit } from '@/components/ui/form-submission-audit'
 
 interface CreateFirmFormData {
   name: string
@@ -250,7 +249,7 @@ export function SiteAdminPanel() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Site Administration</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Site Administration</h1>
             <p className="text-gray-600 mt-2">Manage law firms and system settings</p>
           </div>
           <Button onClick={() => setShowCreateForm(true)} disabled={showCreateForm}>
@@ -477,10 +476,6 @@ export function SiteAdminPanel() {
           </Card>
         </div>
 
-        {/* Form Submission Audit Trail */}
-        <div className="mt-8">
-          <FormSubmissionAudit />
-        </div>
 
         {/* Messages */}
         {(error || message) && (
