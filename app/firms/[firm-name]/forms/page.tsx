@@ -185,29 +185,46 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
         piQuery.order('updated_at', { ascending: false }).then(async ({ data, error }) => {
           if (error) throw error
           
+          console.log('Personal Injury - Forms data:', data)
+          
           // Get user profiles for submitted_by fields
           const userIds = [...new Set((data || []).map(form => form.submitted_by).filter(Boolean))]
           let userProfiles: Record<string, UserProfile> = {}
           
+          console.log('Personal Injury - Looking up user IDs:', userIds)
+          
           if (userIds.length > 0) {
-            const { data: profiles } = await supabase
+            const { data: profiles, error: profileError } = await supabase
               .from('profiles')
               .select('id, first_name, last_name')
               .in('id', userIds)
+            
+            console.log('Personal Injury - Profile query result:', profiles, 'error:', profileError)
             
             userProfiles = (profiles || []).reduce((acc, profile) => {
               acc[profile.id] = profile
               return acc
             }, {} as Record<string, UserProfile>)
+            
+            console.log('Personal Injury - User profiles map:', userProfiles)
           }
           
-          return (data || []).map(form => ({ 
-            ...form, 
-            form_type: 'personal_injury' as const,
-            submitter_name: userProfiles[form.submitted_by] 
+          const result = (data || []).map(form => {
+            const submitterName = userProfiles[form.submitted_by] 
               ? `${userProfiles[form.submitted_by].last_name}, ${userProfiles[form.submitted_by].first_name}` 
               : 'Unknown User'
-          }))
+            
+            console.log(`Form ${form.id} - submitted_by: ${form.submitted_by}, submitterName: ${submitterName}`)
+            
+            return { 
+              ...form, 
+              form_type: 'personal_injury' as const,
+              submitter_name: submitterName
+            }
+          })
+          
+          console.log('Personal Injury - Final result:', result)
+          return result
         })
       )
 
