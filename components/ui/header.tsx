@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { LogOut, Edit, Settings } from "lucide-react";
+import { LogOut, Edit } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,6 +95,9 @@ export function Header({ formActions }: HeaderProps) {
                     <p className="text-sm font-medium leading-none">
                       {getUserDisplayName()}
                     </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -105,15 +108,6 @@ export function Header({ formActions }: HeaderProps) {
                   >
                     <Edit className="h-4 w-4" />
                     <span>Edit Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/debug"
-                    className="flex items-center space-x-2 cursor-pointer"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Debug Info</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

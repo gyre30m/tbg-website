@@ -7,10 +7,9 @@ import { cn } from "@/lib/utils";
 
 interface AuthButtonProps {
   className?: string;
-  hideNameOnMobile?: boolean;
 }
 
-export function AuthButton({ className, hideNameOnMobile = true }: AuthButtonProps) {
+export function AuthButton({ className }: AuthButtonProps) {
   const { user, userProfile } = useAuth();
 
   // Get user initials for the circle
@@ -24,13 +23,6 @@ export function AuthButton({ className, hideNameOnMobile = true }: AuthButtonPro
     return "U";
   };
 
-  // Get user display name
-  const getUserDisplayName = () => {
-    if (userProfile?.first_name && userProfile?.last_name) {
-      return `${userProfile.first_name} ${userProfile.last_name}`;
-    }
-    return user?.email || "";
-  };
 
   if (!user) {
     return (
@@ -46,19 +38,11 @@ export function AuthButton({ className, hideNameOnMobile = true }: AuthButtonPro
   }
 
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center", className)}>
       {/* User initials circle - matching sign in button colors */}
       <div className="h-9 w-9 rounded-full bg-gray-900 dark:bg-gray-100 flex items-center justify-center text-white dark:text-gray-900 text-sm font-medium">
         {getUserInitials()}
       </div>
-      {/* User name (optionally hidden on mobile) */}
-      {userProfile && (
-        <div className={cn(hideNameOnMobile && "hidden sm:block")}>
-          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            {getUserDisplayName()}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
