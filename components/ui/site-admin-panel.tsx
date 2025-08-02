@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -78,6 +78,7 @@ export function SiteAdminPanel() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('')
   const [totalFormsCount, setTotalFormsCount] = useState(0)
   const [activeTab, setActiveTab] = useState('firms')
+  const formsLoadedRef = useRef(false)
   const [formData, setFormData] = useState<CreateFirmFormData>({
     name: '',
     domain: '',
@@ -168,9 +169,15 @@ export function SiteAdminPanel() {
     }
   }
 
+  // Fetch firms data once on component mount
   useEffect(() => {
     fetchFirms()
-    if (activeTab === 'forms') {
+  }, [])
+
+  // Fetch forms data only when switching to forms tab for the first time
+  useEffect(() => {
+    if (activeTab === 'forms' && !formsLoadedRef.current) {
+      formsLoadedRef.current = true
       fetchAllForms()
     }
   }, [activeTab])
