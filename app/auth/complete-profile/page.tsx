@@ -137,11 +137,15 @@ export default function CompleteProfilePage() {
             first_name: formData.firstName,
             last_name: formData.lastName,
             firm_id: user.user_metadata?.firm_id || null,
-            role: 'user'
+            role: user.user_metadata?.role || 'user'
           })
 
         if (profileError) {
           console.error('Profile update error:', profileError)
+          // Don't fail the whole process for profile errors, but log them
+          setError(`Warning: Profile update failed: ${profileError.message}`)
+        } else {
+          console.log('Profile created/updated successfully')
         }
 
         // Mark invitation as accepted if applicable

@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
         
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Query timeout after 3 seconds')), 3000)
+        setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
       })
       
       try {
@@ -69,7 +69,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('No user profile found for user:', userId)
             setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
+          } else if (error.code === 'PGRST301') {
+            // 406 Not Acceptable - likely RLS issue
+            console.warn('Profile access denied (RLS):', error.message)
+            setAuthState(prev => ({ ...prev, profile: null, firm: null }))
+            return
           } else {
+            console.error('Profile query error:', error)
             throw error
           }
         }
