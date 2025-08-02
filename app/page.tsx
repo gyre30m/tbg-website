@@ -113,7 +113,11 @@ export default function Home() {
             <Link
               href="/forms/all"
               className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-              title={`Signed in as ${userProfile?.first_name ? `${userProfile.first_name} ${userProfile.last_name}` : user.email}`}
+              title={`Signed in as ${
+                userProfile?.first_name
+                  ? `${userProfile.first_name} ${userProfile.last_name}`
+                  : user.email
+              }`}
             >
               {getUserInitials()}
             </Link>
@@ -180,6 +184,7 @@ export default function Home() {
                     objectFit: "cover",
                   }}
                   width="600"
+                  priority
                 />
               </div>
             </div>

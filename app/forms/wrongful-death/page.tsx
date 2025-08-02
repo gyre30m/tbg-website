@@ -158,13 +158,7 @@ export default function WrongfulDeathForm() {
       // Check for Shift + Cmd + D (or Shift + Ctrl + D on Windows)
       if (event.shiftKey && (event.metaKey || event.ctrlKey) && event.key === 'd') {
         event.preventDefault()
-        
-        // Check if user is site admin
-        if (userProfile?.role === 'site_admin') {
-          populateDemoData()
-        } else {
-          toast.error('Demo data is only available for site administrators')
-        }
+        populateDemoData()
       }
     }
 
