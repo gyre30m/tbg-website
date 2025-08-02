@@ -21,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { createClient } from '@/lib/supabase/browser-client'
-import { Eye, Calendar, User, Plus, ChevronDown, Settings } from 'lucide-react'
+import { Calendar, User, Plus, ChevronDown, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -44,6 +44,7 @@ interface FormSubmission {
   submitted_by: string
   firm_id: string | null
   version?: number
+  submitter_name?: string
 }
 
 interface Firm {
@@ -169,15 +170,20 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           updated_at,
           submitted_by,
           firm_id,
-          version
+          version,
+          profiles!personal_injury_forms_submitted_by_fkey(first_name, last_name)
         `)
-        .eq('status', 'submitted')
+        .in('status', ['submitted', 'saved'])
         .eq('firm_id', firm.id)
 
       fetchPromises.push(
         piQuery.order('updated_at', { ascending: false }).then(({ data, error }) => {
           if (error) throw error
-          return (data || []).map(form => ({ ...form, form_type: 'personal_injury' as const }))
+          return (data || []).map(form => ({ 
+            ...form, 
+            form_type: 'personal_injury' as const,
+            submitter_name: form.profiles && form.profiles.length > 0 ? `${form.profiles[0].last_name}, ${form.profiles[0].first_name}` : 'Unknown User'
+          }))
         })
       )
 
@@ -194,15 +200,20 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           updated_at,
           submitted_by,
           firm_id,
-          version
+          version,
+          profiles!wrongful_death_forms_submitted_by_fkey(first_name, last_name)
         `)
-        .eq('status', 'submitted')
+        .in('status', ['submitted', 'saved'])
         .eq('firm_id', firm.id)
 
       fetchPromises.push(
         Promise.resolve(wdQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
           if (error && error.code !== 'PGRST116') throw error
-          return (data || []).map(form => ({ ...form, form_type: 'wrongful_death' as const }))
+          return (data || []).map(form => ({ 
+            ...form, 
+            form_type: 'wrongful_death' as const,
+            submitter_name: form.profiles && form.profiles.length > 0 ? `${form.profiles[0].last_name}, ${form.profiles[0].first_name}` : 'Unknown User'
+          }))
         }).catch(() => [])
       )
 
@@ -219,15 +230,20 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           updated_at,
           submitted_by,
           firm_id,
-          version
+          version,
+          profiles!wrongful_termination_forms_submitted_by_fkey(first_name, last_name)
         `)
-        .eq('status', 'submitted')
+        .in('status', ['submitted', 'saved'])
         .eq('firm_id', firm.id)
 
       fetchPromises.push(
         Promise.resolve(wtQuery.order('updated_at', { ascending: false })).then(({ data, error }) => {
           if (error && error.code !== 'PGRST116') throw error
-          return (data || []).map(form => ({ ...form, form_type: 'wrongful_termination' as const }))
+          return (data || []).map(form => ({ 
+            ...form, 
+            form_type: 'wrongful_termination' as const,
+            submitter_name: form.profiles && form.profiles.length > 0 ? `${form.profiles[0].last_name}, ${form.profiles[0].first_name}` : 'Unknown User'
+          }))
         }).catch(() => [])
       )
 
@@ -316,7 +332,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
   }
 
   const getSubmittedBy = (form: FormSubmission): string => {
-    return form.submitted_by.substring(0, 8) + '...' || 'Unknown User'
+    return form.submitter_name || 'Unknown User'
   }
 
   const getFormUrl = (form: FormSubmission): string => {
@@ -369,6 +385,28 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           </div>
         </div>
 
+        {/* Summary Stats */}
+        {forms.length > 0 && (
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {Object.entries(FORM_TYPE_LABELS).map(([type, label]) => {
+              const count = forms.filter(f => f.form_type === type).length
+              return (
+                <Card key={type}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">{label} Forms</p>
+                        <p className="text-2xl font-bold">{count}</p>
+                      </div>
+                      <Badge variant="outline">{count > 0 ? 'Active' : 'None'}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+
         {/* New Form Button */}
         <div className="mb-6 flex justify-end">
           <DropdownMenu>
@@ -404,7 +442,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="w-5 h-5" />
-              Form Submissions
+              Forms
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -424,15 +462,19 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
                       <TableHead>Defendant</TableHead>
                       <TableHead>Matter</TableHead>
                       <TableHead>Type of Action</TableHead>
-                      <TableHead>Submitted</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Last Edited</TableHead>
                       <TableHead>Submitted By</TableHead>
                       <TableHead>Version</TableHead>
-                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {forms.map((form) => (
-                      <TableRow key={`${form.form_type}-${form.id}`}>
+                      <TableRow 
+                        key={`${form.form_type}-${form.id}`}
+                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                        onClick={() => router.push(getFormUrl(form))}
+                      >
                         <TableCell className="font-medium">
                           {getPlaintiffName(form)}
                         </TableCell>
@@ -449,8 +491,19 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
                             {FORM_TYPE_LABELS[form.form_type]}
                           </Badge>
                         </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={form.status === 'submitted' 
+                              ? 'border-green-300 bg-green-50 text-green-700 dark:border-green-600 dark:bg-green-900 dark:text-green-300' 
+                              : 'border-yellow-300 bg-yellow-50 text-yellow-700 dark:border-yellow-600 dark:bg-yellow-900 dark:text-yellow-300'
+                            }
+                          >
+                            {form.status === 'submitted' ? 'Submitted' : 'Saved'}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-sm">
-                          {formatDate(form.created_at)}
+                          {formatDate(form.status === 'submitted' ? form.created_at : form.updated_at)}
                         </TableCell>
                         <TableCell className="text-sm text-gray-600">
                           {getSubmittedBy(form)}
@@ -459,14 +512,6 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
                           <Badge variant="secondary" className="text-xs">
                             v{form.version || 1}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Link href={getFormUrl(form)}>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-4 h-4 mr-1" />
-                              View
-                            </Button>
-                          </Link>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -477,27 +522,6 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           </CardContent>
         </Card>
 
-        {/* Summary Stats */}
-        {forms.length > 0 && (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Object.entries(FORM_TYPE_LABELS).map(([type, label]) => {
-              const count = forms.filter(f => f.form_type === type).length
-              return (
-                <Card key={type}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">{label} Forms</p>
-                        <p className="text-2xl font-bold">{count}</p>
-                      </div>
-                      <Badge variant="outline">{count > 0 ? 'Active' : 'None'}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        )}
       </div>
     </>
   )
