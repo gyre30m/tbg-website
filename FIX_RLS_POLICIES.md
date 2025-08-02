@@ -1,6 +1,6 @@
-# Proper RLS Policy Fix for Supabase
+# Proper RLS Policy Fix for Supabase - ✅ RESOLVED
 
-## The Real Issue
+## The Real Issue (RESOLVED)
 Based on Supabase documentation, users should be able to read their own profiles with this standard pattern:
 
 ```sql
@@ -10,8 +10,8 @@ FOR SELECT
 USING (auth.uid() = user_id);
 ```
 
-## Current Problem
-Our policies might be malformed or conflicting. Let's start fresh.
+## Root Cause Found & Fixed
+The issue was infinite recursion in the site admin policy that tried to query user_profiles from within a policy on user_profiles.
 
 ## Step 1: Drop All Existing Policies
 ```sql

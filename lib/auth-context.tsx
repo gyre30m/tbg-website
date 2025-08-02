@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
         
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
+        setTimeout(() => reject(new Error('Query timeout after 3 seconds')), 3000)
       })
       
       try {
@@ -69,52 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('No user profile found for user:', userId)
             setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
-          } else if (error.code === 'PGRST301' || (error as { status?: number }).status === 406) {
-            // 406 Not Acceptable - likely RLS issue
+          } else if (error.code === 'PGRST301') {
+            // 406 Not Acceptable - RLS issue (should be rare now)
             console.warn('Profile access denied (RLS) for user:', userId, 'Error:', error.message)
-            
-            // Fallback: Try to get user metadata from current auth session
-            try {
-              const { data: { user: currentUser } } = await supabase.auth.getUser()
-              
-              if (currentUser?.user_metadata?.firm_id && currentUser?.user_metadata?.role) {
-                console.log('Using fallback profile from user metadata')
-                const fallbackProfile: UserProfile = {
-                  id: userId + '-fallback',
-                  user_id: userId,
-                  first_name: currentUser.user_metadata.first_name || '',
-                  last_name: currentUser.user_metadata.last_name || '',
-                  firm_id: currentUser.user_metadata.firm_id,
-                  role: currentUser.user_metadata.role,
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString()
-                }
-              setAuthState(prev => ({ ...prev, profile: fallbackProfile }))
-              
-              // Still try to fetch firm if we have firm_id
-              if (fallbackProfile.firm_id) {
-                try {
-                  const { data: firm, error: firmError } = await supabase
-                    .from('firms')
-                    .select('*')
-                    .eq('id', fallbackProfile.firm_id)
-                    .single()
-                  
-                  if (!firmError && firm) {
-                    setAuthState(prev => ({ ...prev, firm }))
-                  }
-                } catch (firmFetchError) {
-                  console.warn('Could not fetch firm:', firmFetchError)
-                }
-              }
-              } else {
-                console.log('No user metadata available for fallback profile')
-                setAuthState(prev => ({ ...prev, profile: null, firm: null }))
-              }
-            } catch (fallbackError) {
-              console.warn('Could not create fallback profile:', fallbackError)
-              setAuthState(prev => ({ ...prev, profile: null, firm: null }))
-            }
+            setAuthState(prev => ({ ...prev, profile: null, firm: null }))
             return
           } else {
             console.error('Profile query error:', error)
@@ -144,70 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
       } catch (queryError) {
-        console.warn('Profile query failed, using fallback profile:', queryError)
-        
-        // Try to create fallback profile from user metadata
-        try {
-          const { data: { user: currentUser } } = await supabase.auth.getUser()
-          
-          if (currentUser?.user_metadata?.firm_id && currentUser?.user_metadata?.role) {
-            console.log('Using fallback profile from user metadata (timeout/error case)')
-            const fallbackProfile: UserProfile = {
-              id: userId + '-fallback',
-              user_id: userId,
-              first_name: currentUser.user_metadata.first_name || '',
-              last_name: currentUser.user_metadata.last_name || '',
-              firm_id: currentUser.user_metadata.firm_id,
-              role: currentUser.user_metadata.role,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }
-            setAuthState(prev => ({ ...prev, profile: fallbackProfile }))
-            
-            // Try to fetch firm if we have firm_id
-            try {
-              const { data: firm, error: firmError } = await supabase
-                .from('firms')
-                .select('*')
-                .eq('id', fallbackProfile.firm_id)
-                .single()
-              
-              if (!firmError && firm) {
-                setAuthState(prev => ({ ...prev, firm }))
-              }
-            } catch (firmFetchError) {
-              console.warn('Could not fetch firm in fallback:', firmFetchError)
-            }
-          } else {
-            // No metadata available - use basic profile
-            console.log('No user metadata available, using basic profile')
-            const basicProfile: UserProfile = {
-              id: 'temp-id',
-              user_id: userId,
-              role: 'user',
-              first_name: undefined,
-              last_name: undefined,
-              firm_id: undefined,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }
-            setAuthState(prev => ({ ...prev, profile: basicProfile, firm: null }))
-          }
-        } catch (fallbackError) {
-          console.warn('Could not create fallback profile:', fallbackError)
-          // Use basic profile as last resort
-          const basicProfile: UserProfile = {
-            id: 'temp-id',
-            user_id: userId,
-            role: 'user',
-            first_name: undefined,
-            last_name: undefined,
-            firm_id: undefined,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-          setAuthState(prev => ({ ...prev, profile: basicProfile, firm: null }))
-        }
+        console.warn('Profile query failed:', queryError)
+        setAuthState(prev => ({ ...prev, profile: null, firm: null }))
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error)
