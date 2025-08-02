@@ -70,7 +70,6 @@ interface SiteAdmin {
   id: string;
   first_name: string | null;
   last_name: string | null;
-  email: string;
   created_at: string;
   updated_at: string;
   role: string;
@@ -261,10 +260,7 @@ export function SiteAdminPanel() {
 
           return {
             ...firm,
-            firmAdmin: adminError ? null : {
-              ...adminData,
-              email: "Email not available" // Placeholder until we fix the schema
-            },
+            firmAdmin: adminError ? null : adminData,
           };
         })
       );
@@ -425,14 +421,8 @@ export function SiteAdminPanel() {
         return;
       }
 
-      // For now, let's show the profiles without email addresses
-      // We'll need to add email field to user_profiles table or create a view/function
-      const adminsWithPlaceholderEmails = (profilesData || []).map(profile => ({
-        ...profile,
-        email: "Email not available" // Placeholder until we fix the schema
-      }));
-
-      setSiteAdmins(adminsWithPlaceholderEmails);
+      // Set the site admins data (no email needed)
+      setSiteAdmins(profilesData || []);
     } catch (error) {
       console.error("Error fetching site admins:", error);
       toast.error("Failed to load site admins");
@@ -603,25 +593,18 @@ export function SiteAdminPanel() {
       firmAdmin?: {
         first_name?: string;
         last_name?: string;
-        email?: string;
       } | null;
     }
   ) => {
     if (!firm.firmAdmin) {
-      return { name: "No admin assigned", email: "" };
+      return "No admin assigned";
     }
 
     const firstName = firm.firmAdmin.first_name || "";
     const lastName = firm.firmAdmin.last_name || "";
-    const fullName =
-      firstName && lastName
-        ? `${firstName} ${lastName}`
-        : firstName || lastName || "Unknown Name";
-
-    return {
-      name: fullName,
-      email: firm.firmAdmin.email || "",
-    };
+    return firstName && lastName
+      ? `${firstName} ${lastName}`
+      : firstName || lastName || "Unknown Name";
   };
 
   if (loading) {
@@ -917,23 +900,14 @@ export function SiteAdminPanel() {
                       </TableHeader>
                       <TableBody>
                         {firms.map((firm) => {
-                          const adminInfo = getFirmAdminInfo(firm);
+                          const adminName = getFirmAdminInfo(firm);
                           return (
                             <TableRow key={firm.id}>
                               <TableCell className="font-medium">
                                 {firm.name}
                               </TableCell>
-                              <TableCell>
-                                <div className="flex flex-col">
-                                  <span className="font-medium text-sm">
-                                    {adminInfo.name}
-                                  </span>
-                                  {adminInfo.email && (
-                                    <span className="text-xs text-gray-500">
-                                      {adminInfo.email}
-                                    </span>
-                                  )}
-                                </div>
+                              <TableCell className="font-medium text-sm">
+                                {adminName}
                               </TableCell>
                               <TableCell className="text-sm">
                                 {firm.domain}
@@ -1174,7 +1148,7 @@ export function SiteAdminPanel() {
                             <TableCell className="font-medium">
                               {getAdminFullName(admin)}
                             </TableCell>
-                            <TableCell>{admin.email}</TableCell>
+                            <TableCell>-</TableCell>
                             <TableCell className="text-sm">
                               {getAdminSinceDate(admin)}
                             </TableCell>
