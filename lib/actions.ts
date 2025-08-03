@@ -3,6 +3,8 @@
 import { createClient } from './supabase/server-client'
 import { createAdminClient } from './supabase/admin-client'
 
+import { Resend } from 'resend'
+
 // Helper function to send form submission notification email
 async function sendFormNotificationEmail(
   formType: 'personal_injury' | 'wrongful_death' | 'wrongful_termination',
@@ -12,28 +14,50 @@ async function sendFormNotificationEmail(
   firmName?: string
 ) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/send-form-notification`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        formType,
-        formId,
-        submitterName: `${formData.first_name || 'Unknown'} ${formData.last_name || 'User'}`,
-        submitterEmail: formData.email || 'Not provided',
-        firmName,
-        formData,
-        userFullName
-      })
+    console.log('Attempting to send form notification email...')
+    
+    // Use Resend directly instead of going through API endpoint
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not configured - email will not be sent')
+      return
+    }
+
+    // Create human-readable form type
+    const formTypeDisplay = formType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    
+    // Get plaintiff name from form data
+    const plaintiffFirstName = formData.first_name || 'Unknown'
+    const plaintiffLastName = formData.last_name || 'Plaintiff'
+    const plaintiffFullName = `${plaintiffFirstName} ${plaintiffLastName}`
+
+    // Format timestamp
+    const timestamp = new Date().toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
     })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error('Failed to send notification email:', errorData)
+    // Create simple email body as requested
+    const emailBody = `${userFullName} from ${firmName || 'Unknown Firm'} submitted a ${formTypeDisplay} regarding ${plaintiffFullName} at ${timestamp}`
+
+    // Send email directly using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'The Bradley Group <noreply@the-bradley-group.com>',
+      to: ['forms@the-bradley-group.com'],
+      subject: `New ${formTypeDisplay} Form Submission`,
+      text: emailBody,
+    })
+
+    if (error) {
+      console.error('Failed to send notification email via Resend:', error)
     } else {
-      const result = await response.json()
-      console.log('Notification email sent successfully:', result.emailId)
+      console.log('Notification email sent successfully via Resend:', data?.id)
     }
   } catch (error) {
     console.error('Error sending notification email:', error)
