@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/ui/header'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useDocumentUpload } from '@/hooks/useDocumentUpload'
 import { submitPersonalInjuryForm, saveDraftPersonalInjuryForm, deletePersonalInjuryForm } from '@/lib/actions'
 import { createClient } from '@/lib/supabase/browser-client'
@@ -384,37 +385,62 @@ export default function PersonalInjuryForm() {
   }
 
   const formActions = (
-    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-      <Button 
-        type="button" 
-        variant="destructive"
-        onClick={handleCancelClick} 
-        disabled={isSubmitting || isSavingDraft || isDeleting}
-        className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2"
-        size="sm"
-      >
-        {hasBeenSaved ? 'Delete' : 'Cancel'}
-      </Button>
-      <Button 
-        type="button" 
-        variant="outline" 
-        onClick={handleSaveDraft} 
-        disabled={isSavingDraft || isSubmitting || isDeleting}
-        className="text-sm px-3 py-2"
-        size="sm"
-      >
-        {isSavingDraft ? 'Saving...' : 'Save Draft'}
-      </Button>
-      <Button 
-        type="submit" 
-        disabled={isSubmitting || isSavingDraft || isDeleting}
-        className="text-sm px-3 py-2"
-        size="sm"
-        form="personal-injury-form"
-      >
-        {isSubmitting ? 'Submitting...' : 'Submit Form'}
-      </Button>
-    </div>
+    <TooltipProvider>
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              type="button" 
+              variant="destructive"
+              onClick={handleCancelClick} 
+              disabled={isSubmitting || isSavingDraft || isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2"
+              size="sm"
+            >
+              {hasBeenSaved ? 'Delete' : 'Cancel'}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{hasBeenSaved ? 'Delete this saved form permanently' : 'Clear all form data without saving'}</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={handleSaveDraft} 
+              disabled={isSavingDraft || isSubmitting || isDeleting}
+              className="text-sm px-3 py-2"
+              size="sm"
+            >
+              {isSavingDraft ? 'Saving...' : 'Save Draft'}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Save your progress and continue later</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || isSavingDraft || isDeleting}
+              className="text-sm px-3 py-2"
+              size="sm"
+              form="personal-injury-form"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Form'}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Submit completed form for review</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
   )
 
   return (
