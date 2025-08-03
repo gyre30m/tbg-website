@@ -9,6 +9,8 @@ import { useDocumentUpload } from '@/hooks/useDocumentUpload'
 import { submitWrongfulDeathForm, saveDraftWrongfulDeathForm } from '@/lib/actions'
 import { createClient } from '@/lib/supabase/browser-client'
 import { toast } from 'sonner'
+import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog'
+import { CancelFormDialog } from '@/components/ui/cancel-form-dialog'
 import { WdContact } from '@/components/ui/wd-contact'
 import { WdDemographics } from '@/components/ui/wd-demographics'
 import { WdDependents } from '@/components/ui/wd-dependents'
@@ -94,6 +96,24 @@ export default function WrongfulDeathForm() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
+  
+  // Dialog states
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [currentFormId, setCurrentFormId] = useState<string | null>(null)
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  
+  // Track if form has been saved or submitted
+  const [hasBeenSaved, setHasBeenSaved] = useState(false)
+
+  // Function to get the current last name from the form
+  const getCurrentLastName = (): string => {
+    const form = document.querySelector('form') as HTMLFormElement
+    if (!form) return ''
+    
+    const lastNameField = form.querySelector('[name="lastName"]') as HTMLInputElement
+    return lastNameField ? lastNameField.value.trim() : ''
+  }
 
   // Demo data population function
   const populateDemoData = () => {
@@ -242,6 +262,7 @@ export default function WrongfulDeathForm() {
       
       if (result.success) {
         toast.success('Form submitted successfully!')
+        setHasBeenSaved(true)
         const redirectUrl = await getFirmFormsUrl()
         router.push(redirectUrl)
       } else {
@@ -273,6 +294,7 @@ export default function WrongfulDeathForm() {
       
       if (result.success) {
         toast.success('Draft saved successfully!')
+        setHasBeenSaved(true)
       } else {
         toast.error('Failed to save draft')
       }
@@ -285,13 +307,79 @@ export default function WrongfulDeathForm() {
     }
   }
 
+  const handleCancelClick = () => {
+    if (!hasBeenSaved) {
+      // Show cancel dialog for unsaved forms
+      setIsCancelDialogOpen(true)
+    } else {
+      // For saved forms, show delete dialog
+      const lastName = getCurrentLastName()
+      if (!lastName) {
+        toast.error('Please enter a Last Name in the Contact section before deleting.')
+        return
+      }
+      
+      // In a real implementation, this would get the actual form ID
+      setCurrentFormId('existing-form-id')
+      setIsDeleteDialogOpen(true)
+    }
+  }
+
+  const handleEraseForm = () => {
+    // Clear all form data
+    const form = document.querySelector('form') as HTMLFormElement
+    if (form) {
+      form.reset()
+    }
+    
+    // Reset all state
+    setHouseholdDependents([{ id: '1', fullName: '', dateOfBirth: '', relationship: '' }])
+    setOtherDependents([{ id: '1', fullName: '', dateOfBirth: '', relationship: '' }])
+    setEmploymentYears([{ id: '1', year: '', income: '', percentEmployed: '' }])
+    setUploadedFiles([])
+    setHasBeenSaved(false)
+    
+    // Close dialog
+    setIsCancelDialogOpen(false)
+    
+    toast.success('Form data has been cleared.')
+  }
+
+  const handleDeleteConfirm = async (lastNameConfirmation: string) => {
+    if (!currentFormId) return
+    
+    setIsDeleting(true)
+    try {
+      // TODO: Implement actual delete functionality
+      // For now, just simulate success and navigate away
+      console.log('Delete confirmation for:', lastNameConfirmation)
+      toast.success('Form cleared successfully!')
+      router.push('/forms')
+    } catch (error) {
+      toast.error('Failed to clear form. Please try again.')
+      throw error
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   const formActions = (
     <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
       <Button 
         type="button" 
+        variant="destructive"
+        onClick={handleCancelClick} 
+        disabled={isSubmitting || isSavingDraft || isDeleting}
+        className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2"
+        size="sm"
+      >
+        {hasBeenSaved ? 'Delete' : 'Cancel'}
+      </Button>
+      <Button 
+        type="button" 
         variant="outline" 
         onClick={handleSaveDraft} 
-        disabled={isSavingDraft || isSubmitting}
+        disabled={isSavingDraft || isSubmitting || isDeleting}
         className="text-sm px-3 py-2"
         size="sm"
       >
@@ -299,7 +387,7 @@ export default function WrongfulDeathForm() {
       </Button>
       <Button 
         type="submit" 
-        disabled={isSubmitting || isSavingDraft}
+        disabled={isSubmitting || isSavingDraft || isDeleting}
         className="text-sm px-3 py-2"
         size="sm"
         form="wrongful-death-form"
@@ -361,6 +449,20 @@ export default function WrongfulDeathForm() {
           
           <WdLitigation />
         </form>
+
+        <CancelFormDialog
+          isOpen={isCancelDialogOpen}
+          onClose={() => setIsCancelDialogOpen(false)}
+          onEraseForm={handleEraseForm}
+        />
+
+        <DeleteConfirmationDialog
+          isOpen={isDeleteDialogOpen}
+          onClose={() => setIsDeleteDialogOpen(false)}
+          onConfirm={handleDeleteConfirm}
+          expectedLastName={getCurrentLastName()}
+          isDeleting={isDeleting}
+        />
       </div>
     </>
   )
