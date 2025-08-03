@@ -564,11 +564,13 @@ export default function PersonalInjuryForm() {
             <p className="text-sm text-blue-800 mb-2">
               <b>Instructions:</b>
             </p>
-            <br />
             <p className="text-sm text-blue-800">
               Unless otherwise indicated, all items on this form refer to the
-              plaintiff. If a required field is not applicable to the plaintiff,
-              please enter &quot;N/A&quot;.
+              plaintiff.
+            </p>
+            <p>
+              If a required field is not applicable to the plaintiff, please
+              enter &quot;N/A&quot;.
             </p>
           </div>
         </div>

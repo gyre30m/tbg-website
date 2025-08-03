@@ -480,11 +480,13 @@ export default function WrongfulDeathForm() {
             <p className="text-sm text-blue-800 mb-2">
               <b>Instructions:</b>
             </p>
-            <br />
             <p className="text-sm text-blue-800">
               Unless otherwise indicated, all items on this form refer to the
-              decedent. If a required field is not applicable to the decedent,
-              please enter &quot;N/A&quot;.
+              decedent.
+            </p>
+            <p>
+              If a required field is not applicable to the decedent, please
+              enter &quot;N/A&quot;.
             </p>
           </div>
         </div>
