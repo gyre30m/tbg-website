@@ -106,6 +106,8 @@ export const personalInjuryDummyData = {
   errands: "3",
 
   // Litigation
+  matterNo: "00000",
+  defendant: "Premium Auto Insurance Company",
   settlementDate: "2025-04-20",
   trialDate: "2025-10-15",
   trialLocation: "Cook County Courthouse, Chicago, IL",

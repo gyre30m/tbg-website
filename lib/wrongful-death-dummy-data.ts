@@ -64,6 +64,8 @@ export const wrongfulDeathDummyData = {
   additionalInfo: "Robert was the primary breadwinner for his family and actively contributed to household management and childcare. He coached his daughter's soccer team and was involved in community activities. His death has created significant financial hardship for his surviving spouse and children, requiring his wife to potentially return to work after being a stay-at-home parent for 8 years. The family will also need to hire help for home maintenance and repairs that Robert previously performed.",
 
   // Litigation
+  matterNo: "00000",
+  defendant: "Springfield General Hospital",
   settlementDate: "2025-03-15",
   trialDate: "2025-09-10",
   trialLocation: "Sangamon County Courthouse, Springfield, IL",

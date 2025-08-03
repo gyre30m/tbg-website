@@ -79,6 +79,15 @@ export const wrongfulTerminationDummyData = {
   // Other Information
   additionalInfo: "David's termination occurred during a company restructuring that he believes was discriminatory. He had received excellent performance reviews and was actively working on a major cost-saving initiative that would have saved the company $2M annually. The termination has caused significant financial strain, as his spouse had to increase her work hours, affecting their children's care arrangements. David has been actively job searching for 8 months but faces age discrimination in his field. The family has had to dip into retirement savings and college funds for their children to maintain their standard of living.",
 
+  // Litigation
+  matterNo: "00000",
+  defendant: "TechCorp Industries LLC",
+  settlementDate: "2025-06-15",
+  trialDate: "2025-11-20",
+  trialLocation: "Cook County Courthouse, Chicago, IL",
+  opposingCounselFirm: "Corporate Defense Partners",
+  opposingEconomist: "Dr. Patricia Martinez, Employment Economics Institute",
+
   // Dynamic Data Arrays
   preTerminationYears: [
     {
