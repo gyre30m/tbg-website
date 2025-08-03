@@ -101,7 +101,7 @@ export const personalInjuryDummyData = {
   petCare: "4", 
   indoorHousework: "4",
   mealPrep: "3",
-  homeMaintenance: "5",
+  homeMaintenance: "4",
   vehicleMaintenance: "2",
   errands: "3",
 

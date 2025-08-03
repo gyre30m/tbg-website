@@ -56,8 +56,8 @@ export const wrongfulDeathDummyData = {
   petCare: "2",
   indoorHousework: "3",
   mealPrep: "4",
-  homeMaintenance: "5",
-  vehicleMaintenance: "5",
+  homeMaintenance: "4",
+  vehicleMaintenance: "4",
   errands: "3",
 
   // Other
