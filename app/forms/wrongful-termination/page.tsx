@@ -103,7 +103,8 @@ export default function WrongfulTerminationForm() {
       'postTerminationIndividualHealth', 'postTerminationFamilyHealth', 'postTerminationRetirementPlan',
       'postTerminationInvestmentPlan', 'postTerminationBonus', 'postTerminationStockOptions',
       'postTerminationOtherBenefits', 'postTerminationRetirementAge', 'postTerminationJobExpenses',
-      'additionalInfo'
+      'additionalInfo', 'matterNo', 'defendant', 'settlementDate', 'trialDate', 'trialLocation',
+      'opposingCounselFirm', 'opposingEconomist'
     ]
 
     textFields.forEach(fieldName => {
