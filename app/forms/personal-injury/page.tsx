@@ -141,7 +141,7 @@ export default function PersonalInjuryForm() {
       'postInjuryLifeInsurance', 'postInjuryIndividualHealth', 'postInjuryFamilyHealth',
       'postInjuryRetirementPlan', 'postInjuryInvestmentPlan', 'postInjuryBonus',
       'postInjuryStockOptions', 'postInjuryOtherBenefits', 'postInjuryRetirementAge',
-      'postRetirementAge', 'postInjuryJobExpenses', 'postJobExpenses', 'additionalInfo', 'settlementDate', 'trialDate',
+      'postRetirementAge', 'postInjuryJobExpenses', 'postJobExpenses', 'additionalInfo', 'matterNo', 'defendant', 'settlementDate', 'trialDate',
       'trialLocation', 'opposingCounselFirm', 'opposingEconomist'
     ]
 

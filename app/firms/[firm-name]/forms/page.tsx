@@ -57,6 +57,7 @@ interface Firm {
 
 interface UserProfile {
   id: string
+  user_id: string
   first_name: string
   last_name: string
 }
@@ -198,13 +199,13 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           if (userIds.length > 0) {
             const { data: profiles, error: profileError } = await supabase
               .from('user_profiles')
-              .select('id, first_name, last_name')
-              .in('id', userIds)
+              .select('id, user_id, first_name, last_name')
+              .in('user_id', userIds)
             
             console.log('Personal Injury - Profile query result:', profiles, 'error:', profileError)
             
             userProfiles = (profiles || []).reduce((acc, profile) => {
-              acc[profile.id] = profile
+              acc[profile.user_id] = profile
               return acc
             }, {} as Record<string, UserProfile>)
             
@@ -259,11 +260,11 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           if (userIds.length > 0) {
             const { data: profiles } = await supabase
               .from('user_profiles')
-              .select('id, first_name, last_name')
-              .in('id', userIds)
+              .select('id, user_id, first_name, last_name')
+              .in('user_id', userIds)
             
             userProfiles = (profiles || []).reduce((acc, profile) => {
-              acc[profile.id] = profile
+              acc[profile.user_id] = profile
               return acc
             }, {} as Record<string, UserProfile>)
           }
@@ -307,11 +308,11 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           if (userIds.length > 0) {
             const { data: profiles } = await supabase
               .from('user_profiles')
-              .select('id, first_name, last_name')
-              .in('id', userIds)
+              .select('id, user_id, first_name, last_name')
+              .in('user_id', userIds)
             
             userProfiles = (profiles || []).reduce((acc, profile) => {
-              acc[profile.id] = profile
+              acc[profile.user_id] = profile
               return acc
             }, {} as Record<string, UserProfile>)
           }
