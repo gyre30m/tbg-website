@@ -36,8 +36,8 @@ export function PiLitigation({ initialData }: PiLitigationProps) {
         </div>
 
         <div>
-          <Label htmlFor="defendant">Defendant</Label>
-          <Input id="defendant" name="defendant" defaultValue={String(initialData?.defendant || '')} />
+          <Label htmlFor="defendant">Defendant*</Label>
+          <Input id="defendant" name="defendant" defaultValue={String(initialData?.defendant || '')} required />
         </div>
 
         <div>

@@ -32,8 +32,8 @@ export function WtLitigation() {
         </div>
 
         <div>
-          <Label htmlFor="defendant">Defendant</Label>
-          <Input id="defendant" name="defendant" />
+          <Label htmlFor="defendant">Defendant*</Label>
+          <Input id="defendant" name="defendant" required />
         </div>
 
         <div>
