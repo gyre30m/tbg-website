@@ -83,7 +83,7 @@ export default function TestFormEmailPage() {
             <h3 className="font-semibold mb-2">Test Email Details</h3>
             <div className="space-y-1 text-sm">
               <p>• To: forms@the-bradley-group.com</p>
-              <p>• From: The Bradley Group &lt;noreply@the-bradley-group.com&gt;</p>
+              <p>• From: The Bradley Group &lt;noreply@forms.the-bradley-group.com&gt;</p>
               <p>• Subject: New Personal Injury Form Submission</p>
               <p>• Body: Test User Attorney from Test Law Firm submitted a Personal Injury regarding John Doe at [current timestamp]</p>
             </div>

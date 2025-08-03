@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Send email
     const { data, error } = await resend.emails.send({
-      from: 'The Bradley Group <noreply@the-bradley-group.com>',
+      from: 'The Bradley Group <noreply@forms.the-bradley-group.com>',
       to: ['forms@the-bradley-group.com'],
       subject: `New ${formTypeDisplay} Form Submission`,
       text: emailBody,

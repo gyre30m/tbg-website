@@ -17,7 +17,7 @@ export async function GET() {
       const resend = new Resend(process.env.RESEND_API_KEY)
       // Try to verify the API key by attempting to send a test email
       const { data, error } = await resend.emails.send({
-        from: 'The Bradley Group <noreply@the-bradley-group.com>',
+        from: 'The Bradley Group <noreply@forms.the-bradley-group.com>',
         to: ['forms@the-bradley-group.com'],
         subject: 'Email Configuration Test',
         text: 'This is a test email to verify the Resend configuration is working correctly.',

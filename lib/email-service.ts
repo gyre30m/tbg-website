@@ -30,7 +30,7 @@ export async function sendInvitationEmail({ to, firmName, inviteUrl }: EmailInvi
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: process.env.FROM_EMAIL || 'noreply@the-bradley-group.com',
+        from: process.env.FROM_EMAIL || 'noreply@forms.the-bradley-group.com',
         to: [to],
         subject: `You've been added to ${firmName}`,
         html: `

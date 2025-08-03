@@ -43,7 +43,7 @@ Where:
 - `NEXT_PUBLIC_SITE_URL`: Base URL for form links
 
 **Email Settings**:
-- From: `The Bradley Group <noreply@the-bradley-group.com>`
+- From: `The Bradley Group <noreply@forms.the-bradley-group.com>`
 - To: `forms@the-bradley-group.com`
 - Subject: `New [Form Type] Form Submission`
 

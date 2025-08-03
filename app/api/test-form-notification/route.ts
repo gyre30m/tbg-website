@@ -38,7 +38,7 @@ export async function GET() {
 
     // Send email directly using Resend
     const { data, error } = await resend.emails.send({
-      from: 'The Bradley Group <noreply@the-bradley-group.com>',
+      from: 'The Bradley Group <noreply@forms.the-bradley-group.com>',
       to: ['forms@the-bradley-group.com'],
       subject: 'New Personal Injury Form Submission',
       text: emailBody,
