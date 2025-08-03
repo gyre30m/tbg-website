@@ -7,7 +7,7 @@ import { Header } from '@/components/ui/header'
 import { PersonalInjuryFormView } from '@/components/ui/personal-injury-form-view'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
-import { ArrowLeft, Save, X } from 'lucide-react'
+import { ArrowLeft, Save, X, Edit } from 'lucide-react'
 import { createClient } from '@/lib/supabase/browser-client'
 import { updatePersonalInjuryForm } from '@/lib/actions'
 import type { PersonalInjuryFormData } from '@/components/ui/personal-injury-form-view'
@@ -60,6 +60,7 @@ export default function PersonalInjuryFormDetailPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [canEdit, setCanEdit] = useState(false)
+  const [firmFormsUrl, setFirmFormsUrl] = useState('/forms')
 
   // Edit mode state (same as original form)
   const [householdMembers, setHouseholdMembers] = useState<HouseholdMember[]>([])
@@ -99,6 +100,20 @@ export default function PersonalInjuryFormDetailPage() {
 
       setCanEdit(isSiteAdmin || (isOwner && isSameFirm))
       setFormData(data)
+      
+      // Get firm information for the Back to Forms URL
+      if (data.firm_id) {
+        const { data: firmData } = await supabase
+          .from('firms')
+          .select('slug, name')
+          .eq('id', data.firm_id)
+          .single()
+
+        if (firmData) {
+          const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name)
+          setFirmFormsUrl(`/firms/${firmIdentifier}/forms`)
+        }
+      }
       
       // Initialize edit mode state with current data
       setHouseholdMembers(data.household_members || [])
@@ -229,29 +244,35 @@ export default function PersonalInjuryFormDetailPage() {
     )
   }
 
+  // Create form actions for the header
+  const formActions = !isEditing ? (
+    <div className="flex items-center gap-3">
+      <Button 
+        variant="ghost" 
+        onClick={() => router.push(firmFormsUrl)}
+        className="flex items-center gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Forms
+      </Button>
+      {canEdit && (
+        <Button onClick={handleEdit} className="flex items-center gap-2">
+          <Edit className="w-4 h-4" />
+          Edit Form
+        </Button>
+      )}
+    </div>
+  ) : null
+
   return (
     <>
-      <Header />
+      <Header formActions={formActions} />
       
       {!isEditing ? (
         <>
-          {/* Back button */}
-          <div className="container mx-auto px-4 pt-4 max-w-4xl">
-            <Button 
-              variant="ghost" 
-              onClick={() => router.push('/forms')}
-              className="mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Forms
-            </Button>
-          </div>
-          
           {/* Read-only view */}
           <PersonalInjuryFormView 
             formData={formData}
-            onEdit={canEdit ? handleEdit : undefined}
-            canEdit={canEdit}
           />
         </>
       ) : (

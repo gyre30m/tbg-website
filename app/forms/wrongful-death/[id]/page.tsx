@@ -57,6 +57,7 @@ export default function WrongfulDeathFormDetailPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [canEdit, setCanEdit] = useState(false)
+  const [firmFormsUrl, setFirmFormsUrl] = useState('/forms')
 
   // Edit mode state (same as original form)
   const [householdDependents, setHouseholdDependents] = useState<Dependent[]>([])
@@ -102,6 +103,20 @@ export default function WrongfulDeathFormDetailPage() {
 
       setCanEdit(isCurrentSiteAdmin || isSameFirm)
       setFormData(data)
+      
+      // Get firm information for the Back to Forms URL
+      if (data.firm_id) {
+        const { data: firmData } = await supabase
+          .from('firms')
+          .select('slug, name')
+          .eq('id', data.firm_id)
+          .single()
+
+        if (firmData) {
+          const firmIdentifier = firmData.slug || encodeURIComponent(firmData.name)
+          setFirmFormsUrl(`/firms/${firmIdentifier}/forms`)
+        }
+      }
       
       // Initialize edit mode state with current data
       setHouseholdDependents(data.household_dependents || [])
@@ -252,8 +267,12 @@ export default function WrongfulDeathFormDetailPage() {
 
 
   const formActions = !isEditing ? (
-    <div className="flex items-center gap-2">
-      <Button onClick={() => router.push('/forms/all')} className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
+      <Button 
+        variant="ghost" 
+        onClick={() => router.push(firmFormsUrl)}
+        className="flex items-center gap-2"
+      >
         <ArrowLeft className="w-4 h-4" />
         Back to Forms
       </Button>

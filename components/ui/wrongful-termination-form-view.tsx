@@ -133,16 +133,12 @@ interface WrongfulTerminationFormData {
 
 interface WrongfulTerminationFormViewProps {
   formData: WrongfulTerminationFormData
-  onEdit?: () => void
-  canEdit?: boolean
 }
 
 export type { WrongfulTerminationFormData }
 
 export function WrongfulTerminationFormView({ 
-  formData, 
-  onEdit, 
-  canEdit = false 
+  formData
 }: WrongfulTerminationFormViewProps) {
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'Not provided'
@@ -190,12 +186,6 @@ export function WrongfulTerminationFormView({
               </div>
             </div>
           </div>
-          {canEdit && onEdit && (
-            <Button onClick={onEdit} className="flex items-center gap-2">
-              <Edit className="w-4 h-4" />
-              Edit Form
-            </Button>
-          )}
         </div>
         
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

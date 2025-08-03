@@ -96,16 +96,12 @@ interface PersonalInjuryFormData {
 
 interface PersonalInjuryFormViewProps {
   formData: PersonalInjuryFormData
-  onEdit?: () => void
-  canEdit?: boolean
 }
 
 export type { PersonalInjuryFormData }
 
 export function PersonalInjuryFormView({ 
-  formData, 
-  onEdit, 
-  canEdit = false 
+  formData
 }: PersonalInjuryFormViewProps) {
   const formatDate = (dateString: string | null | undefined | HouseholdMember[] | EmploymentYear[] | UploadedFile[] | { first_name: string; last_name: string } | number | boolean): string => {
     if (!dateString || typeof dateString !== 'string') return 'Not provided'
@@ -154,12 +150,6 @@ export function PersonalInjuryFormView({
               </div>
             </div>
           </div>
-          {canEdit && onEdit && (
-            <Button onClick={onEdit} className="flex items-center gap-2">
-              <Edit className="w-4 h-4" />
-              Edit Form
-            </Button>
-          )}
         </div>
         
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
