@@ -751,6 +751,13 @@ export function WrongfulTerminationFormView({
           </div>
 
           <div>
+            <label className="text-sm font-medium text-gray-700">Defendant</label>
+            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md text-sm min-h-[40px]">
+              {getValue(formData.defendant)}
+            </div>
+          </div>
+
+          <div>
             <label className="text-sm font-medium text-gray-700">Date of Next Settlement Negotiation*</label>
             <div className="p-3 bg-gray-50 border border-gray-200 rounded-md text-sm min-h-[40px]">
               {formatDate(formData.settlement_date)}
