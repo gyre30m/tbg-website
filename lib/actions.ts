@@ -4,6 +4,7 @@ import { createClient } from './supabase/server-client'
 import { createAdminClient } from './supabase/admin-client'
 
 import { Resend } from 'resend'
+import { generateFormPDF, getFormPDFFileName } from './pdf-generator'
 
 // Helper function to send form submission notification email
 async function sendFormNotificationEmail(
@@ -11,7 +12,9 @@ async function sendFormNotificationEmail(
   formId: string,
   formData: Record<string, unknown>,
   userFullName: string,
-  firmName?: string
+  firmName?: string,
+  pdfBuffer?: Buffer,
+  pdfFileName?: string
 ) {
   try {
     console.log('Attempting to send form notification email...')
@@ -46,13 +49,33 @@ async function sendFormNotificationEmail(
     // Create simple email body as requested
     const emailBody = `${userFullName} from ${firmName || 'Unknown Firm'} submitted a ${formTypeDisplay} regarding ${plaintiffFullName} at ${timestamp}`
 
-    // Send email directly using Resend
-    const { data, error } = await resend.emails.send({
+    // Prepare email options
+    const emailOptions: {
+      from: string
+      to: string[]
+      subject: string
+      text: string
+      attachments?: Array<{
+        filename: string
+        content: Buffer
+      }>
+    } = {
       from: 'The Bradley Group <noreply@forms.the-bradley-group.com>',
       to: ['forms@the-bradley-group.com'],
       subject: `New ${formTypeDisplay} Form Submission`,
       text: emailBody,
-    })
+    }
+
+    // Add PDF attachment if provided
+    if (pdfBuffer && pdfFileName) {
+      emailOptions.attachments = [{
+        filename: pdfFileName,
+        content: pdfBuffer,
+      }]
+    }
+
+    // Send email directly using Resend
+    const { data, error } = await resend.emails.send(emailOptions)
 
     if (error) {
       console.error('Failed to send notification email via Resend:', error)
@@ -469,13 +492,34 @@ export async function submitPersonalInjuryForm(formData: FormData) {
         userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
       }
 
-      // Send notification email
+      // Generate PDF of the form
+      let pdfBuffer: Buffer | undefined
+      let pdfFileName: string | undefined
+      
+      try {
+        const formUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/forms/personal-injury/${formId}`
+        const pdfResult = await generateFormPDF(formUrl, 'personal-injury', formId)
+        
+        if (pdfResult.success && pdfResult.buffer) {
+          pdfBuffer = pdfResult.buffer
+          pdfFileName = getFormPDFFileName('personal-injury', formId, normalizedData.last_name || undefined)
+          console.log(`PDF generated successfully: ${pdfFileName}`)
+        } else {
+          console.warn('PDF generation failed:', pdfResult.error)
+        }
+      } catch (pdfError) {
+        console.warn('PDF generation error:', pdfError)
+      }
+
+      // Send notification email with PDF attachment
       await sendFormNotificationEmail(
         'personal_injury',
         formId,
         normalizedData,
         userFullName,
-        firmName
+        firmName,
+        pdfBuffer,
+        pdfFileName
       )
     }
 
@@ -577,13 +621,34 @@ export async function submitWrongfulDeathForm(formData: FormData) {
         userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
       }
 
-      // Send notification email
+      // Generate PDF of the form
+      let pdfBuffer: Buffer | undefined
+      let pdfFileName: string | undefined
+      
+      try {
+        const formUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/forms/wrongful-death/${formId}`
+        const pdfResult = await generateFormPDF(formUrl, 'wrongful-death', formId)
+        
+        if (pdfResult.success && pdfResult.buffer) {
+          pdfBuffer = pdfResult.buffer
+          pdfFileName = getFormPDFFileName('wrongful-death', formId, normalizedData.last_name || undefined)
+          console.log(`PDF generated successfully: ${pdfFileName}`)
+        } else {
+          console.warn('PDF generation failed:', pdfResult.error)
+        }
+      } catch (pdfError) {
+        console.warn('PDF generation error:', pdfError)
+      }
+
+      // Send notification email with PDF attachment
       await sendFormNotificationEmail(
         'wrongful_death',
         formId,
         normalizedData,
         userFullName,
-        firmName
+        firmName,
+        pdfBuffer,
+        pdfFileName
       )
     }
 
@@ -685,13 +750,34 @@ export async function submitWrongfulTerminationForm(formData: FormData) {
         userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
       }
 
-      // Send notification email
+      // Generate PDF of the form
+      let pdfBuffer: Buffer | undefined
+      let pdfFileName: string | undefined
+      
+      try {
+        const formUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/forms/wrongful-termination/${formId}`
+        const pdfResult = await generateFormPDF(formUrl, 'wrongful-termination', formId)
+        
+        if (pdfResult.success && pdfResult.buffer) {
+          pdfBuffer = pdfResult.buffer
+          pdfFileName = getFormPDFFileName('wrongful-termination', formId, normalizedData.last_name || undefined)
+          console.log(`PDF generated successfully: ${pdfFileName}`)
+        } else {
+          console.warn('PDF generation failed:', pdfResult.error)
+        }
+      } catch (pdfError) {
+        console.warn('PDF generation error:', pdfError)
+      }
+
+      // Send notification email with PDF attachment
       await sendFormNotificationEmail(
         'wrongful_termination',
         formId,
         normalizedData,
         userFullName,
-        firmName
+        firmName,
+        pdfBuffer,
+        pdfFileName
       )
     }
 
