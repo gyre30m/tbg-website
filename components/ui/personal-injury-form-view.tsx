@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -11,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Edit, Eye, Clock, User } from 'lucide-react'
+import { Eye, Clock, User } from 'lucide-react'
 import { DocumentViewer } from '@/components/ui/document-viewer'
 
 interface HouseholdMember {

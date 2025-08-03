@@ -108,6 +108,7 @@ interface WrongfulDeathFormData {
   settlement_date: string | null
   trial_date: string | null
   trial_location: string | null
+  defendant: string | null
   opposing_counsel_firm: string | null
   opposing_economist: string | null
   
