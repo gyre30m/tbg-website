@@ -900,10 +900,10 @@ export async function updatePersonalInjuryForm(formId: string, formData: FormDat
     
     const supabase = await createClient()
     
-    // Check permissions - user must be owner or site admin
+    // Check permissions and get existing form data for comparison
     const { data: existingForm, error: fetchError } = await supabase
       .from('personal_injury_forms')
-      .select('submitted_by, firm_id')
+      .select('*')
       .eq('id', formId)
       .single()
 
@@ -919,11 +919,106 @@ export async function updatePersonalInjuryForm(formId: string, formData: FormDat
       throw new Error('Unauthorized to edit this form')
     }
     
-    // Update the form - the trigger will handle version tracking
+    // Track field changes for audit trail
+    const fieldChanges: Array<{field: string, oldValue: string, newValue: string}> = []
+    const fieldLabels: Record<string, string> = {
+      'address1': 'Address 1',
+      'address2': 'Address 2',
+      'first_name': 'First Name',
+      'last_name': 'Last Name',
+      'email': 'Email',
+      'phone': 'Phone',
+      'city': 'City',
+      'state': 'State',
+      'zip_code': 'Zip Code',
+      'gender': 'Gender',
+      'marital_status': 'Marital Status',
+      'ethnicity': 'Ethnicity',
+      'date_of_birth': 'Date of Birth',
+      'incident_date': 'Date of Incident',
+      'injury_description': 'Injury Description',
+      'caregiver_claim': 'Caregiver Claim',
+      'life_expectancy': 'Life Expectancy',
+      'future_medical': 'Future Medical Expenses',
+      'pre_injury_education': 'Pre-Injury Education',
+      'pre_injury_skills': 'Pre-Injury Skills',
+      'education_plans': 'Education Plans',
+      'parent_education': 'Parent Education',
+      'post_injury_education': 'Post-Injury Education',
+      'pre_injury_employment_status': 'Pre-Injury Employment Status',
+      'pre_injury_job_title': 'Pre-Injury Job Title',
+      'pre_injury_employer': 'Pre-Injury Employer',
+      'pre_injury_salary': 'Pre-Injury Salary',
+      'pre_injury_duties': 'Pre-Injury Duties',
+      'additional_info': 'Additional Information',
+      'matter_no': 'Matter Number',
+      'defendant': 'Defendant',
+      'trial_location': 'Trial Location',
+      'opposing_counsel_firm': 'Opposing Counsel Firm',
+      'opposing_economist': 'Opposing Economist'
+    }
+    
+    // Compare each field
+    for (const [key, newValue] of Object.entries(normalizedData)) {
+      const oldValue = existingForm[key]
+      
+      // Skip complex fields and metadata
+      if (['household_members', 'pre_injury_years', 'post_injury_years', 'uploaded_files', 
+           'created_at', 'updated_at', 'version', 'id', 'submitted_by', 'firm_id'].includes(key)) {
+        continue
+      }
+      
+      // Compare values (handle null/undefined)
+      const oldStr = oldValue?.toString() || ''
+      const newStr = newValue?.toString() || ''
+      
+      if (oldStr !== newStr) {
+        fieldChanges.push({
+          field: fieldLabels[key] || key,
+          oldValue: oldStr || '(empty)',
+          newValue: newStr || '(empty)'
+        })
+      }
+    }
+    
+    // Compare complex fields
+    const oldHousehold = JSON.stringify(existingForm.household_members || [])
+    const newHousehold = JSON.stringify(normalizedData.household_members || [])
+    if (oldHousehold !== newHousehold) {
+      fieldChanges.push({
+        field: 'Household Members',
+        oldValue: `${(existingForm.household_members || []).length} members`,
+        newValue: `${(normalizedData.household_members || []).length} members`
+      })
+    }
+    
+    const oldPreYears = JSON.stringify(existingForm.pre_injury_years || [])
+    const newPreYears = JSON.stringify(normalizedData.pre_injury_years || [])
+    if (oldPreYears !== newPreYears) {
+      fieldChanges.push({
+        field: 'Pre-Injury Employment Years',
+        oldValue: `${(existingForm.pre_injury_years || []).length} years`,
+        newValue: `${(normalizedData.pre_injury_years || []).length} years`
+      })
+    }
+    
+    const oldPostYears = JSON.stringify(existingForm.post_injury_years || [])
+    const newPostYears = JSON.stringify(normalizedData.post_injury_years || [])
+    if (oldPostYears !== newPostYears) {
+      fieldChanges.push({
+        field: 'Post-Injury Employment Years',
+        oldValue: `${(existingForm.post_injury_years || []).length} years`,
+        newValue: `${(normalizedData.post_injury_years || []).length} years`
+      })
+    }
+    
+    // Update the form with incremented version
+    const newVersion = (existingForm.version || 1) + 1
     const { error } = await supabase
       .from('personal_injury_forms')
       .update({
         ...normalizedData,
+        version: newVersion,
         updated_at: new Date().toISOString(),
       })
       .eq('id', formId)
@@ -934,10 +1029,13 @@ export async function updatePersonalInjuryForm(formId: string, formData: FormDat
       throw new Error('Failed to update form. Please try again.')
     }
 
-    // Create audit trail for the update
+    // Create detailed audit trail
     await createAuditTrail(formId, 'personal_injury', 'updated', user.id, profile?.firm_id, {
+      version: newVersion,
+      previous_version: existingForm.version || 1,
       form_fields_count: Object.keys(normalizedData).length,
-      updated_by_role: profile?.role
+      updated_by_role: profile?.role,
+      field_changes: fieldChanges
     })
 
     console.log('Personal injury form updated successfully!')

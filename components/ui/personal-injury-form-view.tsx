@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table'
 import { Eye, Clock, User } from 'lucide-react'
 import { DocumentViewer } from '@/components/ui/document-viewer'
+import { FormAuditTrail } from '@/components/ui/form-audit-trail'
 
 interface HouseholdMember {
   id: string
@@ -962,6 +963,9 @@ export function PersonalInjuryFormView({
           </CardContent>
         </Card>
       )}
+
+      {/* Audit Trail */}
+      <FormAuditTrail formId={formData.id} formType="personal_injury" />
     </div>
   )
 }

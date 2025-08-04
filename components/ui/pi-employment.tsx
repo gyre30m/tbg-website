@@ -36,6 +36,7 @@ interface PiEmploymentProps {
   handleFileUpload: (files: FileList, category: string) => Promise<void>
   removeFile: (fileId: string) => void
   uploading: boolean
+  initialData?: Record<string, unknown>
 }
 
 export function PiEmployment({ 
@@ -46,7 +47,8 @@ export function PiEmployment({
   uploadedFiles,
   handleFileUpload,
   removeFile,
-  uploading
+  uploading,
+  initialData
 }: PiEmploymentProps) {
   const addEmploymentYear = (type: 'preInjury' | 'postInjury') => {
     const newYear = {
@@ -91,7 +93,7 @@ export function PiEmployment({
           <div className="space-y-4">
             <div>
               <Label htmlFor="preInjuryEmploymentStatus">Employment status at the time of the incident*</Label>
-              <Select name="preInjuryEmploymentStatus" required>
+              <Select name="preInjuryEmploymentStatus" defaultValue={String(initialData?.pre_injury_employment_status || '')} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select employment status" />
                 </SelectTrigger>
@@ -109,43 +111,43 @@ export function PiEmployment({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="preInjuryJobTitle">Job title or position*</Label>
-                <Input id="preInjuryJobTitle" name="preInjuryJobTitle" required />
+                <Input id="preInjuryJobTitle" name="preInjuryJobTitle" defaultValue={String(initialData?.pre_injury_job_title || '')} required />
               </div>
               <div>
                 <Label htmlFor="preInjuryEmployer">Employer Name*</Label>
-                <Input id="preInjuryEmployer" name="preInjuryEmployer" required />
+                <Input id="preInjuryEmployer" name="preInjuryEmployer" defaultValue={String(initialData?.pre_injury_employer || '')} required />
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="preInjuryStartDate">Start date*</Label>
-                <Input id="preInjuryStartDate" name="preInjuryStartDate" type="date" required />
+                <Input id="preInjuryStartDate" name="preInjuryStartDate" type="date" defaultValue={initialData?.pre_injury_start_date ? new Date(String(initialData.pre_injury_start_date)).toISOString().split('T')[0] : ''} required />
               </div>
               <div>
                 <Label htmlFor="preInjurySalary">Hourly wage or annual salary*</Label>
-                <Input id="preInjurySalary" name="preInjurySalary" required />
+                <Input id="preInjurySalary" name="preInjurySalary" defaultValue={String(initialData?.pre_injury_salary || '')} required />
               </div>
             </div>
             
             <div>
               <Label htmlFor="preInjuryDuties">Brief description of work duties and responsibilities at date of injury*</Label>
-              <Textarea id="preInjuryDuties" name="preInjuryDuties" required rows={3} />
+              <Textarea id="preInjuryDuties" name="preInjuryDuties" defaultValue={String(initialData?.pre_injury_duties || '')} required rows={3} />
             </div>
             
             <div>
               <Label htmlFor="preInjuryAdvancements">List all advancements within the company, including promotions and raises (include title changes, raise amounts, and dates)*</Label>
-              <Textarea id="preInjuryAdvancements" name="preInjuryAdvancements" required rows={3} />
+              <Textarea id="preInjuryAdvancements" name="preInjuryAdvancements" defaultValue={String(initialData?.pre_injury_advancements || '')} required rows={3} />
             </div>
             
             <div>
               <Label htmlFor="preInjuryOvertime">Please describe any overtime work, including wages and frequency*</Label>
-              <Textarea id="preInjuryOvertime" name="preInjuryOvertime" required rows={3} />
+              <Textarea id="preInjuryOvertime" name="preInjuryOvertime" defaultValue={String(initialData?.pre_injury_overtime || '')} required rows={3} />
             </div>
             
             <div>
               <Label htmlFor="preInjuryWorkSteady">Was work steady*</Label>
-              <Input id="preInjuryWorkSteady" name="preInjuryWorkSteady" required />
+              <Input id="preInjuryWorkSteady" name="preInjuryWorkSteady" defaultValue={String(initialData?.pre_injury_work_steady || '')} required />
             </div>
 
             {/* Annual wages table */}
@@ -229,35 +231,35 @@ export function PiEmployment({
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="lifeInsurance">Life Insurance:</Label>
-                  <Input id="lifeInsurance" name="lifeInsurance" />
+                  <Input id="lifeInsurance" name="lifeInsurance" defaultValue={String(initialData?.pre_injury_life_insurance || '')} />
                 </div>
                 <div>
                   <Label htmlFor="individualHealth">Individual Health Insurance:</Label>
-                  <Input id="individualHealth" name="individualHealth" />
+                  <Input id="individualHealth" name="individualHealth" defaultValue={String(initialData?.pre_injury_individual_health || '')} />
                 </div>
                 <div>
                   <Label htmlFor="familyHealth">Family Health Insurance:</Label>
-                  <Input id="familyHealth" name="familyHealth" />
+                  <Input id="familyHealth" name="familyHealth" defaultValue={String(initialData?.pre_injury_family_health || '')} />
                 </div>
                 <div>
                   <Label htmlFor="retirementPlan">Retirement Plan:</Label>
-                  <Input id="retirementPlan" name="retirementPlan" />
+                  <Input id="retirementPlan" name="retirementPlan" defaultValue={String(initialData?.pre_injury_retirement_plan || '')} />
                 </div>
                 <div>
                   <Label htmlFor="investmentPlan">Investment Plan:</Label>
-                  <Input id="investmentPlan" name="investmentPlan" />
+                  <Input id="investmentPlan" name="investmentPlan" defaultValue={String(initialData?.pre_injury_investment_plan || '')} />
                 </div>
                 <div>
                   <Label htmlFor="bonus">Bonus:</Label>
-                  <Input id="bonus" name="bonus" />
+                  <Input id="bonus" name="bonus" defaultValue={String(initialData?.pre_injury_bonus || '')} />
                 </div>
                 <div>
                   <Label htmlFor="stockOptions">Stock Options:</Label>
-                  <Input id="stockOptions" name="stockOptions" />
+                  <Input id="stockOptions" name="stockOptions" defaultValue={String(initialData?.pre_injury_stock_options || '')} />
                 </div>
                 <div>
                   <Label htmlFor="otherBenefits">Other:</Label>
-                  <Input id="otherBenefits" name="otherBenefits" />
+                  <Input id="otherBenefits" name="otherBenefits" defaultValue={String(initialData?.pre_injury_other_benefits || '')} />
                 </div>
               </div>
             </div>
@@ -278,22 +280,22 @@ export function PiEmployment({
 
             <div>
               <Label htmlFor="retirementAge">Prior to the injury, at what age was the plaintiff planning to retire?*</Label>
-              <Input id="retirementAge" name="retirementAge" required />
+              <Input id="retirementAge" name="retirementAge" defaultValue={String(initialData?.pre_injury_retirement_age || '')} required />
             </div>
 
             <div>
               <Label htmlFor="careerTrajectory">What were the plaintiff&apos;s career trajectory expectations prior to injury (promotions, pay raises, etc.)?*</Label>
-              <Textarea id="careerTrajectory" name="careerTrajectory" required rows={3} />
+              <Textarea id="careerTrajectory" name="careerTrajectory" defaultValue={String(initialData?.pre_injury_career_trajectory || '')} required rows={3} />
             </div>
 
             <div>
               <Label htmlFor="jobExpenses">List any out-of-the-ordinary expenses associated with this job*</Label>
-              <Textarea id="jobExpenses" name="jobExpenses" required rows={3} />
+              <Textarea id="jobExpenses" name="jobExpenses" defaultValue={String(initialData?.pre_injury_job_expenses || '')} required rows={3} />
             </div>
 
             <div>
               <Label htmlFor="disabilityRating">Has the plaintiff been declared unable to work, or has a disability rating been provided by a doctor or rehabilitation specialist?*</Label>
-              <Textarea id="disabilityRating" name="disabilityRating" required rows={3} />
+              <Textarea id="disabilityRating" name="disabilityRating" defaultValue={String(initialData?.disability_rating || '')} required rows={3} />
             </div>
 
             {/* Disability documentation upload */}
@@ -326,7 +328,7 @@ export function PiEmployment({
           <div className="space-y-4">
             <div>
               <Label htmlFor="postInjuryEmploymentStatus">Current employment status*</Label>
-              <Select name="postInjuryEmploymentStatus" required>
+              <Select name="postInjuryEmploymentStatus" defaultValue={String(initialData?.post_injury_employment_status || '')} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select employment status" />
                 </SelectTrigger>
@@ -344,43 +346,43 @@ export function PiEmployment({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="postInjuryJobTitle">Job title or position*</Label>
-                <Input id="postInjuryJobTitle" name="postInjuryJobTitle" required />
+                <Input id="postInjuryJobTitle" name="postInjuryJobTitle" defaultValue={String(initialData?.post_injury_job_title || '')} required />
               </div>
               <div>
                 <Label htmlFor="postInjuryEmployer">Employer Name*</Label>
-                <Input id="postInjuryEmployer" name="postInjuryEmployer" required />
+                <Input id="postInjuryEmployer" name="postInjuryEmployer" defaultValue={String(initialData?.post_injury_employer || '')} required />
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="postInjuryStartDate">Start date*</Label>
-                <Input id="postInjuryStartDate" name="postInjuryStartDate" type="date" required />
+                <Input id="postInjuryStartDate" name="postInjuryStartDate" type="date" defaultValue={initialData?.post_injury_start_date ? new Date(String(initialData.post_injury_start_date)).toISOString().split('T')[0] : ''} required />
               </div>
               <div>
                 <Label htmlFor="postInjurySalary">Hourly wage or annual salary*</Label>
-                <Input id="postInjurySalary" name="postInjurySalary" required />
+                <Input id="postInjurySalary" name="postInjurySalary" defaultValue={String(initialData?.post_injury_salary || '')} required />
               </div>
             </div>
             
             <div>
               <Label htmlFor="postInjuryDuties">Brief description of work duties and responsibilities*</Label>
-              <Textarea id="postInjuryDuties" name="postInjuryDuties" required rows={3} />
+              <Textarea id="postInjuryDuties" name="postInjuryDuties" defaultValue={String(initialData?.post_injury_duties || '')} required rows={3} />
             </div>
             
             <div>
               <Label htmlFor="postInjuryAdvancements">List all advancements within the company, including promotions and raises (include title changes, raise amounts, and dates)*</Label>
-              <Textarea id="postInjuryAdvancements" name="postInjuryAdvancements" required rows={3} />
+              <Textarea id="postInjuryAdvancements" name="postInjuryAdvancements" defaultValue={String(initialData?.post_injury_advancements || '')} required rows={3} />
             </div>
             
             <div>
               <Label htmlFor="postInjuryOvertime">Please describe any overtime work, including wages and frequency*</Label>
-              <Textarea id="postInjuryOvertime" name="postInjuryOvertime" required rows={3} />
+              <Textarea id="postInjuryOvertime" name="postInjuryOvertime" defaultValue={String(initialData?.post_injury_overtime || '')} required rows={3} />
             </div>
             
             <div>
               <Label htmlFor="postInjuryWorkSteady">Is work steady*</Label>
-              <Input id="postInjuryWorkSteady" name="postInjuryWorkSteady" required />
+              <Input id="postInjuryWorkSteady" name="postInjuryWorkSteady" defaultValue={String(initialData?.post_injury_work_steady || '')} required />
             </div>
 
             {/* Post-injury annual wages table */}
@@ -464,35 +466,35 @@ export function PiEmployment({
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="postLifeInsurance">Life Insurance:</Label>
-                  <Input id="postLifeInsurance" name="postLifeInsurance" />
+                  <Input id="postLifeInsurance" name="postLifeInsurance" defaultValue={String(initialData?.post_injury_life_insurance || '')} />
                 </div>
                 <div>
                   <Label htmlFor="postIndividualHealth">Individual Health Insurance:</Label>
-                  <Input id="postIndividualHealth" name="postIndividualHealth" />
+                  <Input id="postIndividualHealth" name="postIndividualHealth" defaultValue={String(initialData?.post_injury_individual_health || '')} />
                 </div>
                 <div>
                   <Label htmlFor="postFamilyHealth">Family Health Insurance:</Label>
-                  <Input id="postFamilyHealth" name="postFamilyHealth" />
+                  <Input id="postFamilyHealth" name="postFamilyHealth" defaultValue={String(initialData?.post_injury_family_health || '')} />
                 </div>
                 <div>
                   <Label htmlFor="postRetirementPlan">Retirement Plan:</Label>
-                  <Input id="postRetirementPlan" name="postRetirementPlan" />
+                  <Input id="postRetirementPlan" name="postRetirementPlan" defaultValue={String(initialData?.post_injury_retirement_plan || '')} />
                 </div>
                 <div>
                   <Label htmlFor="postInvestmentPlan">Investment Plan:</Label>
-                  <Input id="postInvestmentPlan" name="postInvestmentPlan" />
+                  <Input id="postInvestmentPlan" name="postInvestmentPlan" defaultValue={String(initialData?.post_injury_investment_plan || '')} />
                 </div>
                 <div>
                   <Label htmlFor="postBonus">Bonus:</Label>
-                  <Input id="postBonus" name="postBonus" />
+                  <Input id="postBonus" name="postBonus" defaultValue={String(initialData?.post_injury_bonus || '')} />
                 </div>
                 <div>
                   <Label htmlFor="postStockOptions">Stock Options:</Label>
-                  <Input id="postStockOptions" name="postStockOptions" />
+                  <Input id="postStockOptions" name="postStockOptions" defaultValue={String(initialData?.post_injury_stock_options || '')} />
                 </div>
                 <div>
                   <Label htmlFor="postOtherBenefits">Other:</Label>
-                  <Input id="postOtherBenefits" name="postOtherBenefits" />
+                  <Input id="postOtherBenefits" name="postOtherBenefits" defaultValue={String(initialData?.post_injury_other_benefits || '')} />
                 </div>
               </div>
             </div>
@@ -513,12 +515,12 @@ export function PiEmployment({
 
             <div>
               <Label htmlFor="postRetirementAge">Given the injury, at what age is the plaintiff planning to retire?*</Label>
-              <Input id="postRetirementAge" name="postRetirementAge" required />
+              <Input id="postRetirementAge" name="postRetirementAge" defaultValue={String(initialData?.post_injury_retirement_age || '')} required />
             </div>
 
             <div>
               <Label htmlFor="postJobExpenses">List any out-of-the-ordinary expenses associated with this job*</Label>
-              <Textarea id="postJobExpenses" name="postJobExpenses" required rows={3} />
+              <Textarea id="postJobExpenses" name="postJobExpenses" defaultValue={String(initialData?.post_injury_job_expenses || '')} required rows={3} />
             </div>
           </div>
         </div>

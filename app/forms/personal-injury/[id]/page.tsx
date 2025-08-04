@@ -244,33 +244,31 @@ export default function PersonalInjuryFormDetailPage() {
     )
   }
 
-  // Create form actions for the header
-  const formActions = !isEditing ? (
-    <div className="flex items-center gap-3">
-      <Button 
-        variant="ghost" 
-        onClick={() => router.push(firmFormsUrl)}
-        className="flex items-center gap-2"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Forms
-      </Button>
-      {canEdit && (
-        <Button onClick={handleEdit} className="flex items-center gap-2">
-          <Edit className="w-4 h-4" />
-          Edit Form
-        </Button>
-      )}
-    </div>
-  ) : null
-
   return (
     <>
-      <Header formActions={formActions} />
+      <Header />
       
       {!isEditing ? (
         <>
-          {/* Read-only view */}
+          {/* Read-only view with aligned buttons */}
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="flex justify-between items-center py-8">
+              <Button 
+                variant="ghost" 
+                onClick={() => router.push(firmFormsUrl)}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Forms
+              </Button>
+              {canEdit && (
+                <Button onClick={handleEdit} className="flex items-center gap-2">
+                  <Edit className="w-4 h-4" />
+                  Edit
+                </Button>
+              )}
+            </div>
+          </div>
           <PersonalInjuryFormView 
             formData={formData}
           />
@@ -325,6 +323,7 @@ export default function PersonalInjuryFormDetailPage() {
               handleFileUpload={handleFileUpload}
               removeFile={removeFile}
               uploading={uploading}
+              initialData={formData || undefined}
             />
             <PiHouseholdServices initialData={formData || undefined} />
             <PiOther initialData={formData || undefined} />
