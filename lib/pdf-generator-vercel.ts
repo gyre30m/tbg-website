@@ -237,6 +237,15 @@ export async function generateFormPDFFromData(
 ): Promise<PDFGenerationResult> {
   let browser = null
   
+  // Temporary: Disable PDF generation in production until Chromium issues are resolved
+  if (process.env.VERCEL_ENV) {
+    console.log('PDF Generation: Temporarily disabled in production due to Chromium dependency issues')
+    return {
+      success: false,
+      error: 'PDF generation temporarily disabled in production'
+    }
+  }
+  
   try {
     // Fetch form data from database
     const supabase = await createClient()
@@ -268,15 +277,23 @@ export async function generateFormPDFFromData(
     
     if (isVercel) {
       // Production/Vercel environment - following Vercel guide exactly
+      console.log('PDF Generation: Running on Vercel')
       const chromium = (await import('@sparticuz/chromium')).default
       puppeteer = await import('puppeteer-core')
+      
+      // Get the executable path
+      const executablePath = await chromium.executablePath()
+      console.log('Chromium executable path:', executablePath)
+      console.log('Chromium args:', chromium.args)
+      
       launchOptions = {
         ...launchOptions,
         args: chromium.args,
-        executablePath: await chromium.executablePath(),
+        executablePath: executablePath,
       }
     } else {
       // Development environment
+      console.log('PDF Generation: Running locally')
       puppeteer = await import('puppeteer')
     }
 
