@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { Header } from '@/components/ui/header'
@@ -130,12 +130,12 @@ export default function PersonalInjuryFormDetailPage() {
     }
   }
 
-  const handleEdit = (e?: React.MouseEvent) => {
+  const handleEdit = React.useCallback((e?: React.MouseEvent) => {
     e?.preventDefault()
     e?.stopPropagation()
-    console.log('handleEdit clicked')
+    console.log('handleEdit clicked, current isEditing:', isEditing)
     setIsEditing(true)
-  }
+  }, [isEditing])
 
   const handleCancel = () => {
     setIsEditing(false)
