@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Create simple email body as requested
-    const emailBody = `${userFullName} from ${firmName || 'Unknown Firm'} submitted a ${formTypeDisplay} regarding ${plaintiffFullName} at ${timestamp}`
+    const emailBody = `${userFullName} from ${firmName || 'Unknown Firm'} submitted a ${formTypeDisplay} Form regarding ${plaintiffFullName} at ${timestamp}`
 
     // Send email
     const { data, error } = await resend.emails.send({
