@@ -46,8 +46,20 @@ async function sendFormNotificationEmail(
       timeZoneName: 'short'
     })
 
-    // Create simple email body as requested
-    const emailBody = `${userFullName} from ${firmName || 'Unknown Firm'} submitted a ${formTypeDisplay} regarding ${plaintiffFullName} at ${timestamp}`
+    // Construct the readonly form URL
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.the-bradley-group.com'
+    const formUrl = `${baseUrl}/forms/${formType.replace(/_/g, '-')}/${formId}`
+    
+    // Create email body with link to readonly form
+    const emailBody = `${userFullName} from ${firmName || 'Unknown Firm'} submitted a ${formTypeDisplay} regarding ${plaintiffFullName} at ${timestamp}
+
+View the form: ${formUrl}`
+
+    // Create HTML version of the email
+    const emailHtml = `
+      <p>${userFullName} from <strong>${firmName || 'Unknown Firm'}</strong> submitted a <strong>${formTypeDisplay}</strong> regarding <strong>${plaintiffFullName}</strong> at ${timestamp}</p>
+      <p><a href="${formUrl}" style="display: inline-block; padding: 10px 20px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Form</a></p>
+    `
 
     // Prepare email options
     const emailOptions: {
@@ -55,6 +67,7 @@ async function sendFormNotificationEmail(
       to: string[]
       subject: string
       text: string
+      html?: string
       attachments?: Array<{
         filename: string
         content: Buffer
@@ -64,6 +77,7 @@ async function sendFormNotificationEmail(
       to: ['forms@the-bradley-group.com'],
       subject: `New ${formTypeDisplay} Form Submission`,
       text: emailBody,
+      html: emailHtml,
     }
 
     // Add PDF attachment if provided
