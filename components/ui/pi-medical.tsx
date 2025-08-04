@@ -65,7 +65,7 @@ export function PiMedical({ uploadedFiles, handleFileUpload, removeFile, uploadi
             
             <div>
               <Label htmlFor="futureExpenses">Detail future medical expenses including current cost and number of years they will be incurred. Consider nursing home care, in-home nursing care, physician care, drugs, medical appliances, physical therapy, psychiatric therapy, and surgery. If a Life Care Planner is preparing a report, please reference that here, and attach it below when available.*</Label>
-              <Textarea id="futureExpenses" name="futureExpenses" defaultValue={String(initialData?.future_medical || '')} required rows={6} />
+              <Textarea id="futureExpenses" name="futureMedical" defaultValue={String(initialData?.future_medical || '')} required rows={6} />
             </div>
             
             <div>
