@@ -4,7 +4,8 @@ import { createClient } from './supabase/server-client'
 import { createAdminClient } from './supabase/admin-client'
 
 import { Resend } from 'resend'
-import { generateFormPDF, getFormPDFFileName } from './pdf-generator'
+import { generateFormPDFFromData } from './pdf-generator-server'
+import { getFormPDFFileName } from './pdf-generator'
 
 // Helper function to send form submission notification email
 async function sendFormNotificationEmail(
@@ -497,8 +498,7 @@ export async function submitPersonalInjuryForm(formData: FormData) {
       let pdfFileName: string | undefined
       
       try {
-        const formUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/forms/personal-injury/${formId}`
-        const pdfResult = await generateFormPDF(formUrl, 'personal-injury', formId)
+        const pdfResult = await generateFormPDFFromData('personal-injury', formId)
         
         if (pdfResult.success && pdfResult.buffer) {
           pdfBuffer = pdfResult.buffer
@@ -626,8 +626,7 @@ export async function submitWrongfulDeathForm(formData: FormData) {
       let pdfFileName: string | undefined
       
       try {
-        const formUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/forms/wrongful-death/${formId}`
-        const pdfResult = await generateFormPDF(formUrl, 'wrongful-death', formId)
+        const pdfResult = await generateFormPDFFromData('wrongful-death', formId)
         
         if (pdfResult.success && pdfResult.buffer) {
           pdfBuffer = pdfResult.buffer
@@ -755,8 +754,7 @@ export async function submitWrongfulTerminationForm(formData: FormData) {
       let pdfFileName: string | undefined
       
       try {
-        const formUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/forms/wrongful-termination/${formId}`
-        const pdfResult = await generateFormPDF(formUrl, 'wrongful-termination', formId)
+        const pdfResult = await generateFormPDFFromData('wrongful-termination', formId)
         
         if (pdfResult.success && pdfResult.buffer) {
           pdfBuffer = pdfResult.buffer

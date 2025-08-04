@@ -37,6 +37,7 @@ interface FormSubmission {
   first_name: string | null
   last_name: string | null
   matter_no: string | null
+  defendant: string | null
   form_type: 'personal_injury' | 'wrongful_death' | 'wrongful_termination'
   status: string
   created_at: string
@@ -174,6 +175,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           first_name,
           last_name,
           matter_no,
+          defendant,
           status,
           created_at,
           updated_at,
@@ -239,6 +241,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           first_name,
           last_name,
           matter_no,
+          defendant,
           status,
           created_at,
           updated_at,
@@ -287,6 +290,7 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
           first_name,
           last_name,
           matter_no,
+          defendant,
           status,
           created_at,
           updated_at,
@@ -590,8 +594,10 @@ export default function FirmFormsPage({ params }: FirmFormsPageProps) {
                         <TableCell className="font-medium">
                           {getPlaintiffName(form)}
                         </TableCell>
-                        <TableCell className="text-gray-400 italic">
-                          TBD
+                        <TableCell>
+                          {form.defendant || (
+                            <span className="text-gray-400 italic">Not provided</span>
+                          )}
                         </TableCell>
                         <TableCell>
                           {form.matter_no || (

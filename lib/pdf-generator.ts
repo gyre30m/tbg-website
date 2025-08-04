@@ -1,4 +1,14 @@
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
+
+// For local development, we can optionally use regular puppeteer
+let puppeteerFull: typeof puppeteer | null = null
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  puppeteerFull = require('puppeteer')
+} catch {
+  // Regular puppeteer not available, will use puppeteer-core
+}
 
 export interface PDFGenerationResult {
   success: boolean
@@ -14,20 +24,26 @@ export async function generateFormPDF(
   let browser = null
   
   try {
-    // Launch browser
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
-      ]
-    })
+    // Launch browser with production-friendly settings
+    // Check if we're in development or production
+    const isDev = process.env.NODE_ENV === 'development'
+    
+    if (isDev && puppeteerFull) {
+      // Use regular puppeteer in development
+      browser = await puppeteerFull.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      })
+    } else {
+      // Use chrome-aws-lambda for production/serverless
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      })
+    }
 
     const page = await browser.newPage()
     
