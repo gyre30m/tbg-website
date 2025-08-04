@@ -255,9 +255,6 @@ export async function generateFormPDFFromData(
     // Generate HTML from form data
     const html = generateFormHTML(formType, formData)
 
-    // Determine if we're running on Vercel
-    const isDev = !process.env.VERCEL && process.env.NODE_ENV !== 'production'
-    
     // Dynamic imports based on environment (following Vercel guide pattern)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let puppeteer: any
@@ -266,16 +263,17 @@ export async function generateFormPDFFromData(
       headless: true,
     }
 
-    if (!isDev) {
-      // Production/Vercel environment
+    // Check if we're running on Vercel
+    const isVercel = !!process.env.VERCEL_ENV
+    
+    if (isVercel) {
+      // Production/Vercel environment - following Vercel guide exactly
       const chromium = (await import('@sparticuz/chromium')).default
       puppeteer = await import('puppeteer-core')
       launchOptions = {
+        ...launchOptions,
         args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
       }
     } else {
       // Development environment
