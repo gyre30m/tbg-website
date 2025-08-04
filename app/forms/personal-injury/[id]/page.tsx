@@ -130,7 +130,10 @@ export default function PersonalInjuryFormDetailPage() {
     }
   }
 
-  const handleEdit = () => {
+  const handleEdit = (e?: React.MouseEvent) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    console.log('handleEdit clicked')
     setIsEditing(true)
   }
 
@@ -147,6 +150,7 @@ export default function PersonalInjuryFormDetailPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('handleSave called')
     setIsSaving(true)
     
     try {
@@ -248,6 +252,7 @@ export default function PersonalInjuryFormDetailPage() {
   const formActions = !isEditing ? (
     <div className="flex items-center gap-3">
       <Button 
+        type="button"
         variant="ghost" 
         onClick={() => router.push(firmFormsUrl)}
         className="flex items-center gap-2"
@@ -256,7 +261,11 @@ export default function PersonalInjuryFormDetailPage() {
         Back to Forms
       </Button>
       {canEdit && (
-        <Button onClick={handleEdit} className="flex items-center gap-2">
+        <Button 
+          type="button"
+          onClick={handleEdit} 
+          className="flex items-center gap-2"
+        >
           <Edit className="w-4 h-4" />
           Edit
         </Button>
