@@ -130,12 +130,9 @@ export default function PersonalInjuryFormDetailPage() {
     }
   }
 
-  const handleEdit = React.useCallback((e?: React.MouseEvent) => {
-    e?.preventDefault()
-    e?.stopPropagation()
-    console.log('handleEdit clicked, current isEditing:', isEditing)
+  const handleEdit = () => {
     setIsEditing(true)
-  }, [isEditing])
+  }
 
   const handleCancel = () => {
     setIsEditing(false)
@@ -150,7 +147,6 @@ export default function PersonalInjuryFormDetailPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('handleSave called')
     setIsSaving(true)
     
     try {
