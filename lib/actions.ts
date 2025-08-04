@@ -102,6 +102,31 @@ View the form: ${formUrl}`
   }
 }
 
+// Helper function to compare dates by day/month/year only (ignoring time)
+function areDatesEqual(date1: string | Date | null | undefined, date2: string | Date | null | undefined): boolean {
+  // Handle null/undefined cases
+  if (!date1 && !date2) return true
+  if (!date1 || !date2) return false
+  
+  try {
+    const d1 = new Date(date1)
+    const d2 = new Date(date2)
+    
+    // Check if dates are valid
+    if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+      return String(date1) === String(date2)
+    }
+    
+    // Compare only year, month, and day
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate()
+  } catch {
+    // Fallback to string comparison if date parsing fails
+    return String(date1) === String(date2)
+  }
+}
+
 // Helper function to send form version update notification email
 async function sendFormVersionNotificationEmail(
   formType: 'personal_injury' | 'wrongful_death' | 'wrongful_termination',
@@ -1071,6 +1096,9 @@ export async function updatePersonalInjuryForm(formId: string, formData: FormDat
       'opposing_economist': 'Opposing Economist'
     }
     
+    // Define date fields that should use date comparison
+    const dateFields = ['date_of_birth', 'incident_date', 'pre_injury_start_date', 'post_injury_start_date', 'settlement_date', 'trial_date']
+    
     // Compare each field
     for (const [key, newValue] of Object.entries(normalizedData)) {
       const oldValue = existingForm[key]
@@ -1081,16 +1109,29 @@ export async function updatePersonalInjuryForm(formId: string, formData: FormDat
         continue
       }
       
-      // Compare values (handle null/undefined)
-      const oldStr = oldValue?.toString() || ''
-      const newStr = newValue?.toString() || ''
-      
-      if (oldStr !== newStr) {
-        fieldChanges.push({
-          field: fieldLabels[key] || key,
-          oldValue: oldStr || '(empty)',
-          newValue: newStr || '(empty)'
-        })
+      // Special handling for date fields
+      if (dateFields.includes(key)) {
+        if (!areDatesEqual(oldValue, newValue)) {
+          const oldDateStr = oldValue ? new Date(oldValue).toLocaleDateString() : '(empty)'
+          const newDateStr = newValue ? new Date(newValue).toLocaleDateString() : '(empty)'
+          fieldChanges.push({
+            field: fieldLabels[key] || key,
+            oldValue: oldDateStr,
+            newValue: newDateStr
+          })
+        }
+      } else {
+        // Compare non-date values (handle null/undefined)
+        const oldStr = oldValue?.toString() || ''
+        const newStr = newValue?.toString() || ''
+        
+        if (oldStr !== newStr) {
+          fieldChanges.push({
+            field: fieldLabels[key] || key,
+            oldValue: oldStr || '(empty)',
+            newValue: newStr || '(empty)'
+          })
+        }
       }
     }
     
@@ -1464,6 +1505,9 @@ export async function updateWrongfulDeathForm(formId: string, formData: FormData
       'opposing_economist': 'Opposing Economist'
     }
     
+    // Define date fields that should use date comparison
+    const dateFields = ['date_of_birth', 'date_of_death', 'start_date', 'settlement_date', 'trial_date']
+    
     // Compare each field
     for (const [key, newValue] of Object.entries(normalizedData)) {
       const oldValue = existingForm[key]
@@ -1474,16 +1518,29 @@ export async function updateWrongfulDeathForm(formId: string, formData: FormData
         continue
       }
       
-      // Compare values (handle null/undefined)
-      const oldStr = oldValue?.toString() || ''
-      const newStr = newValue?.toString() || ''
-      
-      if (oldStr !== newStr) {
-        fieldChanges.push({
-          field: fieldLabels[key] || key,
-          oldValue: oldStr || '(empty)',
-          newValue: newStr || '(empty)'
-        })
+      // Special handling for date fields
+      if (dateFields.includes(key)) {
+        if (!areDatesEqual(oldValue, newValue)) {
+          const oldDateStr = oldValue ? new Date(oldValue).toLocaleDateString() : '(empty)'
+          const newDateStr = newValue ? new Date(newValue).toLocaleDateString() : '(empty)'
+          fieldChanges.push({
+            field: fieldLabels[key] || key,
+            oldValue: oldDateStr,
+            newValue: newDateStr
+          })
+        }
+      } else {
+        // Compare non-date values (handle null/undefined)
+        const oldStr = oldValue?.toString() || ''
+        const newStr = newValue?.toString() || ''
+        
+        if (oldStr !== newStr) {
+          fieldChanges.push({
+            field: fieldLabels[key] || key,
+            oldValue: oldStr || '(empty)',
+            newValue: newStr || '(empty)'
+          })
+        }
       }
     }
     
@@ -1672,6 +1729,9 @@ export async function updateWrongfulTerminationForm(formId: string, formData: Fo
       'opposing_economist': 'Opposing Economist'
     }
     
+    // Define date fields that should use date comparison
+    const dateFields = ['date_of_birth', 'date_of_termination', 'pre_termination_start_date', 'post_termination_start_date', 'settlement_date', 'trial_date']
+    
     // Compare each field
     for (const [key, newValue] of Object.entries(normalizedData)) {
       const oldValue = existingForm[key]
@@ -1682,16 +1742,29 @@ export async function updateWrongfulTerminationForm(formId: string, formData: Fo
         continue
       }
       
-      // Compare values (handle null/undefined)
-      const oldStr = oldValue?.toString() || ''
-      const newStr = newValue?.toString() || ''
-      
-      if (oldStr !== newStr) {
-        fieldChanges.push({
-          field: fieldLabels[key] || key,
-          oldValue: oldStr || '(empty)',
-          newValue: newStr || '(empty)'
-        })
+      // Special handling for date fields
+      if (dateFields.includes(key)) {
+        if (!areDatesEqual(oldValue, newValue)) {
+          const oldDateStr = oldValue ? new Date(oldValue).toLocaleDateString() : '(empty)'
+          const newDateStr = newValue ? new Date(newValue).toLocaleDateString() : '(empty)'
+          fieldChanges.push({
+            field: fieldLabels[key] || key,
+            oldValue: oldDateStr,
+            newValue: newDateStr
+          })
+        }
+      } else {
+        // Compare non-date values (handle null/undefined)
+        const oldStr = oldValue?.toString() || ''
+        const newStr = newValue?.toString() || ''
+        
+        if (oldStr !== newStr) {
+          fieldChanges.push({
+            field: fieldLabels[key] || key,
+            oldValue: oldStr || '(empty)',
+            newValue: newStr || '(empty)'
+          })
+        }
       }
     }
     
