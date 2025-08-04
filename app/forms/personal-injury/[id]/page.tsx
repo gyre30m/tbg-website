@@ -275,31 +275,44 @@ export default function PersonalInjuryFormDetailPage() {
         </>
       ) : (
         /* Edit mode */
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold tracking-tight">Edit Personal Injury Form</h1>
-              <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleCancel}
-                  disabled={isSaving}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel
-                </Button>
-              </div>
-            </div>
-            
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-yellow-800">
-                You are editing a submitted form. Changes will be tracked and a new version will be created.
-              </p>
+        <>
+          {/* Edit mode header with buttons */}
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="flex justify-between items-center py-8">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleCancel}
+                disabled={isSaving}
+                className="flex items-center gap-2"
+              >
+                <X className="w-4 h-4" />
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                form="edit-form"
+                disabled={isSaving}
+                className="flex items-center gap-2"
+              >
+                <Save className="w-4 h-4" />
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
           </div>
 
-          <form onSubmit={handleSave} className="space-y-8">
+          <div className="container mx-auto px-4 pb-8 max-w-4xl">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold tracking-tight mb-6">Edit Personal Injury Form</h1>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-800">
+                  You are editing a submitted form. Changes will be tracked and a new version will be created.
+                </p>
+              </div>
+            </div>
+
+            <form id="edit-form" onSubmit={handleSave} className="space-y-8">
             <PiContact initialData={formData || undefined} />
             <PiDemographics initialData={formData || undefined} />
             <PiHousehold 
@@ -328,20 +341,9 @@ export default function PersonalInjuryFormDetailPage() {
             <PiHouseholdServices initialData={formData || undefined} />
             <PiOther initialData={formData || undefined} />
             <PiLitigation initialData={formData || undefined} />
-
-            {/* Save button */}
-            <div className="flex justify-end pt-6">
-              <Button 
-                type="submit" 
-                disabled={isSaving}
-                className="flex items-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                {isSaving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
           </form>
-        </div>
+          </div>
+        </>
       )}
     </>
   )
