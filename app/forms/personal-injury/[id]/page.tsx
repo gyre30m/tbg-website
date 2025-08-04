@@ -244,75 +244,72 @@ export default function PersonalInjuryFormDetailPage() {
     )
   }
 
+  // Create form actions for the header
+  const formActions = !isEditing ? (
+    <div className="flex items-center gap-3">
+      <Button 
+        variant="ghost" 
+        onClick={() => router.push(firmFormsUrl)}
+        className="flex items-center gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Forms
+      </Button>
+      {canEdit && (
+        <Button onClick={handleEdit} className="flex items-center gap-2">
+          <Edit className="w-4 h-4" />
+          Edit
+        </Button>
+      )}
+    </div>
+  ) : (
+    <div className="flex items-center gap-3">
+      <Button 
+        type="button" 
+        variant="outline" 
+        onClick={handleCancel}
+        disabled={isSaving}
+        className="flex items-center gap-2"
+      >
+        <X className="w-4 h-4" />
+        Cancel
+      </Button>
+      <Button 
+        type="submit" 
+        form="edit-form"
+        disabled={isSaving}
+        className="flex items-center gap-2"
+      >
+        <Save className="w-4 h-4" />
+        {isSaving ? 'Saving...' : 'Save Changes'}
+      </Button>
+    </div>
+  )
+
   return (
     <>
-      <Header />
+      <Header formActions={formActions} />
       
       {!isEditing ? (
         <>
-          {/* Read-only view with aligned buttons */}
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="flex justify-between items-center py-8">
-              <Button 
-                variant="ghost" 
-                onClick={() => router.push(firmFormsUrl)}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Forms
-              </Button>
-              {canEdit && (
-                <Button onClick={handleEdit} className="flex items-center gap-2">
-                  <Edit className="w-4 h-4" />
-                  Edit
-                </Button>
-              )}
-            </div>
-          </div>
           <PersonalInjuryFormView 
             formData={formData}
           />
         </>
       ) : (
         /* Edit mode */
-        <>
-          {/* Edit mode header with buttons */}
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="flex justify-between items-center py-8">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleCancel}
-                disabled={isSaving}
-                className="flex items-center gap-2"
-              >
-                <X className="w-4 h-4" />
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                form="edit-form"
-                disabled={isSaving}
-                className="flex items-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                {isSaving ? 'Saving...' : 'Save Changes'}
-              </Button>
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold tracking-tight mb-6">Edit Personal Injury Form</h1>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-800">
+                You are editing a submitted form. Changes will be tracked and a new version will be created.
+              </p>
             </div>
           </div>
 
-          <div className="container mx-auto px-4 pb-8 max-w-4xl">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold tracking-tight mb-6">Edit Personal Injury Form</h1>
-              
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-sm text-yellow-800">
-                  You are editing a submitted form. Changes will be tracked and a new version will be created.
-                </p>
-              </div>
-            </div>
-
-            <form id="edit-form" onSubmit={handleSave} className="space-y-8">
+          <form id="edit-form" onSubmit={handleSave} className="space-y-8">
             <PiContact initialData={formData || undefined} />
             <PiDemographics initialData={formData || undefined} />
             <PiHousehold 
@@ -342,8 +339,7 @@ export default function PersonalInjuryFormDetailPage() {
             <PiOther initialData={formData || undefined} />
             <PiLitigation initialData={formData || undefined} />
           </form>
-          </div>
-        </>
+        </div>
       )}
     </>
   )
