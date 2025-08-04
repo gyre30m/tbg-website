@@ -4,8 +4,7 @@ import { createClient } from './supabase/server-client'
 import { createAdminClient } from './supabase/admin-client'
 
 import { Resend } from 'resend'
-import { generateFormPDFFromData } from './pdf-generator-server'
-import { getFormPDFFileName } from './pdf-generator'
+import { generateFormPDFFromData, getFormPDFFileName } from './pdf-generator-vercel'
 
 // Helper function to send form submission notification email
 async function sendFormNotificationEmail(

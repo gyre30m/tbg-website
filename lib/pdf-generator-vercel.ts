@@ -1,15 +1,4 @@
-import puppeteer from 'puppeteer-core'
-import chromium from '@sparticuz/chromium'
 import { createClient } from './supabase/server-client'
-
-// For local development
-let puppeteerFull: typeof puppeteer | null = null
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  puppeteerFull = require('puppeteer')
-} catch {
-  // Regular puppeteer not available
-}
 
 export interface PDFGenerationResult {
   success: boolean
@@ -123,7 +112,7 @@ function generateFormHTML(
         </div>
         <div class="metadata-item">
           <span><strong>Submitted:</strong></span>
-          <span>${new Date(formData.created_at).toLocaleString()}</span>
+          <span>${new Date(formData.created_at as string).toLocaleString()}</span>
         </div>
         <div class="metadata-item">
           <span><strong>Status:</strong></span>
@@ -143,7 +132,7 @@ function generateFormSections(formType: string, formData: Record<string, unknown
     if (value === null || value === undefined || value === '') {
       return '<span class="empty">Not provided</span>'
     }
-    return value
+    return String(value)
   }
 
   // Common sections across all forms
@@ -201,11 +190,11 @@ function generateFormSections(formType: string, formData: Record<string, unknown
     <div class="two-column">
       <div class="field-group">
         <div class="field-label">Settlement Date</div>
-        <div class="field-value">${formData.settlement_date ? new Date(formData.settlement_date).toLocaleDateString() : getValue(null)}</div>
+        <div class="field-value">${formData.settlement_date ? new Date(formData.settlement_date as string).toLocaleDateString() : getValue(null)}</div>
       </div>
       <div class="field-group">
         <div class="field-label">Trial Date</div>
-        <div class="field-value">${formData.trial_date ? new Date(formData.trial_date).toLocaleDateString() : getValue(null)}</div>
+        <div class="field-value">${formData.trial_date ? new Date(formData.trial_date as string).toLocaleDateString() : getValue(null)}</div>
       </div>
     </div>
     <div class="field-group">
@@ -229,7 +218,7 @@ function generateFormSections(formType: string, formData: Record<string, unknown
       <div class="two-column">
         <div class="field-group">
           <div class="field-label">Date of Birth</div>
-          <div class="field-value">${formData.date_of_birth ? new Date(formData.date_of_birth).toLocaleDateString() : getValue(null)}</div>
+          <div class="field-value">${formData.date_of_birth ? new Date(formData.date_of_birth as string).toLocaleDateString() : getValue(null)}</div>
         </div>
         <div class="field-group">
           <div class="field-label">Gender</div>
@@ -266,24 +255,35 @@ export async function generateFormPDFFromData(
     // Generate HTML from form data
     const html = generateFormHTML(formType, formData)
 
-    // Launch browser
-    const isDev = process.env.NODE_ENV === 'development'
+    // Determine if we're running on Vercel
+    const isDev = !process.env.VERCEL && process.env.NODE_ENV !== 'production'
     
-    if (isDev && puppeteerFull) {
-      browser = await puppeteerFull.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      })
-    } else {
-      browser = await puppeteer.launch({
+    // Dynamic imports based on environment (following Vercel guide pattern)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let puppeteer: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let launchOptions: any = {
+      headless: true,
+    }
+
+    if (!isDev) {
+      // Production/Vercel environment
+      const chromium = (await import('@sparticuz/chromium')).default
+      puppeteer = await import('puppeteer-core')
+      launchOptions = {
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
         headless: chromium.headless,
         ignoreHTTPSErrors: true,
-      })
+      }
+    } else {
+      // Development environment
+      puppeteer = await import('puppeteer')
     }
 
+    // Launch browser
+    browser = await puppeteer.launch(launchOptions)
     const page = await browser.newPage()
     
     // Set content directly instead of navigating to URL
@@ -320,4 +320,23 @@ export async function generateFormPDFFromData(
       await browser.close()
     }
   }
+}
+
+// Helper function to generate PDF filenames
+export function getFormPDFFileName(
+  formType: 'personal-injury' | 'wrongful-death' | 'wrongful-termination',
+  formId: string,
+  lastName?: string
+): string {
+  const typeMap = {
+    'personal-injury': 'Personal-Injury',
+    'wrongful-death': 'Wrongful-Death',
+    'wrongful-termination': 'Wrongful-Termination'
+  }
+  
+  const formTypeName = typeMap[formType]
+  const dateStr = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+  const lastNamePart = lastName ? `-${lastName.replace(/[^a-zA-Z0-9]/g, '')}` : ''
+  
+  return `${formTypeName}-Form${lastNamePart}-${dateStr}-${formId.substring(0, 8)}.pdf`
 }
