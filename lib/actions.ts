@@ -102,6 +102,119 @@ View the form: ${formUrl}`
   }
 }
 
+// Helper function to send form version update notification email
+async function sendFormVersionNotificationEmail(
+  formType: 'personal_injury' | 'wrongful_death' | 'wrongful_termination',
+  formId: string,
+  formData: Record<string, unknown>,
+  userFullName: string,
+  firmName: string,
+  version: number,
+  previousVersion: number,
+  fieldChanges: Array<{field: string, oldValue: string, newValue: string}>,
+  pdfBuffer?: Buffer,
+  pdfFileName?: string
+) {
+  try {
+    console.log('Attempting to send form version notification email...')
+    
+    // Use Resend directly instead of going through API endpoint
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not configured - email will not be sent')
+      return
+    }
+
+    // Create human-readable form type
+    const formTypeDisplay = formType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    
+    // Get plaintiff name from form data
+    const plaintiffFirstName = formData.first_name || 'Unknown'
+    const plaintiffLastName = formData.last_name || 'Plaintiff'
+    const plaintiffFullName = `${plaintiffFirstName} ${plaintiffLastName}`
+
+    // Format timestamp
+    const timestamp = new Date().toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    })
+
+    // Construct the readonly form URL
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.the-bradley-group.com'
+    const formUrl = `${baseUrl}/forms/${formType.replace(/_/g, '-')}/${formId}`
+    
+    // Create email body with version information and changes
+    const emailBody = `${userFullName} from ${firmName} updated a ${formTypeDisplay} regarding ${plaintiffFullName} at ${timestamp}
+
+Version: ${version} (previous version: ${previousVersion})
+
+Changes made:
+${fieldChanges.map(change => `• ${change.field}: "${change.oldValue}" → "${change.newValue}"`).join('\n')}
+
+View the updated form: ${formUrl}`
+
+    // Create HTML version of the email
+    const changesHtml = fieldChanges.map(change => 
+      `<li><strong>${change.field}:</strong> "${change.oldValue}" → "${change.newValue}"</li>`
+    ).join('')
+
+    const emailHtml = `
+      <p>${userFullName} from <strong>${firmName}</strong> updated a <strong>${formTypeDisplay}</strong> regarding <strong>${plaintiffFullName}</strong> at ${timestamp}</p>
+      <p><strong>Version:</strong> ${version} (previous version: ${previousVersion})</p>
+      <div>
+        <strong>Changes made:</strong>
+        <ul>${changesHtml}</ul>
+      </div>
+      <p><a href="${formUrl}" style="display: inline-block; padding: 10px 20px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Updated Form</a></p>
+    `
+
+    // Prepare email options
+    const emailOptions: {
+      from: string
+      to: string[]
+      subject: string
+      text: string
+      html?: string
+      attachments?: Array<{
+        filename: string
+        content: Buffer
+      }>
+    } = {
+      from: 'The Bradley Group <noreply@forms.the-bradley-group.com>',
+      to: ['forms@the-bradley-group.com'],
+      subject: `${formTypeDisplay} Form Updated - Version ${version}`,
+      text: emailBody,
+      html: emailHtml,
+    }
+
+    // Add PDF attachment if provided
+    if (pdfBuffer && pdfFileName) {
+      emailOptions.attachments = [{
+        filename: pdfFileName,
+        content: pdfBuffer,
+      }]
+    }
+
+    // Send email directly using Resend
+    const { data, error } = await resend.emails.send(emailOptions)
+
+    if (error) {
+      console.error('Failed to send version notification email via Resend:', error)
+    } else {
+      console.log('Version notification email sent successfully via Resend:', data?.id)
+    }
+  } catch (error) {
+    console.error('Error sending version notification email:', error)
+    // Don't throw error - we don't want email failures to break form updates
+  }
+}
+
 // Generic function to extract normalized form data for Personal Injury forms
 function extractPersonalInjuryData(formData: FormData) {
   // Helper function to handle required fields - returns "N/A" if empty, as per form instructions
@@ -1038,6 +1151,63 @@ export async function updatePersonalInjuryForm(formId: string, formData: FormDat
       field_changes: fieldChanges
     })
 
+    // Get firm name and user full name for email notification
+    let firmName = 'Unknown Firm'
+    let userFullName = 'Unknown User'
+    
+    if (profile?.firm_id) {
+      const { data: firmData } = await supabase
+        .from('firms')
+        .select('name')
+        .eq('id', profile.firm_id)
+        .single()
+      
+      firmName = firmData?.name || 'Unknown Firm'
+    }
+
+    // Get user's full name from profile
+    const { data: userProfileData } = await supabase
+      .from('user_profiles')
+      .select('first_name, last_name')
+      .eq('user_id', user.id)
+      .single()
+    
+    if (userProfileData) {
+      userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
+    }
+
+    // Generate PDF of the updated form
+    let pdfBuffer: Buffer | undefined
+    let pdfFileName: string | undefined
+    
+    try {
+      const pdfResult = await generateFormPDFFromData('personal-injury', formId)
+      
+      if (pdfResult.success && pdfResult.buffer) {
+        pdfBuffer = pdfResult.buffer
+        pdfFileName = getFormPDFFileName('personal-injury', formId, normalizedData.last_name || undefined)
+        console.log(`PDF generated successfully: ${pdfFileName}`)
+      } else {
+        console.warn('PDF generation failed:', pdfResult.error)
+      }
+    } catch (pdfError) {
+      console.warn('PDF generation error:', pdfError)
+    }
+
+    // Send version notification email with changes and PDF attachment
+    await sendFormVersionNotificationEmail(
+      'personal_injury',
+      formId,
+      normalizedData,
+      userFullName,
+      firmName,
+      newVersion,
+      existingForm.version || 1,
+      fieldChanges,
+      pdfBuffer,
+      pdfFileName
+    )
+
     console.log('Personal injury form updated successfully!')
     return { success: true, id: formId }
   } catch (error) {
@@ -1243,10 +1413,10 @@ export async function updateWrongfulDeathForm(formId: string, formData: FormData
     
     const supabase = await createClient()
     
-    // Check permissions - user must be owner or site admin
+    // Check permissions and get existing form data for comparison
     const { data: existingForm, error: fetchError } = await supabase
       .from('wrongful_death_forms')
-      .select('submitted_by, firm_id')
+      .select('*')
       .eq('id', formId)
       .single()
 
@@ -1262,11 +1432,99 @@ export async function updateWrongfulDeathForm(formId: string, formData: FormData
       throw new Error('Unauthorized to edit this form')
     }
     
-    // Update the form - the trigger will handle version tracking
+    // Track field changes for audit trail and email notification
+    const fieldChanges: Array<{field: string, oldValue: string, newValue: string}> = []
+    const fieldLabels: Record<string, string> = {
+      'first_name': 'First Name',
+      'last_name': 'Last Name',
+      'address1': 'Address 1',
+      'address2': 'Address 2',
+      'city': 'City',
+      'state': 'State',
+      'zip_code': 'Zip Code',
+      'gender': 'Gender',
+      'marital_status': 'Marital Status',
+      'ethnicity': 'Ethnicity',
+      'date_of_birth': 'Date of Birth',
+      'date_of_death': 'Date of Death',
+      'health_issues': 'Health Issues',
+      'work_missed': 'Work Missed',
+      'education_level': 'Education Level',
+      'skills_licenses': 'Skills/Licenses',
+      'employment_status': 'Employment Status',
+      'job_title': 'Job Title',
+      'employer_name': 'Employer Name',
+      'salary': 'Salary',
+      'work_duties': 'Work Duties',
+      'additional_info': 'Additional Information',
+      'matter_no': 'Matter Number',
+      'defendant': 'Defendant',
+      'trial_location': 'Trial Location',
+      'opposing_counsel_firm': 'Opposing Counsel Firm',
+      'opposing_economist': 'Opposing Economist'
+    }
+    
+    // Compare each field
+    for (const [key, newValue] of Object.entries(normalizedData)) {
+      const oldValue = existingForm[key]
+      
+      // Skip complex fields and metadata
+      if (['household_dependents', 'other_dependents', 'employment_years', 'uploaded_files', 
+           'created_at', 'updated_at', 'version', 'id', 'submitted_by', 'firm_id', 'version_history'].includes(key)) {
+        continue
+      }
+      
+      // Compare values (handle null/undefined)
+      const oldStr = oldValue?.toString() || ''
+      const newStr = newValue?.toString() || ''
+      
+      if (oldStr !== newStr) {
+        fieldChanges.push({
+          field: fieldLabels[key] || key,
+          oldValue: oldStr || '(empty)',
+          newValue: newStr || '(empty)'
+        })
+      }
+    }
+    
+    // Compare complex fields
+    const oldHouseholdDependents = JSON.stringify(existingForm.household_dependents || [])
+    const newHouseholdDependents = JSON.stringify(normalizedData.household_dependents || [])
+    if (oldHouseholdDependents !== newHouseholdDependents) {
+      fieldChanges.push({
+        field: 'Household Dependents',
+        oldValue: `${(existingForm.household_dependents || []).length} dependents`,
+        newValue: `${(normalizedData.household_dependents || []).length} dependents`
+      })
+    }
+    
+    const oldOtherDependents = JSON.stringify(existingForm.other_dependents || [])
+    const newOtherDependents = JSON.stringify(normalizedData.other_dependents || [])
+    if (oldOtherDependents !== newOtherDependents) {
+      fieldChanges.push({
+        field: 'Other Dependents',
+        oldValue: `${(existingForm.other_dependents || []).length} dependents`,
+        newValue: `${(normalizedData.other_dependents || []).length} dependents`
+      })
+    }
+    
+    const oldEmploymentYears = JSON.stringify(existingForm.employment_years || [])
+    const newEmploymentYears = JSON.stringify(normalizedData.employment_years || [])
+    if (oldEmploymentYears !== newEmploymentYears) {
+      fieldChanges.push({
+        field: 'Employment Years',
+        oldValue: `${(existingForm.employment_years || []).length} years`,
+        newValue: `${(normalizedData.employment_years || []).length} years`
+      })
+    }
+    
+    // Update the form with incremented version
+    const newVersion = (existingForm.version || 1) + 1
     const { error } = await supabase
       .from('wrongful_death_forms')
       .update({
         ...normalizedData,
+        version: newVersion,
         updated_at: new Date().toISOString(),
       })
       .eq('id', formId)
@@ -1277,11 +1535,71 @@ export async function updateWrongfulDeathForm(formId: string, formData: FormData
       throw new Error('Failed to update form. Please try again.')
     }
 
-    // Create audit trail for the update
+    // Create detailed audit trail
     await createAuditTrail(formId, 'wrongful_death', 'updated', user.id, profile?.firm_id, {
+      version: newVersion,
+      previous_version: existingForm.version || 1,
       form_fields_count: Object.keys(normalizedData).length,
-      updated_by_role: profile?.role
+      updated_by_role: profile?.role,
+      field_changes: fieldChanges
     })
+
+    // Get firm name and user full name for email notification
+    let firmName = 'Unknown Firm'
+    let userFullName = 'Unknown User'
+    
+    if (profile?.firm_id) {
+      const { data: firmData } = await supabase
+        .from('firms')
+        .select('name')
+        .eq('id', profile.firm_id)
+        .single()
+      
+      firmName = firmData?.name || 'Unknown Firm'
+    }
+
+    // Get user's full name from profile
+    const { data: userProfileData } = await supabase
+      .from('user_profiles')
+      .select('first_name, last_name')
+      .eq('user_id', user.id)
+      .single()
+    
+    if (userProfileData) {
+      userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
+    }
+
+    // Generate PDF of the updated form
+    let pdfBuffer: Buffer | undefined
+    let pdfFileName: string | undefined
+    
+    try {
+      const pdfResult = await generateFormPDFFromData('wrongful-death', formId)
+      
+      if (pdfResult.success && pdfResult.buffer) {
+        pdfBuffer = pdfResult.buffer
+        pdfFileName = getFormPDFFileName('wrongful-death', formId, normalizedData.last_name || undefined)
+        console.log(`PDF generated successfully: ${pdfFileName}`)
+      } else {
+        console.warn('PDF generation failed:', pdfResult.error)
+      }
+    } catch (pdfError) {
+      console.warn('PDF generation error:', pdfError)
+    }
+
+    // Send version notification email with changes and PDF attachment
+    await sendFormVersionNotificationEmail(
+      'wrongful_death',
+      formId,
+      normalizedData,
+      userFullName,
+      firmName,
+      newVersion,
+      existingForm.version || 1,
+      fieldChanges,
+      pdfBuffer,
+      pdfFileName
+    )
 
     console.log('Wrongful death form updated successfully!')
     return { success: true, id: formId }
@@ -1299,10 +1617,10 @@ export async function updateWrongfulTerminationForm(formId: string, formData: Fo
     
     const supabase = await createClient()
     
-    // Check permissions - user must be owner or site admin
+    // Check permissions and get existing form data for comparison
     const { data: existingForm, error: fetchError } = await supabase
       .from('wrongful_termination_forms')
-      .select('submitted_by, firm_id')
+      .select('*')
       .eq('id', formId)
       .single()
 
@@ -1318,11 +1636,93 @@ export async function updateWrongfulTerminationForm(formId: string, formData: Fo
       throw new Error('Unauthorized to edit this form')
     }
     
-    // Update the form - the trigger will handle version tracking
+    // Track field changes for audit trail and email notification
+    const fieldChanges: Array<{field: string, oldValue: string, newValue: string}> = []
+    const fieldLabels: Record<string, string> = {
+      'first_name': 'First Name',
+      'last_name': 'Last Name',
+      'address1': 'Address 1',
+      'address2': 'Address 2',
+      'city': 'City',
+      'state': 'State',
+      'zip_code': 'Zip Code',
+      'email': 'Email',
+      'phone_number': 'Phone Number',
+      'phone_type': 'Phone Type',
+      'gender': 'Gender',
+      'marital_status': 'Marital Status',
+      'ethnicity': 'Ethnicity',
+      'date_of_birth': 'Date of Birth',
+      'date_of_termination': 'Date of Termination',
+      'pre_termination_education': 'Pre-Termination Education',
+      'pre_termination_skills': 'Pre-Termination Skills',
+      'pre_termination_employment_status': 'Pre-Termination Employment Status',
+      'pre_termination_job_title': 'Pre-Termination Job Title',
+      'pre_termination_employer': 'Pre-Termination Employer',
+      'pre_termination_salary': 'Pre-Termination Salary',
+      'post_termination_employment_status': 'Post-Termination Employment Status',
+      'post_termination_job_title': 'Post-Termination Job Title',
+      'post_termination_employer': 'Post-Termination Employer',
+      'post_termination_salary': 'Post-Termination Salary',
+      'additional_info': 'Additional Information',
+      'matter_no': 'Matter Number',
+      'defendant': 'Defendant',
+      'trial_location': 'Trial Location',
+      'opposing_counsel_firm': 'Opposing Counsel Firm',
+      'opposing_economist': 'Opposing Economist'
+    }
+    
+    // Compare each field
+    for (const [key, newValue] of Object.entries(normalizedData)) {
+      const oldValue = existingForm[key]
+      
+      // Skip complex fields and metadata
+      if (['pre_termination_years', 'post_termination_years', 'uploaded_files', 
+           'created_at', 'updated_at', 'version', 'id', 'submitted_by', 'firm_id', 'version_history'].includes(key)) {
+        continue
+      }
+      
+      // Compare values (handle null/undefined)
+      const oldStr = oldValue?.toString() || ''
+      const newStr = newValue?.toString() || ''
+      
+      if (oldStr !== newStr) {
+        fieldChanges.push({
+          field: fieldLabels[key] || key,
+          oldValue: oldStr || '(empty)',
+          newValue: newStr || '(empty)'
+        })
+      }
+    }
+    
+    // Compare complex fields
+    const oldPreTerminationYears = JSON.stringify(existingForm.pre_termination_years || [])
+    const newPreTerminationYears = JSON.stringify(normalizedData.pre_termination_years || [])
+    if (oldPreTerminationYears !== newPreTerminationYears) {
+      fieldChanges.push({
+        field: 'Pre-Termination Employment Years',
+        oldValue: `${(existingForm.pre_termination_years || []).length} years`,
+        newValue: `${(normalizedData.pre_termination_years || []).length} years`
+      })
+    }
+    
+    const oldPostTerminationYears = JSON.stringify(existingForm.post_termination_years || [])
+    const newPostTerminationYears = JSON.stringify(normalizedData.post_termination_years || [])
+    if (oldPostTerminationYears !== newPostTerminationYears) {
+      fieldChanges.push({
+        field: 'Post-Termination Employment Years',
+        oldValue: `${(existingForm.post_termination_years || []).length} years`,
+        newValue: `${(normalizedData.post_termination_years || []).length} years`
+      })
+    }
+    
+    // Update the form with incremented version
+    const newVersion = (existingForm.version || 1) + 1
     const { error } = await supabase
       .from('wrongful_termination_forms')
       .update({
         ...normalizedData,
+        version: newVersion,
         updated_at: new Date().toISOString(),
       })
       .eq('id', formId)
@@ -1333,11 +1733,71 @@ export async function updateWrongfulTerminationForm(formId: string, formData: Fo
       throw new Error('Failed to update form. Please try again.')
     }
 
-    // Create audit trail for the update
+    // Create detailed audit trail
     await createAuditTrail(formId, 'wrongful_termination', 'updated', user.id, profile?.firm_id, {
+      version: newVersion,
+      previous_version: existingForm.version || 1,
       form_fields_count: Object.keys(normalizedData).length,
-      updated_by_role: profile?.role
+      updated_by_role: profile?.role,
+      field_changes: fieldChanges
     })
+
+    // Get firm name and user full name for email notification
+    let firmName = 'Unknown Firm'
+    let userFullName = 'Unknown User'
+    
+    if (profile?.firm_id) {
+      const { data: firmData } = await supabase
+        .from('firms')
+        .select('name')
+        .eq('id', profile.firm_id)
+        .single()
+      
+      firmName = firmData?.name || 'Unknown Firm'
+    }
+
+    // Get user's full name from profile
+    const { data: userProfileData } = await supabase
+      .from('user_profiles')
+      .select('first_name, last_name')
+      .eq('user_id', user.id)
+      .single()
+    
+    if (userProfileData) {
+      userFullName = `${userProfileData.first_name || ''} ${userProfileData.last_name || ''}`.trim() || 'Unknown User'
+    }
+
+    // Generate PDF of the updated form
+    let pdfBuffer: Buffer | undefined
+    let pdfFileName: string | undefined
+    
+    try {
+      const pdfResult = await generateFormPDFFromData('wrongful-termination', formId)
+      
+      if (pdfResult.success && pdfResult.buffer) {
+        pdfBuffer = pdfResult.buffer
+        pdfFileName = getFormPDFFileName('wrongful-termination', formId, normalizedData.last_name || undefined)
+        console.log(`PDF generated successfully: ${pdfFileName}`)
+      } else {
+        console.warn('PDF generation failed:', pdfResult.error)
+      }
+    } catch (pdfError) {
+      console.warn('PDF generation error:', pdfError)
+    }
+
+    // Send version notification email with changes and PDF attachment
+    await sendFormVersionNotificationEmail(
+      'wrongful_termination',
+      formId,
+      normalizedData,
+      userFullName,
+      firmName,
+      newVersion,
+      existingForm.version || 1,
+      fieldChanges,
+      pdfBuffer,
+      pdfFileName
+    )
 
     console.log('Wrongful termination form updated successfully!')
     return { success: true, id: formId }
