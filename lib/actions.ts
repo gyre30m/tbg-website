@@ -1166,6 +1166,12 @@ export async function updatePersonalInjuryForm(formId: string, formData: FormDat
       })
     }
     
+    // Check if any changes were made
+    if (fieldChanges.length === 0) {
+      console.log('No changes detected, skipping update')
+      return { success: true, id: formId, message: 'No changes to save' }
+    }
+    
     // Update the form with incremented version
     const newVersion = (existingForm.version || 1) + 1
     const { error } = await supabase
@@ -1575,6 +1581,12 @@ export async function updateWrongfulDeathForm(formId: string, formData: FormData
       })
     }
     
+    // Check if any changes were made
+    if (fieldChanges.length === 0) {
+      console.log('No changes detected, skipping update')
+      return { success: true, id: formId, message: 'No changes to save' }
+    }
+    
     // Update the form with incremented version
     const newVersion = (existingForm.version || 1) + 1
     const { error } = await supabase
@@ -1787,6 +1799,12 @@ export async function updateWrongfulTerminationForm(formId: string, formData: Fo
         oldValue: `${(existingForm.post_termination_years || []).length} years`,
         newValue: `${(normalizedData.post_termination_years || []).length} years`
       })
+    }
+    
+    // Check if any changes were made
+    if (fieldChanges.length === 0) {
+      console.log('No changes detected, skipping update')
+      return { success: true, id: formId, message: 'No changes to save' }
     }
     
     // Update the form with incremented version

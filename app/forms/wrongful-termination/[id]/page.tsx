@@ -49,8 +49,6 @@ export default function WrongfulTerminationFormDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  // TODO: Use this flag to prevent auto-save during field population
-  // const [isPopulatingFields, setIsPopulatingFields] = useState(false)
   const [canEdit, setCanEdit] = useState(false)
   const [firmFormsUrl, setFirmFormsUrl] = useState('/forms')
 
@@ -132,8 +130,6 @@ export default function WrongfulTerminationFormDetailPage() {
     const form = document.querySelector('form') as HTMLFormElement
     if (!form || !formData) return
 
-    // TODO: Set flag to prevent auto-saving during field population
-    // setIsPopulatingFields(true)
 
     // Populate all form fields with current data
     Object.keys(formData).forEach(key => {
@@ -147,16 +143,10 @@ export default function WrongfulTerminationFormDetailPage() {
           field.value = String(formData[key])
         }
         
-        // Trigger change event for React components (but not auto-save during population)
-        const event = new Event('change', { bubbles: true })
-        field.dispatchEvent(event)
+        // Don't trigger change events - just populate the values
+        // This prevents any unintended saves when entering edit mode
       }
     })
-
-    // TODO: Reset flag after population is complete
-    // setTimeout(() => {
-    //   setIsPopulatingFields(false)
-    // }, 200)
   }
 
   // Convert database field names to form field names
