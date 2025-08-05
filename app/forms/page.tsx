@@ -2,7 +2,7 @@
 
 import { FileText, ClipboardList, Users, Download } from "lucide-react";
 import Link from "next/link";
-import { FormsHeader } from "@/components/ui/forms-header";
+import { Header } from "@/components/ui/header";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { createClient } from "@/lib/supabase/browser-client";
@@ -53,7 +53,7 @@ function FormsPageContent() {
   if (isRedirecting) {
     return (
       <>
-        <FormsHeader />
+        <Header variant="simple" />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <p>Redirecting to your firm&apos;s forms page...</p>
@@ -91,7 +91,7 @@ function FormsPageContent() {
 
   return (
     <>
-      <FormsHeader />
+      <Header variant="simple" />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -163,7 +163,7 @@ export default function FormsPage() {
   return (
     <Suspense fallback={
       <>
-        <FormsHeader />
+        <Header variant="simple" />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <p>Loading...</p>
