@@ -36,26 +36,44 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protected routes - add paths that require authentication
-  const protectedPaths = [
-    '/forms/personal-injury',
-    '/forms/wrongful-death',
-    '/forms/wrongful-termination',
-    '/profile',
-    '/admin',
-    '/firms',
-    '/setup-admin'
+  interface RouteRule {
+    pattern: RegExp
+    requireAuth?: boolean
+    roles?: Array<'site_admin' | 'firm_admin' | 'user'>
+  }
+
+  const routeRules: RouteRule[] = [
+    { pattern: /^\/(?:forms)(?:\/.*)?$/, requireAuth: true },
+    { pattern: /^\/profile(?:\/.*)?$/, requireAuth: true },
+    { pattern: /^\/setup-admin(?:\/.*)?$/, requireAuth: true },
+    // Role-protected routes
+    { pattern: /^\/firms\/[^/]+\/admin(?:\/.*)?$/, roles: ['site_admin', 'firm_admin'] },
+    { pattern: /^\/firm-admin(?:\/.*)?$/, roles: ['site_admin', 'firm_admin'] },
+    { pattern: /^\/admin(?:\/.*)?$/, roles: ['site_admin'] },
+    { pattern: /^\/firms(?:\/.*)?$/, requireAuth: true },
   ]
 
-  const isProtectedPath = protectedPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path)
-  )
+  const path = request.nextUrl.pathname
+  const matchedRule = routeRules.find(rule => rule.pattern.test(path))
 
-  if (!user && isProtectedPath) {
-    // Redirect to home page if trying to access protected route without auth
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
+  if (matchedRule) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+
+    if (matchedRule.roles) {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single()
+
+      if (!profile || !matchedRule.roles.includes(profile.role)) {
+        return new NextResponse('Forbidden', { status: 403 })
+      }
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
