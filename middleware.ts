@@ -38,9 +38,6 @@ export async function middleware(request: NextRequest) {
 
   // Protected routes - add paths that require authentication
   const protectedPaths = [
-    '/forms/personal-injury',
-    '/forms/wrongful-death',
-    '/forms/wrongful-termination',
     '/profile',
     '/admin',
     '/firms',

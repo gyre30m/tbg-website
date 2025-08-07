@@ -39,7 +39,7 @@ interface UploadedFile {
 }
 
 export default function WrongfulTerminationForm() {
-  const { user, loading, userProfile } = useAuth();
+  const { loading, userProfile } = useAuth();
   const router = useRouter();
   const { uploadMultipleDocuments, uploading } = useDocumentUpload();
 
@@ -260,11 +260,6 @@ export default function WrongfulTerminationForm() {
         </div>
       </>
     );
-  }
-
-  if (!user) {
-    router.push("/forms");
-    return null;
   }
 
   const handleFileUpload = async (files: FileList, category: string) => {

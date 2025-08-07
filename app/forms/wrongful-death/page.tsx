@@ -49,7 +49,7 @@ interface UploadedFile {
 }
 
 export default function WrongfulDeathForm() {
-  const { user, loading, userProfile } = useAuth();
+  const { loading, userProfile } = useAuth();
   const router = useRouter();
   const { uploadMultipleDocuments, uploading } = useDocumentUpload();
 
@@ -255,11 +255,6 @@ export default function WrongfulDeathForm() {
         </div>
       </>
     );
-  }
-
-  if (!user) {
-    router.push("/forms");
-    return null;
   }
 
   const handleFileUpload = async (files: FileList, category: string) => {
