@@ -43,8 +43,7 @@ export async function middleware(request: NextRequest) {
     '/forms/wrongful-termination',
     '/profile',
     '/admin',
-    '/firms',
-    '/setup-admin'
+    '/firms'
   ]
 
   const isProtectedPath = protectedPaths.some(path => 

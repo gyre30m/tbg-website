@@ -6,7 +6,6 @@ Allow: /
 Disallow: /admin/
 Disallow: /debug/
 Disallow: /debug-profile/
-Disallow: /setup-admin/
 Disallow: /test-policies/
 Disallow: /raw-auth-test/
 
