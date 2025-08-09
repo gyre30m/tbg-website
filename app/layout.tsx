@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SEO from "@/components/SEO";
 import CookieConsent from "@/components/CookieConsent";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,11 +81,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <CookieConsentProvider>
+          <SpeedInsights />
           <GoogleAnalytics />
           <SEO />
           <AuthProvider>
             {children}
             <Analytics />
+
             <Toaster
               position="top-center"
               offset="25vh"
